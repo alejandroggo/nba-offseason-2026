@@ -555,109 +555,36 @@
 
   .theme-toggle:hover { border-color: var(--accent); color: var(--text); }
 
+  .refresh-btn {
+    display: flex;
+    align-items: center;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    height: 32px;
+    cursor: pointer;
+    padding: 0 10px;
+    gap: 6px;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .refresh-btn:hover { border-color: var(--accent); color: var(--text); }
+  .refresh-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .refresh-btn svg { transition: transform 0.6s ease; }
+  .refresh-btn.loading svg { animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
   .theme-icon { font-size: 14px; line-height: 1; }
 
   /* CAP / APRON */
-  .apron-summary {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 32px;
-  }
-
-  .apron-block {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    overflow: hidden;
-  }
-
-  .apron-block-header {
-    padding: 14px 20px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .apron-block-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 20px;
-    letter-spacing: 1px;
-  }
-
-  .apron-block.first .apron-block-title { color: var(--pending); }
-  .apron-block.second .apron-block-title { color: var(--gone); }
-
-  .apron-block-count {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--text-muted);
-  }
-
-  .apron-teams {
-    padding: 14px 20px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .apron-team-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 5px 12px;
-    border-radius: 4px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--text);
-  }
-
-  .apron-block.first .apron-team-pill { border-color: rgba(255,159,0,0.3); }
-  .apron-block.second .apron-team-pill { border-color: rgba(255,68,85,0.3); }
-
-  .apron-divider {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: var(--text-muted);
-    padding: 8px 0 12px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .apron-divider::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-
-  .cap-source {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: var(--text-muted);
-    margin-top: 20px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .cap-source a { color: var(--accent); text-decoration: none; }
-  .cap-source a:hover { text-decoration: underline; }
 
   .badge-1st { background: rgba(255,159,0,0.12); color: var(--pending); border: 1px solid rgba(255,159,0,0.3); }
   .badge-2nd { background: rgba(255,68,85,0.12); color: var(--gone); border: 1px solid rgba(255,68,85,0.3); }
 
   @media (max-width: 700px) {
-    .apron-summary { grid-template-columns: 1fr; }
   }
 
   /* PLAYER DRAWER */
@@ -1042,6 +969,12 @@
       <div class="update-dot"></div>
       <span class="last-update" id="lastUpdate">—</span>
     </div>
+    <button class="refresh-btn" id="refresh-btn" onclick="refreshData()" title="Actualizar datos">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="23 4 23 10 17 10"></polyline>
+        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+      </svg>
+    </button>
     <div class="lang-toggle">
       <button class="lang-btn active" id="btn-es" onclick="setLang('es')">ES</button>
       <div class="lang-divider"></div>
@@ -1073,10 +1006,6 @@
   <button class="tab" onclick="showTab('coaches')" id="tab-coaches">
     <span data-i18n="tab_coaches">HC / GMs</span>
     <span class="tab-count" id="count-coaches">—</span>
-  </button>
-  <button class="tab" onclick="showTab('cap')" id="tab-cap">
-    <span data-i18n="tab_cap">Cap / Apron</span>
-    <span class="tab-count" id="count-cap">—</span>
   </button>
 </nav>
 
@@ -1124,13 +1053,6 @@
         <div class="home-card-title" data-i18n="tab_coaches">HC / GMs</div>
         <div class="home-card-desc" data-i18n="home_coaches_desc">Cambios en banquillos y gerencias</div>
         <div class="home-card-count" id="home-count-coaches">— cambios</div>
-      </button>
-      <button class="home-card" onclick="showTab('cap')">
-        <span class="home-card-arrow">↗</span>
-        <div class="home-card-icon">💰</div>
-        <div class="home-card-title" data-i18n="tab_cap">Cap / Apron</div>
-        <div class="home-card-desc" data-i18n="home_cap_desc">Equipos hard-capped en el 1er y 2º apron</div>
-        <div class="home-card-count" id="home-count-cap">— equipos</div>
       </button>
     </div>
   </div>
@@ -1327,73 +1249,6 @@
     </div>
   </div>
 
-  <!-- CAP / APRON -->
-  <div class="section" id="section-cap">
-    <div class="section-header">
-      <div class="section-title" data-i18n="cap_title">Cap / Apron</div>
-      <div class="section-subtitle" data-i18n="cap_subtitle">Equipos hard-capped — Temporada 2025-26</div>
-    </div>
-
-    <div class="apron-summary">
-      <div class="apron-block first">
-        <div class="apron-block-header">
-          <span class="apron-block-title" data-i18n="cap_1st">1er Apron</span>
-          <span class="apron-block-count" id="count-1st">— equipos</span>
-        </div>
-        <div class="apron-teams" id="teams-1st">
-          <div class="state-loading" data-i18n="loading">Cargando datos...</div>
-        </div>
-      </div>
-      <div class="apron-block second">
-        <div class="apron-block-header">
-          <span class="apron-block-title" data-i18n="cap_2nd">2º Apron</span>
-          <span class="apron-block-count" id="count-2nd">— equipos</span>
-        </div>
-        <div class="apron-teams" id="teams-2nd">
-          <div class="state-loading" data-i18n="loading">Cargando datos...</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="apron-divider" data-i18n="cap_triggers_label">Triggers del 1er Apron</div>
-    <div class="table-wrap" style="margin-bottom: 32px;">
-      <table>
-        <thead>
-          <tr>
-            <th><span data-i18n="col_team">Equipo</span></th>
-            <th><span data-i18n="cap_col_capped">Hard Cap</span></th>
-            <th><span data-i18n="cap_col_trigger">Trigger principal</span></th>
-          </tr>
-        </thead>
-        <tbody id="cap-1st-tbody">
-          <tr><td colspan="3"><div class="state-loading" data-i18n="loading">Cargando datos...</div></td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="apron-divider" data-i18n="cap_triggers_2nd_label">Triggers del 2º Apron</div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th><span data-i18n="col_team">Equipo</span></th>
-            <th><span data-i18n="cap_col_capped">Hard Cap</span></th>
-            <th><span data-i18n="cap_col_trigger">Trigger principal</span></th>
-          </tr>
-        </thead>
-        <tbody id="cap-2nd-tbody">
-          <tr><td colspan="3"><div class="state-loading" data-i18n="loading">Cargando datos...</div></td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="cap-source">
-      <span>Fuente:</span>
-      <a href="https://www.salaryswish.com/hard-cap-tracker" target="_blank">SalarySwish — Hard Cap Tracker</a>
-      <span id="cap-fetched-at"></span>
-    </div>
-  </div>
-
   <!-- TEAM VIEW -->
   <div class="section" id="section-team">
     <button class="team-view-back" id="team-back-btn" onclick="goBack()">Volver</button>
@@ -1404,7 +1259,7 @@
     <div class="team-view-grid" id="tv-grid"></div>
     <div id="tv-trades-section"></div>
     <div id="tv-coaches-section"></div>
-    <div id="tv-cap-section"></div>
+
   </div>
 
 </main>
@@ -1422,16 +1277,15 @@
 // ─────────────────────────────────────────────
 // URLS — reemplaza con las de tu Sheet 2026
 // ─────────────────────────────────────────────
-const SHEET_ID = '2PACX-1vT7CDvjRy2gyWk_qUPjY_AaCitmkRXiNxoXv-rFnW-e9-l9PRKpopQGmls-4caAMLZ0A7bT5d3L6bmM';
-const BASE = `https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/pub?single=true&output=csv`;
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZAb1-oLDkidOmC6LrplPJ_468sZ10eESYSrPLg8Pp9DsCg6KNI3YMezhYokdhyCA/exec';
 
 const URLS = {
-  fa:        `${BASE}&gid=0`,
-  draft:     `${BASE}&gid=1969987183`,
-  trades:    `${BASE}&gid=454833805`,
-  rosters1:  `${BASE}&gid=895202723`,
-  rosters2:  `${BASE}&gid=366613246`,
-  coaches:   `${BASE}&gid=2013905328`,
+  fa:       `${SCRIPT_URL}?tab=fa`,
+  draft:    `${SCRIPT_URL}?tab=draft`,
+  trades:   `${SCRIPT_URL}?tab=trades`,
+  rosters1: `${SCRIPT_URL}?tab=rosters1`,
+  rosters2: `${SCRIPT_URL}?tab=rosters2`,
+  coaches:  `${SCRIPT_URL}?tab=coaches`,
 };
 
 // ─────────────────────────────────────────────
@@ -1449,19 +1303,6 @@ const i18n = {
     home_records: 'registros',
     home_teams: 'equipos',
     home_changes: 'cambios',
-    tab_cap: 'Cap / Apron',
-    cap_title: 'Cap / Apron',
-    cap_subtitle: 'Equipos hard-capped — Temporada 2025-26',
-    cap_1st: '1er Apron',
-    cap_2nd: '2º Apron',
-    cap_triggers_label: 'Triggers del 1er Apron',
-    cap_triggers_2nd_label: 'Triggers del 2º Apron',
-    cap_col_capped: 'Hard Cap',
-    cap_col_trigger: 'Trigger principal',
-    home_cap_desc: 'Equipos hard-capped en el 1er y 2º apron',
-    cap_teams: 'equipos',
-    cap_1st_badge: '1er Apron',
-    cap_2nd_badge: '2º Apron',
     theme_light: 'Modo día',
     theme_dark: 'Modo noche',
     tab_fa: 'Agencia Libre', tab_draft: 'Draft', tab_trades: 'Trades',
@@ -1505,19 +1346,6 @@ const i18n = {
     home_records: 'records',
     home_teams: 'teams',
     home_changes: 'changes',
-    tab_cap: 'Cap / Apron',
-    cap_title: 'Cap / Apron',
-    cap_subtitle: 'Hard-capped teams — 2025-26 Season',
-    cap_1st: '1st Apron',
-    cap_2nd: '2nd Apron',
-    cap_triggers_label: '1st Apron Triggers',
-    cap_triggers_2nd_label: '2nd Apron Triggers',
-    cap_col_capped: 'Hard Cap',
-    cap_col_trigger: 'Main Trigger',
-    home_cap_desc: 'Teams hard-capped at the 1st and 2nd apron',
-    cap_teams: 'teams',
-    cap_1st_badge: '1st Apron',
-    cap_2nd_badge: '2nd Apron',
     theme_light: 'Light mode',
     theme_dark: 'Dark mode',
     tab_fa: 'Free Agency', tab_draft: 'Draft', tab_trades: 'Trades',
@@ -1611,7 +1439,7 @@ function cell(row, i) { return (row[i] || '').trim(); }
 // ─────────────────────────────────────────────
 // DATA STORE
 // ─────────────────────────────────────────────
-const DATA = { fa: [], draft: [], undrafted: [], trades: [], rosters: [], coaches: [], cap1st: [], cap2nd: [], triggers1st: [], triggers2nd: [] };
+const DATA = { fa: [], draft: [], undrafted: [], trades: [], rosters: [], coaches: [] };
 const FILTERED = { fa: [], draft: [], trades: [], coaches: [], rosters: [] };
 const SORT = { fa: {col:-1,asc:true}, draft: {col:-1,asc:true}, coaches: {col:-1,asc:true} };
 let loadedAt = null;
@@ -1947,12 +1775,12 @@ function resetRosters() {
 function processCoaches(rows) {
   DATA.coaches = rows.slice(1).filter(r => cell(r,0)).map(r => ({
     team:       cell(r,0),
-    new:        cell(r,1),
-    role:       cell(r,2),
-    dateHired:  cell(r,3),
-    prev:       cell(r,4),
-    dateFired:  cell(r,5),
-    source:     cell(r,6),
+    new:        cell(r,2),
+    role:       cell(r,3),
+    dateHired:  cell(r,4),
+    prev:       cell(r,5),
+    dateFired:  cell(r,6),
+    source:     cell(r,7),
   }));
   document.getElementById('count-coaches').textContent = DATA.coaches.length;
   populateSelect('coaches-role', [...new Set(DATA.coaches.map(d=>d.role).filter(Boolean))].sort());
@@ -2074,7 +1902,6 @@ function rerenderAll() {
   filterTrades();
   filterRosters();
   filterCoaches();
-  if (DATA.cap1st.length || DATA.cap2nd.length) renderCap();
   updateHomeCounts();
   applyTranslations();
 }
@@ -2085,19 +1912,21 @@ function updateHomeCounts() {
   const trades = DATA.trades.length;
   const rosters = DATA.rosters.length;
   const coaches = DATA.coaches.length;
-  const cap = (DATA.cap1st ? DATA.cap1st.length : 0) + (DATA.cap2nd ? DATA.cap2nd.length : 0);
-  document.getElementById('home-count-fa').textContent        = `${fa} ${t('home_records')}`;
-  document.getElementById('home-count-draft').textContent     = `${draft} ${t('home_records')}`;
-  document.getElementById('home-count-trades').textContent    = `${trades} ${t('home_records')}`;
-  document.getElementById('home-count-plantillas').textContent= `${rosters} ${t('home_teams')}`;
-  document.getElementById('home-count-coaches').textContent   = `${coaches} ${t('home_changes')}`;
-  document.getElementById('home-count-cap').textContent       = `${cap} ${t('cap_teams')}`;
 }
 
 // ─────────────────────────────────────────────
 // THEME TOGGLE
 // ─────────────────────────────────────────────
 let isLight = false;
+
+async function refreshData() {
+  const btn = document.getElementById('refresh-btn');
+  btn.classList.add('loading');
+  btn.disabled = true;
+  await fetchAll();
+  btn.classList.remove('loading');
+  btn.disabled = false;
+}
 
 function toggleTheme() {
   isLight = !isLight;
@@ -2106,182 +1935,7 @@ function toggleTheme() {
   document.getElementById('theme-toggle').title = t(isLight ? 'theme_dark' : 'theme_light');
 }
 
-// ─────────────────────────────────────────────
-// FETCH CAP / APRON — SalarySwish
-// ─────────────────────────────────────────────
-const CAP_URL = 'https://www.salaryswish.com/hard-cap-tracker';
 
-// Triggers legibles (map de columna → etiqueta corta)
-const TRIGGER_LABELS = {
-  'TP-MLE Exceeded': 'MLE (taxpayer)',
-  'TP-MLE Length Exceeded': 'MLE length',
-  'MLE Trade': 'MLE trade',
-  'MLE Waivers': 'MLE waivers',
-  'BAE': 'BAE',
-  'S&T': 'Sign & Trade',
-  'Trade Salary Acquired': 'Salary acquired',
-  'Waived & Signed': 'Waived & signed',
-  'Past-Season TPE': 'TPE (past)',
-  'Any MLE': 'Cualquier MLE',
-  'Trade Aggregate': 'Agregación',
-  'Cash Traded': 'Cash enviado',
-  'S&T Room Used': 'S&T (room)',
-  'S&T Exc. Used': 'S&T (exc.)',
-};
-
-async function fetchCap() {
-  try {
-    const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(CAP_URL)}`;
-    const res = await fetch(proxy);
-    const json = await res.json();
-    const html = json.contents;
-
-    // Parsear con DOMParser
-    const doc = new DOMParser().parseFromString(html, 'text/html');
-
-    // Extraer equipos del 1er y 2º apron desde las listas
-    const listItems = doc.querySelectorAll('ul li a');
-    const cap1st = [], cap2nd = [];
-    let inFirst = false, inSecond = false;
-
-    // Recorremos los párrafos fuertes para detectar la sección
-    const strongEls = doc.querySelectorAll('strong');
-    strongEls.forEach(s => {
-      if (s.textContent.includes('First apron')) inFirst = true;
-      if (s.textContent.includes('Second apron')) { inFirst = false; inSecond = true; }
-    });
-
-    // Mejor: buscar los <li> dentro de los <ul> que siguen a los <strong>
-    const allUls = doc.querySelectorAll('ul');
-    allUls.forEach(ul => {
-      const prev = ul.previousElementSibling;
-      if (!prev) return;
-      const txt = prev.textContent || '';
-      const isFirst = txt.includes('First apron') || txt.includes('first apron');
-      const isSecond = txt.includes('Second apron') || txt.includes('second apron');
-      if (isFirst || isSecond) {
-        ul.querySelectorAll('li a').forEach(a => {
-          const name = a.textContent.trim();
-          if (name && !name.includes('Logo')) {
-            if (isFirst) cap1st.push(name);
-            else cap2nd.push(name);
-          }
-        });
-      }
-    });
-
-    // Extraer triggers de las tablas
-    const tables = doc.querySelectorAll('table');
-    const triggers1st = [], triggers2nd = [];
-
-    tables.forEach((tbl, tblIdx) => {
-      const headers = [...tbl.querySelectorAll('thead th')].map(th => th.textContent.trim());
-      const teamIdx = headers.findIndex(h => h === 'Team');
-      const cappedIdx = headers.findIndex(h => h.includes('Capped At'));
-
-      tbl.querySelectorAll('tbody tr').forEach(row => {
-        const cells = [...row.querySelectorAll('td')];
-        if (!cells.length) return;
-
-        // Nombre del equipo: primer enlace de texto limpio
-        const teamLink = cells[0] ? cells[0].querySelector('a') : null;
-        const teamText = teamLink ? teamLink.textContent.replace(/Logo of the /g,'').trim() : '';
-        // Limpiar: quitar abreviaturas en mayúsculas al final
-        const teamName = teamText.replace(/[A-Z]{2,4}$/, '').trim();
-
-        if (!teamName) return;
-
-        // Trigger principal: primera celda no vacía después de "Capped At"
-        let mainTrigger = '';
-        for (let i = cappedIdx + 1; i < cells.length; i++) {
-          const ct = cells[i].textContent.trim();
-          if (ct) {
-            const hdr = headers[i] || '';
-            mainTrigger = TRIGGER_LABELS[hdr] || hdr;
-            // Si tiene texto específico (jugador + fecha), añadirlo
-            const detail = ct.replace(/\s+/g, ' ').trim();
-            if (detail && detail !== teamName) mainTrigger += `: ${detail}`;
-            break;
-          }
-        }
-
-        if (tblIdx === 0) triggers1st.push({ team: teamName, trigger: mainTrigger });
-        else triggers2nd.push({ team: teamName, trigger: mainTrigger });
-      });
-    });
-
-    DATA.cap1st = cap1st.length ? cap1st : triggers1st.map(tr => tr.team);
-    DATA.cap2nd = cap2nd.length ? cap2nd : triggers2nd.map(tr => tr.team);
-    DATA.triggers1st = triggers1st;
-    DATA.triggers2nd = triggers2nd;
-
-    document.getElementById('count-cap').textContent = DATA.cap1st.length + DATA.cap2nd.length;
-
-    const now = new Date().toLocaleString(lang === 'es' ? 'es-ES' : 'en-US', {
-      day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
-    });
-    document.getElementById('cap-fetched-at').textContent = `· ${now}`;
-
-    renderCap();
-    updateHomeCounts();
-  } catch(e) {
-    console.error('Cap fetch error:', e);
-    ['teams-1st','teams-2nd','cap-1st-tbody','cap-2nd-tbody'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.innerHTML = `<div class="state-empty">Error al cargar. <a href="${CAP_URL}" target="_blank" style="color:var(--accent)">Ver en SalarySwish →</a></div>`;
-    });
-  }
-}
-
-function renderCap() {
-  const t1 = document.getElementById('teams-1st');
-  const t2 = document.getElementById('teams-2nd');
-  const b1 = document.getElementById('cap-1st-tbody');
-  const b2 = document.getElementById('cap-2nd-tbody');
-
-  if (DATA.cap1st && DATA.cap1st.length) {
-    document.getElementById('count-1st').textContent = `${DATA.cap1st.length} ${t('cap_teams')}`;
-    t1.innerHTML = DATA.cap1st.map(team =>
-      `<span class="apron-team-pill clickable-team" onclick="openTeamView('${esc(team)}')" style="cursor:pointer">${esc(team)}</span>`
-    ).join('');
-  } else {
-    t1.innerHTML = `<span class="state-empty">${t('no_data')}</span>`;
-  }
-
-  if (DATA.cap2nd && DATA.cap2nd.length) {
-    document.getElementById('count-2nd').textContent = `${DATA.cap2nd.length} ${t('cap_teams')}`;
-    t2.innerHTML = DATA.cap2nd.map(team =>
-      `<span class="apron-team-pill clickable-team" onclick="openTeamView('${esc(team)}')" style="cursor:pointer">${esc(team)}</span>`
-    ).join('');
-  } else {
-    t2.innerHTML = `<span class="state-empty">${t('no_data')}</span>`;
-  }
-
-  const badge1 = `<span class="badge badge-1st">${t('cap_1st_badge')}</span>`;
-  const badge2 = `<span class="badge badge-2nd">${t('cap_2nd_badge')}</span>`;
-
-  if (DATA.triggers1st && DATA.triggers1st.length) {
-    b1.innerHTML = DATA.triggers1st.map(d => `
-      <tr>
-        <td class="td-player">${esc(d.team)}</td>
-        <td>${badge1}</td>
-        <td class="td-muted">${esc(d.trigger) || '—'}</td>
-      </tr>`).join('');
-  } else {
-    b1.innerHTML = `<tr><td colspan="3"><div class="state-empty">${t('no_data')}</div></td></tr>`;
-  }
-
-  if (DATA.triggers2nd && DATA.triggers2nd.length) {
-    b2.innerHTML = DATA.triggers2nd.map(d => `
-      <tr>
-        <td class="td-player">${esc(d.team)}</td>
-        <td>${badge2}</td>
-        <td class="td-muted">${esc(d.trigger) || '—'}</td>
-      </tr>`).join('');
-  } else {
-    b2.innerHTML = `<tr><td colspan="3"><div class="state-empty">${t('no_data')}</div></td></tr>`;
-  }
-}
 
 // ─────────────────────────────────────────────
 // INIT
@@ -2446,17 +2100,11 @@ function openTeamView(teamName, pushHistory = true) {
   const roster = DATA.rosters.find(r => r.team === teamName);
   // Coaches
   const coaches = DATA.coaches.filter(d => d.team === teamName);
-  // Cap
-  const inCap1 = DATA.cap1st && DATA.cap1st.includes(teamName);
-  const inCap2 = DATA.cap2nd && DATA.cap2nd.includes(teamName);
-  const capTrigger = DATA.triggers1st?.find(tr => tr.team === teamName) || DATA.triggers2nd?.find(tr => tr.team === teamName);
 
   document.getElementById('tv-team-name').textContent = teamName;
 
   // Meta info
   let meta = '';
-  if (inCap1) meta += `<span>${t('cap_1st_badge')}</span><br>`;
-  if (inCap2) meta += `<span>${t('cap_2nd_badge')}</span><br>`;
   if (coaches.length) {
     coaches.forEach(c => { meta += `${esc(c.role)}: ${esc(c.new)}<br>`; });
   }
@@ -2582,17 +2230,6 @@ function openTeamView(teamName, pushHistory = true) {
   }
 
   // Cap info
-  const capEl = document.getElementById('tv-cap-section');
-  if (inCap1 || inCap2) {
-    const badge = inCap2 ? `<span class="badge badge-2nd">${t('cap_2nd_badge')}</span>` : `<span class="badge badge-1st">${t('cap_1st_badge')}</span>`;
-    capEl.innerHTML = `<div class="tv-section-title" style="margin-top:24px">Cap / Apron</div>
-      <div style="display:flex;align-items:center;gap:12px;padding:12px 0">
-        ${badge}
-        ${capTrigger ? `<span class="td-muted" style="font-size:12px">${esc(capTrigger.trigger)}</span>` : ''}
-      </div>`;
-  } else {
-    capEl.innerHTML = '';
-  }
 
   // Actualizar título del botón back
   document.getElementById('team-back-btn').textContent = '← ' + (lang === 'es' ? 'Volver' : 'Back');
@@ -2623,7 +2260,6 @@ function goBack() {
 
 document.body.classList.add('on-home');
 fetchAll();
-fetchCap();
 </script>
 <!-- PLAYER DRAWER -->
 <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
