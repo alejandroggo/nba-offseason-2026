@@ -1640,14 +1640,14 @@ function processTrades(rows) {
     const team2 = cell(r, 3);
 
     if (team1 && team2) {
-      // nueva fila de trade con dos equipos — cols A,B,C | D,E | F=fecha G=fuente
+      // nueva fila de trade — A,B,C | D,E,F | G=fecha H=fuente
       current = {
         id: trades.length + 1,
-        date:   cell(r,5),
-        source: cell(r,6),
+        date:   cell(r,6),
+        source: cell(r,7),
         sides: [
           { team: team1, receives: [cell(r,1), cell(r,2)].filter(Boolean) },
-          { team: team2, receives: [cell(r,4)].filter(Boolean) },
+          { team: team2, receives: [cell(r,4), cell(r,5)].filter(Boolean) },
         ]
       };
       trades.push(current);
@@ -1660,7 +1660,7 @@ function processTrades(rows) {
       }
       if (cell(r,3)) {
         const side = current.sides.find(s => s.team === cell(r,3));
-        if (side) { [cell(r,4)].filter(Boolean).forEach(v => side.receives.push(v)); }
+        if (side) { [cell(r,4), cell(r,5)].filter(Boolean).forEach(v => side.receives.push(v)); }
       }
     }
   });
