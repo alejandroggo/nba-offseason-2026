@@ -555,6 +555,28 @@
 
   .theme-toggle:hover { border-color: var(--accent); color: var(--text); }
 
+  .refresh-btn {
+    display: flex;
+    align-items: center;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    height: 32px;
+    cursor: pointer;
+    padding: 0 10px;
+    gap: 6px;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .refresh-btn:hover { border-color: var(--accent); color: var(--text); }
+  .refresh-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .refresh-btn svg { transition: transform 0.6s ease; }
+  .refresh-btn.loading svg { animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
   .theme-icon { font-size: 14px; line-height: 1; }
 
   /* CAP / APRON */
@@ -947,6 +969,12 @@
       <div class="update-dot"></div>
       <span class="last-update" id="lastUpdate">—</span>
     </div>
+    <button class="refresh-btn" id="refresh-btn" onclick="refreshData()" title="Actualizar datos">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="23 4 23 10 17 10"></polyline>
+        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+      </svg>
+    </button>
     <div class="lang-toggle">
       <button class="lang-btn active" id="btn-es" onclick="setLang('es')">ES</button>
       <div class="lang-divider"></div>
@@ -1891,6 +1919,15 @@ function updateHomeCounts() {
 // THEME TOGGLE
 // ─────────────────────────────────────────────
 let isLight = false;
+
+async function refreshData() {
+  const btn = document.getElementById('refresh-btn');
+  btn.classList.add('loading');
+  btn.disabled = true;
+  await fetchAll();
+  btn.classList.remove('loading');
+  btn.disabled = false;
+}
 
 function toggleTheme() {
   isLight = !isLight;
