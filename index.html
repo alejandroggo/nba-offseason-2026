@@ -1277,16 +1277,15 @@
 // ─────────────────────────────────────────────
 // URLS — reemplaza con las de tu Sheet 2026
 // ─────────────────────────────────────────────
-const SHEET_ID = '2PACX-1vT7CDvjRy2gyWk_qUPjY_AaCitmkRXiNxoXv-rFnW-e9-l9PRKpopQGmls-4caAMLZ0A7bT5d3L6bmM';
-const BASE = `https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/pub?single=true&output=csv`;
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZAb1-oLDkidOmC6LrplPJ_468sZ10eESYSrPLg8Pp9DsCg6KNI3YMezhYokdhyCA/exec';
 
 const URLS = {
-  fa:        `${BASE}&gid=0`,
-  draft:     `${BASE}&gid=1969987183`,
-  trades:    `${BASE}&gid=454833805`,
-  rosters1:  `${BASE}&gid=895202723`,
-  rosters2:  `${BASE}&gid=366613246`,
-  coaches:   `${BASE}&gid=2013905328`,
+  fa:       `${SCRIPT_URL}?tab=fa`,
+  draft:    `${SCRIPT_URL}?tab=draft`,
+  trades:   `${SCRIPT_URL}?tab=trades`,
+  rosters1: `${SCRIPT_URL}?tab=rosters1`,
+  rosters2: `${SCRIPT_URL}?tab=rosters2`,
+  coaches:  `${SCRIPT_URL}?tab=coaches`,
 };
 
 // ─────────────────────────────────────────────
