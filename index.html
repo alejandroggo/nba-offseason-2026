@@ -1,0 +1,2973 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NBA Off-Season 2026 — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: #2a2a3a;
+    --accent: #c8ff00;
+    --accent2: #ff6b35;
+    --text: #e8e8f0;
+    --text-muted: #6b6b88;
+    --text-dim: #3a3a52;
+    --signed: #c8ff00;
+    --pending: #ff9f00;
+    --gone: #ff4455;
+  }
+
+  body.light {
+    --bg: #f2f2ee;
+    --surface: #ffffff;
+    --surface2: #e8e8e2;
+    --border: #d0d0c8;
+    --accent: #2a7a00;
+    --accent2: #c84b00;
+    --text: #111118;
+    --text-muted: #606068;
+    --text-dim: #bbbbbb;
+    --signed: #2a7a00;
+    --pending: #8a4e00;
+    --gone: #cc1122;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body, body * {
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, fill 0.2s ease;
+  }
+
+  .update-dot, .state-loading::before,
+  .section, .home-card::after { transition: none !important; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+  }
+
+  .logo { display: flex; align-items: baseline; gap: 10px; }
+
+  .logo-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 2px;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .logo-year {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--accent);
+    letter-spacing: 1px;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  /* LANGUAGE TOGGLE */
+  .lang-toggle {
+    display: flex;
+    align-items: center;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    height: 32px;
+  }
+
+  .lang-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 0 12px;
+    height: 100%;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .lang-btn.active {
+    background: var(--accent);
+    color: #0a0a0f;
+  }
+
+  .lang-divider {
+    width: 1px;
+    height: 100%;
+    background: var(--border);
+  }
+
+  .header-meta { display: flex; align-items: center; gap: 10px; }
+
+  .last-update {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .update-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* TABS */
+  nav {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  nav::-webkit-scrollbar { display: none; }
+
+  .tab {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    padding: 16px 24px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+    background: none;
+    border-left: none; border-right: none; border-top: none;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .tab-count {
+    background: var(--surface2);
+    color: var(--text-muted);
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+  }
+
+  .tab.active .tab-count {
+    background: rgba(200, 255, 0, 0.15);
+    color: var(--accent);
+  }
+
+  /* MAIN */
+  main { padding: 32px; max-width: 1400px; margin: 0 auto; }
+
+  .section { display: none; animation: fadeIn 0.3s ease; }
+  .section.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* SECTION HEADER */
+  .section-header { margin-bottom: 28px; }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    letter-spacing: 2px;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .section-subtitle {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+
+  /* FILTERS */
+  .filters {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+  }
+
+  .filter-group { display: flex; flex-direction: column; gap: 4px; }
+
+  .filter-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+  }
+
+  .filter-input, .filter-select {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 14px;
+    border-radius: 4px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+    height: 36px;
+  }
+
+  .filter-input { min-width: 220px; }
+  .filter-select { min-width: 140px; cursor: pointer; }
+  .filter-input:focus, .filter-select:focus { border-color: var(--accent); }
+  .filter-input::placeholder { color: var(--text-dim); }
+
+  .btn-reset {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 8px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    height: 36px;
+    transition: all 0.2s;
+  }
+
+  .btn-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+  .results-count {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    height: 36px;
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+  }
+
+  .results-count span { color: var(--accent); font-weight: 500; }
+
+  /* TABLE */
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+
+  thead th {
+    background: var(--surface2);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.2s;
+  }
+
+  thead th:hover { color: var(--text); }
+  thead th.sorted { color: var(--accent); }
+  thead th .sort-icon { margin-left: 4px; opacity: 0.4; font-size: 9px; }
+  thead th.sorted .sort-icon { opacity: 1; }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--surface2); }
+
+  tbody td {
+    padding: 12px 16px;
+    color: var(--text);
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .td-player { font-weight: 600; font-size: 14px; }
+  .td-money { font-family: 'DM Mono', monospace; color: var(--accent); font-size: 12px; }
+  .td-muted { color: var(--text-muted); font-size: 12px; }
+  .td-notes { max-width: 260px; white-space: normal; font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+
+  /* BADGES */
+  .badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .badge-pos { background: rgba(29,66,138,0.3); color: #7aadff; border: 1px solid rgba(29,66,138,0.5); }
+  .badge-check { background: rgba(200,255,0,0.12); color: var(--accent); border: 1px solid rgba(200,255,0,0.25); }
+  .badge-pending-c { background: rgba(255,159,0,0.12); color: var(--pending); border: 1px solid rgba(255,159,0,0.25); }
+  .badge-role-hc { background: rgba(200,255,0,0.08); color: var(--accent); border: 1px solid rgba(200,255,0,0.2); }
+  .badge-role-gm { background: rgba(255,107,53,0.08); color: var(--accent2); border: 1px solid rgba(255,107,53,0.2); }
+  .badge-team { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+
+  /* PICK NUMBER */
+  .pick-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px; height: 34px;
+    border-radius: 4px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+
+  .pick-num.r1 { background: rgba(200,255,0,0.1); border-color: rgba(200,255,0,0.3); color: var(--accent); }
+  .pick-num.top5 { background: rgba(200,255,0,0.2); border-color: var(--accent); color: var(--accent); }
+
+  /* TRADES */
+  .trade-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .trade-card:hover { border-color: rgba(200,255,0,0.3); }
+
+  .trade-header {
+    background: var(--surface2);
+    padding: 10px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .trade-idx {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+  }
+
+  .trade-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .trade-side {
+    padding: 16px 20px;
+    border-right: 1px solid var(--border);
+  }
+
+  .trade-side:last-child { border-right: none; }
+
+  .trade-team-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 15px;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+
+  .trade-receives-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+
+  .trade-item { font-size: 13px; color: var(--text); padding: 2px 0; }
+
+  /* PLANTILLAS */
+  .plantillas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 16px;
+  }
+
+  .team-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .team-card:hover { border-color: rgba(200,255,0,0.3); }
+
+  .team-card-header {
+    background: var(--surface2);
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .team-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 1px;
+  }
+
+  .team-card-body {
+    padding: 14px 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .roster-block { }
+
+  .roster-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 6px;
+  }
+
+  .roster-label.siguen { color: var(--text-muted); }
+  .roster-label.llegadas { color: var(--signed); }
+  .roster-label.salidas { color: var(--gone); }
+  .roster-label.fa { color: var(--pending); }
+
+  .roster-player {
+    font-size: 12px;
+    padding: 3px 0;
+    border-bottom: 1px solid var(--border);
+    line-height: 1.4;
+  }
+
+  .roster-player:last-child { border-bottom: none; }
+
+  .roster-block.full { grid-column: span 2; }
+
+  /* STATES */
+  .state-loading {
+    padding: 60px 32px;
+    text-align: center;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .state-loading::before {
+    content: '';
+    display: block;
+    width: 28px; height: 28px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 14px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .state-empty {
+    padding: 48px;
+    text-align: center;
+    color: var(--text-dim);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  /* THEME TOGGLE */
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    height: 32px;
+    cursor: pointer;
+    padding: 0 10px;
+    gap: 6px;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .theme-toggle:hover { border-color: var(--accent); color: var(--text); }
+
+  .theme-icon { font-size: 14px; line-height: 1; }
+
+  /* CAP / APRON */
+  .apron-summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .apron-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .apron-block-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .apron-block-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 1px;
+  }
+
+  .apron-block.first .apron-block-title { color: var(--pending); }
+  .apron-block.second .apron-block-title { color: var(--gone); }
+
+  .apron-block-count {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .apron-teams {
+    padding: 14px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .apron-team-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 4px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  .apron-block.first .apron-team-pill { border-color: rgba(255,159,0,0.3); }
+  .apron-block.second .apron-team-pill { border-color: rgba(255,68,85,0.3); }
+
+  .apron-divider {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    padding: 8px 0 12px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .apron-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .cap-source {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .cap-source a { color: var(--accent); text-decoration: none; }
+  .cap-source a:hover { text-decoration: underline; }
+
+  .badge-1st { background: rgba(255,159,0,0.12); color: var(--pending); border: 1px solid rgba(255,159,0,0.3); }
+  .badge-2nd { background: rgba(255,68,85,0.12); color: var(--gone); border: 1px solid rgba(255,68,85,0.3); }
+
+  @media (max-width: 700px) {
+    .apron-summary { grid-template-columns: 1fr; }
+  }
+
+  /* PLAYER DRAWER */
+  .drawer-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 200;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .drawer-overlay.open { opacity: 1; pointer-events: all; }
+
+  .player-drawer {
+    position: fixed; top: 0; right: 0; bottom: 0;
+    width: min(480px, 95vw);
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    z-index: 201;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .player-drawer.open { transform: translateX(0); }
+
+  .drawer-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: flex-start; justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .drawer-player-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px; letter-spacing: 1px; line-height: 1;
+    color: var(--text);
+  }
+  .drawer-close {
+    background: none; border: 1px solid var(--border);
+    color: var(--text-muted); cursor: pointer;
+    width: 32px; height: 32px; border-radius: 4px;
+    font-size: 18px; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; flex-shrink: 0;
+  }
+  .drawer-close:hover { border-color: var(--accent); color: var(--accent); }
+
+  .drawer-body {
+    padding: 24px; overflow-y: auto; flex: 1;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .drawer-section { margin-bottom: 28px; }
+  .drawer-section-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px; text-transform: uppercase; letter-spacing: 2px;
+    color: var(--text-muted); margin-bottom: 12px;
+    padding-bottom: 6px; border-bottom: 1px solid var(--border);
+  }
+  .drawer-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 7px 0; border-bottom: 1px solid var(--border); gap: 16px;
+  }
+  .drawer-row:last-child { border-bottom: none; }
+  .drawer-label { font-size: 12px; color: var(--text-muted); flex-shrink: 0; }
+  .drawer-value { font-size: 13px; color: var(--text); font-weight: 500; text-align: right; }
+  .drawer-value.money { font-family: 'DM Mono', monospace; color: var(--accent); }
+  .drawer-value.notes { font-size: 12px; font-weight: 400; color: var(--text-muted); text-align: right; line-height: 1.5; max-width: 260px; }
+  .drawer-empty { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-dim); text-align: center; padding: 16px 0; text-transform: uppercase; }
+
+  /* TEAM VIEW */
+  #section-team { display: none; animation: fadeIn 0.3s ease; }
+  #section-team.active { display: block; }
+
+  .team-view-back {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--text-muted); cursor: pointer;
+    background: none; border: none;
+    padding: 0; margin-bottom: 28px; transition: color 0.2s;
+  }
+  .team-view-back:hover { color: var(--accent); }
+  .team-view-back::before { content: '←'; font-size: 14px; }
+
+  .team-view-header {
+    margin-bottom: 36px; padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  }
+  .team-view-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(40px, 7vw, 72px);
+    letter-spacing: 3px; line-height: 1; color: var(--text);
+  }
+  .team-view-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px; color: var(--text-muted); text-align: right; line-height: 1.8;
+  }
+  .team-view-meta span { color: var(--accent); }
+
+  .team-view-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px; margin-bottom: 32px;
+  }
+  .tv-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .tv-card-header {
+    background: var(--surface2); padding: 10px 16px; border-bottom: 1px solid var(--border);
+    font-family: 'DM Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .tv-card-header .tv-label { color: var(--text-muted); }
+  .tv-card-header .tv-count { color: var(--accent); }
+  .tv-card-body { padding: 4px 0; }
+  .tv-row {
+    padding: 9px 16px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+  }
+  .tv-row:last-child { border-bottom: none; }
+  .tv-row-name { font-size: 13px; font-weight: 500; color: var(--text); cursor: pointer; }
+  .tv-row-name:hover { color: var(--accent); text-decoration: underline; }
+  .tv-row-detail { font-size: 11px; color: var(--text-muted); font-family: 'DM Mono', monospace; text-align: right; }
+  .tv-row-money { font-size: 12px; color: var(--accent); font-family: 'DM Mono', monospace; }
+  .tv-empty { padding: 16px; font-size: 12px; color: var(--text-dim); font-family: 'DM Mono', monospace; }
+  .tv-section-title {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 2px;
+    color: var(--text-muted); margin-bottom: 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .tv-section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .clickable-player { cursor: pointer; transition: color 0.15s; }
+  .clickable-player:hover { color: var(--accent); text-decoration: underline; }
+  .clickable-team { cursor: pointer; transition: opacity 0.15s; }
+  .clickable-team:hover { opacity: 0.75; }
+
+  @media (max-width: 640px) {
+    .team-view-grid { grid-template-columns: 1fr; }
+    .player-drawer { width: 100vw; }
+  }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+  /* FOOTER */
+  footer {
+    margin-top: 60px;
+    padding: 24px 32px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .footer-credits {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+  }
+
+  .footer-credits a { color: var(--accent); text-decoration: none; }
+  .footer-credits a:hover { text-decoration: underline; }
+
+  /* HOME */
+  #section-home {
+    display: none;
+    min-height: calc(100vh - 64px);
+    padding: 0;
+  }
+
+  #section-home.active { display: flex; flex-direction: column; }
+
+  .home-hero {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 32px 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .home-hero::before {
+    content: '2026';
+    position: absolute;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(160px, 28vw, 340px);
+    color: transparent;
+    -webkit-text-stroke: 1px var(--border);
+    letter-spacing: 8px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    user-select: none;
+    white-space: nowrap;
+    z-index: 0;
+  }
+
+  .home-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .home-eyebrow::before,
+  .home-eyebrow::after {
+    content: '';
+    width: 32px;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .home-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(52px, 9vw, 96px);
+    letter-spacing: 4px;
+    line-height: 0.95;
+    color: var(--text);
+    position: relative;
+    z-index: 1;
+    margin-bottom: 8px;
+  }
+
+  .home-title em {
+    color: var(--accent);
+    font-style: normal;
+  }
+
+  .home-subtitle {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    color: var(--text-muted);
+    margin-top: 20px;
+    position: relative;
+    z-index: 1;
+    max-width: 480px;
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  /* HOME CARDS */
+  .home-cards {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .home-card {
+    background: none;
+    border: none;
+    border-right: 1px solid var(--border);
+    padding: 32px 28px;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .home-card:last-child { border-right: none; }
+
+  .home-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+  }
+
+  .home-card:hover { background: var(--surface); }
+  .home-card:hover::after { transform: scaleX(1); }
+
+  .home-card-icon {
+    font-size: 24px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .home-card-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 1.5px;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .home-card-desc {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    font-weight: 300;
+  }
+
+  .home-card-count {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    margin-top: auto;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+
+  .home-card-arrow {
+    position: absolute;
+    top: 28px; right: 24px;
+    font-size: 16px;
+    color: var(--text-dim);
+    transition: color 0.2s, transform 0.2s;
+  }
+
+  .home-card:hover .home-card-arrow {
+    color: var(--accent);
+    transform: translate(2px, -2px);
+  }
+
+  /* Ocultar nav cuando estamos en home */
+  body.on-home nav { display: none; }
+
+  /* Botón volver al home en el logo */
+  .logo { cursor: pointer; }
+
+  @media (max-width: 1100px) {
+    .home-cards { grid-template-columns: repeat(3, 1fr); }
+    .home-card { border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .home-card:nth-child(3n) { border-right: none; }
+  }
+
+  @media (max-width: 900px) {
+    .home-cards { grid-template-columns: repeat(2, 1fr); }
+    .home-card:nth-child(3n) { border-right: 1px solid var(--border); }
+    .home-card:nth-child(2n) { border-right: none; }
+  }
+
+  @media (max-width: 640px) {
+    header { padding: 0 16px; }
+    nav { padding: 0 16px; }
+    main { padding: 20px 16px; }
+    .section-title { font-size: 28px; }
+    .trade-body { grid-template-columns: 1fr; }
+    .trade-side { border-right: none; border-bottom: 1px solid var(--border); }
+    .trade-side:last-child { border-bottom: none; }
+    .logo-title { font-size: 22px; }
+    .home-cards { grid-template-columns: 1fr; }
+    .home-card { border-right: none; }
+    .home-hero { padding: 48px 20px 32px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo" onclick="showTab('home')" title="Inicio">
+    <span class="logo-title">NBA Off-Season</span>
+    <span class="logo-year">2026</span>
+  </div>
+  <div class="header-right">
+    <div class="header-meta">
+      <div class="update-dot"></div>
+      <span class="last-update" id="lastUpdate">—</span>
+    </div>
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btn-es" onclick="setLang('es')">ES</button>
+      <div class="lang-divider"></div>
+      <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+    </div>
+    <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Cambiar modo">
+      <span class="theme-icon" id="theme-icon">☀️</span>
+    </button>
+  </div>
+</header>
+
+<nav>
+  <button class="tab active" onclick="showTab('fa')" id="tab-fa">
+    <span data-i18n="tab_fa">Agencia Libre</span>
+    <span class="tab-count" id="count-fa">—</span>
+  </button>
+  <button class="tab" onclick="showTab('draft')" id="tab-draft">
+    <span data-i18n="tab_draft">Draft</span>
+    <span class="tab-count" id="count-draft">—</span>
+  </button>
+  <button class="tab" onclick="showTab('trades')" id="tab-trades">
+    <span data-i18n="tab_trades">Trades</span>
+    <span class="tab-count" id="count-trades">—</span>
+  </button>
+  <button class="tab" onclick="showTab('plantillas')" id="tab-plantillas">
+    <span data-i18n="tab_rosters">Plantillas</span>
+    <span class="tab-count" id="count-plantillas">—</span>
+  </button>
+  <button class="tab" onclick="showTab('coaches')" id="tab-coaches">
+    <span data-i18n="tab_coaches">HC / GMs</span>
+    <span class="tab-count" id="count-coaches">—</span>
+  </button>
+  <button class="tab" onclick="showTab('cap')" id="tab-cap">
+    <span data-i18n="tab_cap">Cap / Apron</span>
+    <span class="tab-count" id="count-cap">—</span>
+  </button>
+</nav>
+
+<main>
+
+  <!-- HOME -->
+  <div class="section active" id="section-home">
+    <div class="home-hero">
+      <div class="home-eyebrow">NBA · <span data-i18n="home_eyebrow">Off-Season</span></div>
+      <div class="home-title">OFF-<br><em>SEASON</em></div>
+      <p class="home-subtitle" data-i18n="home_subtitle">Todos los movimientos de la temporada 2025-26: agencia libre, draft, traspasos, plantillas y cambios en banquillos.</p>
+    </div>
+    <div class="home-cards">
+      <button class="home-card" onclick="showTab('fa')">
+        <span class="home-card-arrow">↗</span>
+        <div class="home-card-icon">🏀</div>
+        <div class="home-card-title" data-i18n="tab_fa">Agencia Libre</div>
+        <div class="home-card-desc" data-i18n="home_fa_desc">Fichajes confirmados y mercado pendiente</div>
+        <div class="home-card-count" id="home-count-fa">— registros</div>
+      </button>
+      <button class="home-card" onclick="showTab('draft')">
+        <span class="home-card-arrow">↗</span>
+        <div class="home-card-icon">🎓</div>
+        <div class="home-card-title" data-i18n="tab_draft">Draft</div>
+        <div class="home-card-desc" data-i18n="home_draft_desc">Picks seleccionados en rondas 1 y 2</div>
+        <div class="home-card-count" id="home-count-draft">— registros</div>
+      </button>
+      <button class="home-card" onclick="showTab('trades')">
+        <span class="home-card-arrow">↗</span>
+        <div class="home-card-icon">🔄</div>
+        <div class="home-card-title" data-i18n="tab_trades">Trades</div>
+        <div class="home-card-desc" data-i18n="home_trades_desc">Traspasos confirmados entre franquicias</div>
+        <div class="home-card-count" id="home-count-trades">— registros</div>
+      </button>
+      <button class="home-card" onclick="showTab('plantillas')">
+        <span class="home-card-arrow">↗</span>
+        <div class="home-card-icon">📋</div>
+        <div class="home-card-title" data-i18n="tab_rosters">Plantillas</div>
+        <div class="home-card-desc" data-i18n="home_rosters_desc">Los 30 equipos con altas, bajas y continuidades</div>
+        <div class="home-card-count" id="home-count-plantillas">— equipos</div>
+      </button>
+      <button class="home-card" onclick="showTab('coaches')">
+        <span class="home-card-arrow">↗</span>
+        <div class="home-card-icon">🎽</div>
+        <div class="home-card-title" data-i18n="tab_coaches">HC / GMs</div>
+        <div class="home-card-desc" data-i18n="home_coaches_desc">Cambios en banquillos y gerencias</div>
+        <div class="home-card-count" id="home-count-coaches">— cambios</div>
+      </button>
+      <button class="home-card" onclick="showTab('cap')">
+        <span class="home-card-arrow">↗</span>
+        <div class="home-card-icon">💰</div>
+        <div class="home-card-title" data-i18n="tab_cap">Cap / Apron</div>
+        <div class="home-card-desc" data-i18n="home_cap_desc">Equipos hard-capped en el 1er y 2º apron</div>
+        <div class="home-card-count" id="home-count-cap">— equipos</div>
+      </button>
+    </div>
+  </div>
+
+  <!-- FA -->
+  <div class="section" id="section-fa">
+    <div class="section-header">
+      <div class="section-title" data-i18n="fa_title">Agencia Libre</div>
+      <div class="section-subtitle" data-i18n="fa_subtitle">Free Agents — Movimientos confirmados y pendientes</div>
+    </div>
+    <div class="filters">
+      <div class="filter-group">
+        <span class="filter-label" data-i18n="filter_search">Buscar</span>
+        <input type="text" class="filter-input" id="fa-search" oninput="filterFA()" data-i18n-ph="fa_search_ph">
+      </div>
+      <div class="filter-group">
+        <span class="filter-label" data-i18n="fa_col_team25">Equipo 2025</span>
+        <select class="filter-select" id="fa-team25" onchange="filterFA()"><option value="">—</option></select>
+      </div>
+      <div class="filter-group">
+        <span class="filter-label" data-i18n="fa_col_dest">Destino</span>
+        <select class="filter-select" id="fa-dest" onchange="filterFA()"><option value="">—</option></select>
+      </div>
+      <button class="btn-reset" onclick="resetFA()" data-i18n="btn_reset">Limpiar</button>
+      <span class="results-count" id="fa-count"></span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th onclick="sortSection('fa',0)"><span data-i18n="fa_col_player">Jugador</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('fa',1)"><span data-i18n="fa_col_team25">Equipo 2025</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('fa',2)"><span data-i18n="fa_col_dest">Destino</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('fa',3)"><span data-i18n="fa_col_m">Millones</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('fa',4)"><span data-i18n="fa_col_yr">Años</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('fa',5)"><span data-i18n="fa_col_aav">AAV</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('fa',6)"><span data-i18n="col_source">Fuente</span> <span class="sort-icon">↕</span></th>
+            <th><span data-i18n="col_notes">Notas</span></th>
+          </tr>
+        </thead>
+        <tbody id="fa-tbody">
+          <tr><td colspan="8"><div class="state-loading" data-i18n="loading">Cargando datos...</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- DRAFT -->
+  <div class="section" id="section-draft">
+    <div class="section-header">
+      <div class="section-title" data-i18n="draft_title">Draft 2026</div>
+      <div class="section-subtitle" data-i18n="draft_subtitle">Picks seleccionados — Rondas 1 y 2</div>
+    </div>
+    <div class="filters">
+      <div class="filter-group">
+        <span class="filter-label" data-i18n="filter_search">Buscar</span>
+        <input type="text" class="filter-input" id="draft-search" oninput="filterDraft()" data-i18n-ph="draft_search_ph">
+      </div>
+      <div class="filter-group">
+        <span class="filter-label" data-i18n="draft_col_pos">Posición</span>
+        <select class="filter-select" id="draft-pos" onchange="filterDraft()"><option value="">—</option></select>
+      </div>
+      <div class="filter-group">
+        <span class="filter-label" data-i18n="col_team">Equipo</span>
+        <select class="filter-select" id="draft-team" onchange="filterDraft()"><option value="">—</option></select>
+      </div>
+      <button class="btn-reset" onclick="resetDraft()" data-i18n="btn_reset">Limpiar</button>
+      <span class="results-count" id="draft-count"></span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th onclick="sortSection('draft',0)"><span data-i18n="draft_col_pick">Pick</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('draft',1)"><span data-i18n="col_team">Equipo</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('draft',2)"><span data-i18n="draft_col_player">Jugador</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('draft',3)"><span data-i18n="draft_col_pos">Pos</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('draft',4)"><span data-i18n="draft_col_from">Procedencia</span> <span class="sort-icon">↕</span></th>
+            <th>✓</th>
+            <th onclick="sortSection('draft',6)"><span data-i18n="draft_col_contract">Contrato</span> <span class="sort-icon">↕</span></th>
+            <th><span data-i18n="col_notes">Notas</span></th>
+          </tr>
+        </thead>
+        <tbody id="draft-tbody">
+          <tr><td colspan="8"><div class="state-loading" data-i18n="loading">Cargando datos...</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- UNDRAFTED -->
+    <div class="section-header" style="margin-top: 48px;">
+      <div class="section-title" style="font-size: 24px;" data-i18n="draft_undrafted_title">No elegidos en el Draft</div>
+      <div class="section-subtitle" data-i18n="draft_undrafted_subtitle">Jugadores que no fueron seleccionados</div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th><span data-i18n="draft_col_player">Jugador</span></th>
+            <th></th>
+            <th><span data-i18n="draft_col_pos">Pos</span></th>
+            <th><span data-i18n="draft_col_from">Procedencia</span></th>
+            <th><span data-i18n="col_notes">Notas</span></th>
+          </tr>
+        </thead>
+        <tbody id="undrafted-tbody">
+          <tr><td colspan="4"><div class="state-loading" data-i18n="loading">Cargando datos...</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  <!-- TRADES -->
+  <div class="section" id="section-trades">
+    <div class="section-header">
+      <div class="section-title" data-i18n="trades_title">Trades</div>
+      <div class="section-subtitle" data-i18n="trades_subtitle">Traspasos confirmados</div>
+    </div>
+    <div class="filters">
+      <div class="filter-group">
+        <span class="filter-label" data-i18n="filter_search">Buscar</span>
+        <input type="text" class="filter-input" id="trades-search" oninput="filterTrades()" data-i18n-ph="trades_search_ph">
+      </div>
+      <div class="filter-group">
+        <span class="filter-label" data-i18n="col_team">Equipo</span>
+        <select class="filter-select" id="trades-team" onchange="filterTrades()"><option value="">—</option></select>
+      </div>
+      <button class="btn-reset" onclick="resetTrades()" data-i18n="btn_reset">Limpiar</button>
+      <span class="results-count" id="trades-count"></span>
+    </div>
+    <div id="trades-container">
+      <div class="state-loading" data-i18n="loading">Cargando datos...</div>
+    </div>
+  </div>
+
+  <!-- PLANTILLAS -->
+  <div class="section" id="section-plantillas">
+    <div class="section-header">
+      <div class="section-title" data-i18n="rosters_title">Plantillas</div>
+      <div class="section-subtitle" data-i18n="rosters_subtitle">Los 30 equipos — temporada 2025-26</div>
+    </div>
+    <div class="filters">
+      <div class="filter-group">
+        <span class="filter-label" data-i18n="filter_search">Buscar</span>
+        <input type="text" class="filter-input" id="rosters-search" oninput="filterRosters()" data-i18n-ph="rosters_search_ph">
+      </div>
+      <button class="btn-reset" onclick="resetRosters()" data-i18n="btn_reset">Limpiar</button>
+      <span class="results-count" id="rosters-count"></span>
+    </div>
+    <div class="plantillas-grid" id="rosters-container">
+      <div class="state-loading" data-i18n="loading">Cargando datos...</div>
+    </div>
+  </div>
+
+  <!-- HC/GMs -->
+  <div class="section" id="section-coaches">
+    <div class="section-header">
+      <div class="section-title" data-i18n="coaches_title">Head Coaches & GMs</div>
+      <div class="section-subtitle" data-i18n="coaches_subtitle">Cambios en banquillos y gerencias</div>
+    </div>
+    <div class="filters">
+      <div class="filter-group">
+        <span class="filter-label" data-i18n="filter_search">Buscar</span>
+        <input type="text" class="filter-input" id="coaches-search" oninput="filterCoaches()" data-i18n-ph="coaches_search_ph">
+      </div>
+      <div class="filter-group">
+        <span class="filter-label" data-i18n="coaches_col_role">Rol</span>
+        <select class="filter-select" id="coaches-role" onchange="filterCoaches()"><option value="">—</option></select>
+      </div>
+      <div class="filter-group">
+        <span class="filter-label" data-i18n="col_team">Equipo</span>
+        <select class="filter-select" id="coaches-team" onchange="filterCoaches()"><option value="">—</option></select>
+      </div>
+      <button class="btn-reset" onclick="resetCoaches()" data-i18n="btn_reset">Limpiar</button>
+      <span class="results-count" id="coaches-count"></span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th onclick="sortSection('coaches',0)"><span data-i18n="col_team">Equipo</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('coaches',1)"><span data-i18n="coaches_col_new">Nuevo</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('coaches',2)"><span data-i18n="coaches_col_role">Rol</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('coaches',3)"><span data-i18n="coaches_col_date_hired">Contratado</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('coaches',4)"><span data-i18n="coaches_col_prev">Anterior</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('coaches',5)"><span data-i18n="coaches_col_date_fired">Despedido</span> <span class="sort-icon">↕</span></th>
+            <th><span data-i18n="col_source">Fuente</span></th>
+          </tr>
+        </thead>
+        <tbody id="coaches-tbody">
+          <tr><td colspan="6"><div class="state-loading" data-i18n="loading">Cargando datos...</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CAP / APRON -->
+  <div class="section" id="section-cap">
+    <div class="section-header">
+      <div class="section-title" data-i18n="cap_title">Cap / Apron</div>
+      <div class="section-subtitle" data-i18n="cap_subtitle">Equipos hard-capped — Temporada 2025-26</div>
+    </div>
+
+    <div class="apron-summary">
+      <div class="apron-block first">
+        <div class="apron-block-header">
+          <span class="apron-block-title" data-i18n="cap_1st">1er Apron</span>
+          <span class="apron-block-count" id="count-1st">— equipos</span>
+        </div>
+        <div class="apron-teams" id="teams-1st">
+          <div class="state-loading" data-i18n="loading">Cargando datos...</div>
+        </div>
+      </div>
+      <div class="apron-block second">
+        <div class="apron-block-header">
+          <span class="apron-block-title" data-i18n="cap_2nd">2º Apron</span>
+          <span class="apron-block-count" id="count-2nd">— equipos</span>
+        </div>
+        <div class="apron-teams" id="teams-2nd">
+          <div class="state-loading" data-i18n="loading">Cargando datos...</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="apron-divider" data-i18n="cap_triggers_label">Triggers del 1er Apron</div>
+    <div class="table-wrap" style="margin-bottom: 32px;">
+      <table>
+        <thead>
+          <tr>
+            <th><span data-i18n="col_team">Equipo</span></th>
+            <th><span data-i18n="cap_col_capped">Hard Cap</span></th>
+            <th><span data-i18n="cap_col_trigger">Trigger principal</span></th>
+          </tr>
+        </thead>
+        <tbody id="cap-1st-tbody">
+          <tr><td colspan="3"><div class="state-loading" data-i18n="loading">Cargando datos...</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="apron-divider" data-i18n="cap_triggers_2nd_label">Triggers del 2º Apron</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th><span data-i18n="col_team">Equipo</span></th>
+            <th><span data-i18n="cap_col_capped">Hard Cap</span></th>
+            <th><span data-i18n="cap_col_trigger">Trigger principal</span></th>
+          </tr>
+        </thead>
+        <tbody id="cap-2nd-tbody">
+          <tr><td colspan="3"><div class="state-loading" data-i18n="loading">Cargando datos...</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="cap-source">
+      <span>Fuente:</span>
+      <a href="https://www.salaryswish.com/hard-cap-tracker" target="_blank">SalarySwish — Hard Cap Tracker</a>
+      <span id="cap-fetched-at"></span>
+    </div>
+  </div>
+
+  <!-- TEAM VIEW -->
+  <div class="section" id="section-team">
+    <button class="team-view-back" id="team-back-btn" onclick="goBack()">Volver</button>
+    <div class="team-view-header">
+      <div class="team-view-name" id="tv-team-name">—</div>
+      <div class="team-view-meta" id="tv-team-meta"></div>
+    </div>
+    <div class="team-view-grid" id="tv-grid"></div>
+    <div id="tv-trades-section"></div>
+    <div id="tv-coaches-section"></div>
+    <div id="tv-cap-section"></div>
+  </div>
+
+</main>
+
+<footer>
+  <span class="footer-credits">
+    <span data-i18n="footer_data">Datos</span>:
+    <a href="https://alejandrogaitan.com" target="_blank">alejandrogaitan.com</a>
+    · <span data-i18n="footer_src">Fuente</span>: Google Sheets
+  </span>
+  <span class="footer-credits" id="footer-updated"></span>
+</footer>
+
+<script>
+// ─────────────────────────────────────────────
+// URLS — reemplaza con las de tu Sheet 2026
+// ─────────────────────────────────────────────
+const SHEET_ID = '2PACX-1vT7CDvjRy2gyWk_qUPjY_AaCitmkRXiNxoXv-rFnW-e9-l9PRKpopQGmls-4caAMLZ0A7bT5d3L6bmM';
+const BASE = `https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/pub?single=true&output=csv`;
+
+const URLS = {
+  fa:        `${BASE}&gid=0`,
+  draft:     `${BASE}&gid=1969987183`,
+  trades:    `${BASE}&gid=454833805`,
+  rosters1:  `${BASE}&gid=895202723`,
+  rosters2:  `${BASE}&gid=366613246`,
+  coaches:   `${BASE}&gid=2013905328`,
+};
+
+// ─────────────────────────────────────────────
+// i18n
+// ─────────────────────────────────────────────
+const i18n = {
+  es: {
+    home_eyebrow: 'Off-Season',
+    home_subtitle: 'Todos los movimientos de la temporada 2025-26: agencia libre, draft, traspasos, plantillas y cambios en banquillos.',
+    home_fa_desc: 'Fichajes confirmados y mercado pendiente',
+    home_draft_desc: 'Picks seleccionados en rondas 1 y 2',
+    home_trades_desc: 'Traspasos confirmados entre franquicias',
+    home_rosters_desc: 'Los 30 equipos con altas, bajas y continuidades',
+    home_coaches_desc: 'Cambios en banquillos y gerencias',
+    home_records: 'registros',
+    home_teams: 'equipos',
+    home_changes: 'cambios',
+    tab_cap: 'Cap / Apron',
+    cap_title: 'Cap / Apron',
+    cap_subtitle: 'Equipos hard-capped — Temporada 2025-26',
+    cap_1st: '1er Apron',
+    cap_2nd: '2º Apron',
+    cap_triggers_label: 'Triggers del 1er Apron',
+    cap_triggers_2nd_label: 'Triggers del 2º Apron',
+    cap_col_capped: 'Hard Cap',
+    cap_col_trigger: 'Trigger principal',
+    home_cap_desc: 'Equipos hard-capped en el 1er y 2º apron',
+    cap_teams: 'equipos',
+    cap_1st_badge: '1er Apron',
+    cap_2nd_badge: '2º Apron',
+    theme_light: 'Modo día',
+    theme_dark: 'Modo noche',
+    tab_rosters: 'Plantillas', tab_coaches: 'Entrenadores y GMs',
+    fa_title: 'Agencia Libre', fa_subtitle: 'Free Agents — Movimientos confirmados y pendientes',
+    fa_search_ph: 'Jugador, equipo…',
+    fa_col_player: 'Jugador', fa_col_team25: 'Equipo 2025', fa_col_dest: 'Destino',
+    fa_col_m: 'Millones', fa_col_yr: 'Años', fa_col_aav: 'AAV',
+    draft_title: 'Draft 2026', draft_subtitle: 'Picks seleccionados — Rondas 1 y 2',
+    draft_search_ph: 'Jugador, equipo, universidad…',
+    draft_col_pick: 'Pick', draft_col_player: 'Jugador', draft_col_pos: 'Posición',
+    draft_col_from: 'Procedencia', draft_col_contract: 'Contrato',
+    draft_undrafted_title: 'No elegidos en el Draft',
+    draft_undrafted_subtitle: 'Jugadores que no fueron seleccionados',
+    trades_title: 'Traspasos', trades_subtitle: 'Traspasos confirmados',
+    trades_search_ph: 'Equipo, jugador, pick…',
+    rosters_title: 'Plantillas', rosters_subtitle: 'Los 30 equipos — temporada 2025-26',
+    rosters_search_ph: 'Buscar equipo o jugador…',
+    roster_stays: 'Siguen', roster_arrivals: 'Llegadas',
+    roster_departures: 'Salidas', roster_fa: 'FA pendientes',
+    coaches_title: 'Entrenadores y General Managers', coaches_subtitle: 'Cambios en banquillos y gerencias',
+    coaches_search_ph: 'Equipo, nombre…',
+    coaches_col_new: 'Nuevo', coaches_col_role: 'Rol',
+    coaches_col_prev: 'Anterior', coaches_col_date_hired: 'Contratado', coaches_col_date_fired: 'Despedido',
+    col_team: 'Equipo', col_source: 'Fuente', col_notes: 'Notas',
+    filter_search: 'Buscar', btn_reset: 'Limpiar',
+    loading: 'Cargando datos…', no_data: 'Sin resultados',
+    results: 'resultados', receives: 'Recibe',
+    footer_data: 'Datos', footer_src: 'Fuente',
+    last_update: 'Actualizado',
+    trade_label: 'Traspaso',
+  },
+  en: {
+    home_eyebrow: 'Off-Season',
+    home_subtitle: 'Every move of the 2025-26 offseason: free agency, draft, trades, rosters, and coaching changes.',
+    home_fa_desc: 'Confirmed signings and pending market',
+    home_draft_desc: 'Selected picks in rounds 1 and 2',
+    home_trades_desc: 'Confirmed trades between franchises',
+    home_rosters_desc: 'All 30 teams — arrivals, departures, returning',
+    home_coaches_desc: 'Coaching and front office changes',
+    home_records: 'records',
+    home_teams: 'teams',
+    home_changes: 'changes',
+    tab_cap: 'Cap / Apron',
+    cap_title: 'Cap / Apron',
+    cap_subtitle: 'Hard-capped teams — 2025-26 Season',
+    cap_1st: '1st Apron',
+    cap_2nd: '2nd Apron',
+    cap_triggers_label: '1st Apron Triggers',
+    cap_triggers_2nd_label: '2nd Apron Triggers',
+    cap_col_capped: 'Hard Cap',
+    cap_col_trigger: 'Main Trigger',
+    home_cap_desc: 'Teams hard-capped at the 1st and 2nd apron',
+    cap_teams: 'teams',
+    cap_1st_badge: '1st Apron',
+    cap_2nd_badge: '2nd Apron',
+    theme_light: 'Light mode',
+    theme_dark: 'Dark mode',
+    tab_rosters: 'Rosters', tab_coaches: 'Coaches & GMs',
+    fa_title: 'Free Agency', fa_subtitle: 'Free Agents — Confirmed and pending moves',
+    fa_search_ph: 'Player, team…',
+    fa_col_player: 'Player', fa_col_team25: '2025 Team', fa_col_dest: 'Destination',
+    fa_col_m: 'Total ($M)', fa_col_yr: 'Years', fa_col_aav: 'AAV',
+    draft_title: 'Draft 2026', draft_subtitle: 'Selected picks — Rounds 1 & 2',
+    draft_search_ph: 'Player, team, college…',
+    draft_col_pick: 'Pick', draft_col_player: 'Player', draft_col_pos: 'Position',
+    draft_col_from: 'From', draft_col_contract: 'Contract',
+    draft_undrafted_title: 'Undrafted Players',
+    draft_undrafted_subtitle: 'Players not selected in the Draft',
+    trades_title: 'Trades', trades_subtitle: 'Confirmed trades',
+    trades_search_ph: 'Team, player, pick…',
+    rosters_title: 'Rosters', rosters_subtitle: 'All 30 teams — 2025-26 season',
+    rosters_search_ph: 'Search team or player…',
+    roster_stays: 'Returning', roster_arrivals: 'Arrivals',
+    roster_departures: 'Departures', roster_fa: 'Pending FA',
+    coaches_title: 'Head Coaches & General Managers', coaches_subtitle: 'Coaching and front office changes',
+    coaches_search_ph: 'Team, name…',
+    coaches_col_new: 'New', coaches_col_role: 'Role',
+    coaches_col_prev: 'Previous', coaches_col_date_hired: 'Hired', coaches_col_date_fired: 'Fired',
+    col_team: 'Team', col_source: 'Source', col_notes: 'Notes',
+    filter_search: 'Search', btn_reset: 'Reset',
+    loading: 'Loading data…', no_data: 'No results',
+    results: 'results', receives: 'Receives',
+    footer_data: 'Data', footer_src: 'Source',
+    last_update: 'Updated',
+    trade_label: 'Trade',
+  }
+};
+
+let lang = 'es';
+
+function t(key) { return i18n[lang][key] || key; }
+
+function setLang(l) {
+  lang = l;
+  document.getElementById('btn-es').classList.toggle('active', l === 'es');
+  document.getElementById('btn-en').classList.toggle('active', l === 'en');
+  document.documentElement.lang = l;
+  applyTranslations();
+  rerenderAll();
+}
+
+function applyTranslations() {
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const key = el.getAttribute("data-i18n");
+    const val = t(key);
+    if (el.children.length > 0) {
+      let tn = [...el.childNodes].find(n => n.nodeType === 3);
+      if (tn) tn.textContent = val + " ";
+      else el.insertBefore(document.createTextNode(val + " "), el.firstChild);
+    } else {
+      el.textContent = val;
+    }
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    const key = el.getAttribute('data-i18n-ph');
+    el.placeholder = t(key);
+  });
+  const upd = document.getElementById('lastUpdate');
+  if (loadedAt) upd.textContent = `${t('last_update')}: ${loadedAt}`;
+}
+
+// ─────────────────────────────────────────────
+// CSV PARSER
+// ─────────────────────────────────────────────
+function parseCSV(text) {
+  const rows = [];
+  const lines = text.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    const row = [];
+    let cur = '', inQ = false;
+    for (let j = 0; j < lines[i].length; j++) {
+      const c = lines[i][j];
+      if (c === '"') { inQ = !inQ; continue; }
+      if (c === ',' && !inQ) { row.push(cur.trim()); cur = ''; continue; }
+      cur += c;
+    }
+    row.push(cur.trim());
+    if (row.some(c => c)) rows.push(row);
+  }
+  return rows;
+}
+
+function cell(row, i) { return (row[i] || '').trim(); }
+
+// ─────────────────────────────────────────────
+// DATA STORE
+// ─────────────────────────────────────────────
+const DATA = { fa: [], draft: [], undrafted: [], trades: [], rosters: [], coaches: [], cap1st: [], cap2nd: [], triggers1st: [], triggers2nd: [] };
+const FILTERED = { fa: [], draft: [], trades: [], coaches: [], rosters: [] };
+const SORT = { fa: {col:-1,asc:true}, draft: {col:-1,asc:true}, coaches: {col:-1,asc:true} };
+let loadedAt = null;
+
+// ─────────────────────────────────────────────
+// FETCH ALL
+// ─────────────────────────────────────────────
+async function fetchAll() {
+  try {
+    const [faR, draftR, tradesR, r1, r2, coachR] = await Promise.all([
+      fetch(URLS.fa), fetch(URLS.draft), fetch(URLS.trades),
+      fetch(URLS.rosters1), fetch(URLS.rosters2), fetch(URLS.coaches)
+    ]);
+
+    const [faTxt, draftTxt, tradesTxt, r1Txt, r2Txt, coachTxt] = await Promise.all([
+      faR.text(), draftR.text(), tradesR.text(),
+      r1.text(), r2.text(), coachR.text()
+    ]);
+
+    processFA(parseCSV(faTxt));
+    processDraft(parseCSV(draftTxt));
+    processTrades(parseCSV(tradesTxt));
+    processRosters(parseCSV(r1Txt), parseCSV(r2Txt));
+    processCoaches(parseCSV(coachTxt));
+
+    loadedAt = new Date().toLocaleString(lang === 'es' ? 'es-ES' : 'en-US', {
+      day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+    });
+
+    document.getElementById('lastUpdate').textContent = `${t('last_update')}: ${loadedAt}`;
+    document.getElementById('footer-updated').textContent = `${t('last_update')}: ${loadedAt}`;
+
+    rerenderAll();
+    updateHomeCounts();
+  } catch(e) {
+    console.error(e);
+    ['fa-tbody','draft-tbody','coaches-tbody'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = `<tr><td colspan="8"><div class="state-empty">Error al cargar datos. Verifica las URLs del Sheet.</div></td></tr>`;
+    });
+  }
+}
+
+// ─────────────────────────────────────────────
+// PROCESS FA
+// Columnas: JUGADOR | 2025 | 2024 | MILLONES | AÑOS | AAV | FUENTE | NOTAS
+// ─────────────────────────────────────────────
+function processFA(rows) {
+  DATA.fa = rows.slice(1).filter(r => cell(r,0)).map(r => ({
+    player: cell(r,0),
+    team25: cell(r,1),
+    dest:   cell(r,2),
+    money:  cell(r,3),
+    years:  cell(r,4),
+    aav:    cell(r,5),
+    source: cell(r,6),
+    notes:  cell(r,7),
+  }));
+  document.getElementById('count-fa').textContent = DATA.fa.length;
+  populateSelect('fa-team25', [...new Set(DATA.fa.map(d=>d.team25).filter(Boolean))].sort());
+  populateSelect('fa-dest',   [...new Set(DATA.fa.map(d=>d.dest).filter(Boolean))].sort());
+}
+
+function renderFA(data) {
+  const tbody = document.getElementById('fa-tbody');
+  if (!data.length) { tbody.innerHTML = `<tr><td colspan="8"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
+  tbody.innerHTML = data.map(d => `
+    <tr>
+      <td class="td-player clickable-player" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</td>
+      <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team25)}')">${esc(d.team25)}</span></td>
+      <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.dest)}')">${esc(d.dest)}</span></td>
+      <td class="td-money">${d.money ? '$'+esc(d.money)+'M' : '—'}</td>
+      <td class="td-muted">${esc(d.years) || '—'}</td>
+      <td class="td-money">${d.aav ? '$'+esc(d.aav)+'M' : '—'}</td>
+      <td class="td-muted">${esc(d.source)}</td>
+      <td class="td-notes">${esc(d.notes)}</td>
+    </tr>`).join('');
+  document.getElementById('fa-count').innerHTML = `<span>${data.length}</span>&nbsp;${t('results')}`;
+}
+
+function filterFA() {
+  const q = document.getElementById('fa-search').value.toLowerCase();
+  const t25 = document.getElementById('fa-team25').value;
+  const dest = document.getElementById('fa-dest').value;
+  FILTERED.fa = DATA.fa.filter(d =>
+    (!q || `${d.player} ${d.team25} ${d.dest} ${d.notes}`.toLowerCase().includes(q)) &&
+    (!t25 || d.team25 === t25) &&
+    (!dest || d.dest === dest)
+  );
+  renderFA(FILTERED.fa);
+}
+
+function resetFA() {
+  document.getElementById('fa-search').value = '';
+  document.getElementById('fa-team25').value = '';
+  document.getElementById('fa-dest').value = '';
+  filterFA();
+}
+
+// ─────────────────────────────────────────────
+// PROCESS DRAFT
+// Columnas: PICK | (equipo) | JUGADOR | (col vacía) | POS | 2024 | √ | CONTRATO | NOTAS
+// Undrafted: filas sin número de pick (col0 vacía o no numérico) pero con jugador
+// ─────────────────────────────────────────────
+function processDraft(rows) {
+  const all = rows.slice(1).filter(r => cell(r,2)); // tiene nombre de jugador
+  DATA.draft = all.filter(r => cell(r,0) && !isNaN(parseInt(cell(r,0)))).map(r => ({
+    pick:     cell(r,0),
+    team:     cell(r,1),
+    player:   cell(r,2),
+    pos:      cell(r,4),
+    from:     cell(r,5),
+    check:    cell(r,6),
+    contract: cell(r,7),
+    notes:    cell(r,8),
+  }));
+  DATA.undrafted = all.filter(r => !cell(r,0) || isNaN(parseInt(cell(r,0)))).map(r => ({
+    player: cell(r,2),
+    pos:    cell(r,4),
+    from:   cell(r,5),
+    notes:  cell(r,8),
+  }));
+  document.getElementById('count-draft').textContent = DATA.draft.length;
+  populateSelect('draft-pos',  [...new Set(DATA.draft.map(d=>d.pos).filter(Boolean))].sort());
+  populateSelect('draft-team', [...new Set(DATA.draft.map(d=>d.team).filter(Boolean))].sort());
+}
+
+function renderDraft(data) {
+  const tbody = document.getElementById('draft-tbody');
+  if (!data.length) { tbody.innerHTML = `<tr><td colspan="8"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
+  tbody.innerHTML = data.map(d => {
+    const n = parseInt(d.pick);
+    const cls = n <= 5 ? 'top5' : n <= 30 ? 'r1' : '';
+    const chk = d.check ? `<span class="badge badge-check">${esc(d.check)}</span>` : '—';
+    return `<tr>
+      <td><span class="pick-num ${cls}">${esc(d.pick)}</span></td>
+      <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team)}')">${esc(d.team)}</span></td>
+      <td class="td-player clickable-player" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</td>
+      <td><span class="badge badge-pos">${esc(d.pos)}</span></td>
+      <td class="td-muted">${esc(d.from)}</td>
+      <td>${chk}</td>
+      <td class="td-muted">${esc(d.contract)}</td>
+      <td class="td-notes">${esc(d.notes)}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('draft-count').innerHTML = `<span>${data.length}</span>&nbsp;${t('results')}`;
+}
+
+function renderUndrafted(data) {
+  const tbody = document.getElementById('undrafted-tbody');
+  if (!data.length) { tbody.innerHTML = `<tr><td colspan="4"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
+  tbody.innerHTML = data.map(d => `
+    <tr>
+      <td class="td-player clickable-player" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</td>
+      <td style="font-size:18px;text-align:center" title="${esc(d.country)}">${flag(d.country)}</td>
+      <td><span class="badge badge-pos">${esc(d.pos) || '—'}</span></td>
+      <td class="td-muted">${esc(d.from) || '—'}</td>
+      <td class="td-notes">${esc(d.notes)}</td>
+    </tr>`).join('');
+}
+
+function filterDraft() {
+  const q = document.getElementById('draft-search').value.toLowerCase();
+  const pos = document.getElementById('draft-pos').value;
+  const team = document.getElementById('draft-team').value;
+  FILTERED.draft = DATA.draft.filter(d =>
+    (!q || `${d.player} ${d.team} ${d.from} ${d.notes}`.toLowerCase().includes(q)) &&
+    (!pos || d.pos === pos) &&
+    (!team || d.team === team)
+  );
+  const filteredUndrafted = (DATA.undrafted || []).filter(d =>
+    !q || `${d.player} ${d.pos} ${d.from} ${d.notes}`.toLowerCase().includes(q)
+  );
+  renderDraft(FILTERED.draft);
+  renderUndrafted(filteredUndrafted);
+}
+
+function resetDraft() {
+  document.getElementById('draft-search').value = '';
+  document.getElementById('draft-pos').value = '';
+  document.getElementById('draft-team').value = '';
+  filterDraft();
+}
+
+// ─────────────────────────────────────────────
+// PROCESS TRADES
+// Columnas: RECIBE | (jugadores/picks) | ... | RECIBE | ...
+// Estructura: cada fila es una parte del trade, agrupadas por número
+// ─────────────────────────────────────────────
+function processTrades(rows) {
+  // Agrupa filas: cuando col0 tiene texto = nueva parte del trade
+  // Asumimos estructura: col0=equipo, col1..col2=lo que recibe, col3=equipo2, col4..col5=lo que recibe
+  const trades = [];
+  let current = null;
+
+  rows.slice(1).forEach((r, i) => {
+    const team1 = cell(r, 0);
+    const team2 = cell(r, 3);
+
+    if (team1 && team2) {
+      // nueva fila de trade con dos equipos
+      current = {
+        id: trades.length + 1,
+        sides: [
+          { team: team1, receives: [cell(r,1), cell(r,2)].filter(Boolean) },
+          { team: team2, receives: [cell(r,4), cell(r,5)].filter(Boolean) },
+        ]
+      };
+      trades.push(current);
+    } else if (current) {
+      // continuación: más jugadores/picks para el trade anterior
+      if (team1) {
+        const side = current.sides.find(s => s.team === team1);
+        if (side) { [cell(r,1), cell(r,2)].filter(Boolean).forEach(v => side.receives.push(v)); }
+        else current.sides[0].receives.push(...[cell(r,0), cell(r,1), cell(r,2)].filter(Boolean));
+      }
+      if (cell(r,3)) {
+        const side = current.sides.find(s => s.team === cell(r,3));
+        if (side) { [cell(r,4), cell(r,5)].filter(Boolean).forEach(v => side.receives.push(v)); }
+      }
+    }
+  });
+
+  DATA.trades = trades;
+  document.getElementById('count-trades').textContent = DATA.trades.length;
+
+  const allTeams = [...new Set(DATA.trades.flatMap(trade => trade.sides.map(s => s.team)).filter(Boolean))].sort();
+  populateSelect('trades-team', allTeams);
+}
+
+function renderTrades(data) {
+  const container = document.getElementById('trades-container');
+  if (!data.length) { container.innerHTML = `<div class="state-empty">${t('no_data')}</div>`; return; }
+  container.innerHTML = data.map(trade => `
+    <div class="trade-card">
+      <div class="trade-header">
+        <span class="trade-idx">${t('trade_label')} #${trade.id}</span>
+      </div>
+      <div class="trade-body">
+        ${trade.sides.map(side => `
+          <div class="trade-side">
+            <div class="trade-team-label">${esc(side.team)}</div>
+            <div class="trade-receives-label">← ${t('receives')}</div>
+            ${side.receives.map(item => `<div class="trade-item">${esc(item)}</div>`).join('') || '<div class="trade-item td-muted">—</div>'}
+          </div>
+        `).join('')}
+      </div>
+    </div>`).join('');
+  document.getElementById('trades-count').innerHTML = `<span>${data.length}</span>&nbsp;${t('results')}`;
+}
+
+function filterTrades() {
+  const q = document.getElementById('trades-search').value.toLowerCase();
+  const team = document.getElementById('trades-team').value;
+  FILTERED.trades = DATA.trades.filter(trade => {
+    const text = trade.sides.flatMap(s => [s.team, ...s.receives]).join(' ').toLowerCase();
+    return (!q || text.includes(q)) && (!team || trade.sides.some(s => s.team === team));
+  });
+  renderTrades(FILTERED.trades);
+}
+
+function resetTrades() {
+  document.getElementById('trades-search').value = '';
+  document.getElementById('trades-team').value = '';
+  filterTrades();
+}
+
+// ─────────────────────────────────────────────
+// PROCESS ROSTERS
+// Columnas: EQUIPO | SIGUEN | ... | LLEGADAS | ... | SALIDAS | ... | FA PENDIENTES | ...
+// ─────────────────────────────────────────────
+function processRosters(rows1, rows2) {
+  const parse = rows => rows.slice(1).filter(r => cell(r,0)).map(r => ({
+    team:       cell(r,0),
+    siguen:     collectCol(r, 1, 2),
+    llegadas:   collectCol(r, 3, 4),
+    salidas:    collectCol(r, 5, 6),
+    fa:         collectCol(r, 7, 8),
+  }));
+
+  DATA.rosters = [...parse(rows1), ...parse(rows2)].sort((a,b) => a.team.localeCompare(b.team));
+  document.getElementById('count-plantillas').textContent = DATA.rosters.length;
+}
+
+function collectCol(row, ...indices) {
+  return indices.map(i => cell(row, i)).filter(Boolean);
+}
+
+function renderRosters(data) {
+  const container = document.getElementById('rosters-container');
+  if (!data.length) { container.innerHTML = `<div class="state-empty">${t('no_data')}</div>`; return; }
+  container.innerHTML = data.map(team => `
+    <div class="team-card">
+      <div class="team-card-header">
+        <span class="team-name clickable-team" onclick="openTeamView('${esc(team.team)}')" style="cursor:pointer">${esc(team.team)}</span>
+      </div>
+      <div class="team-card-body">
+        ${rosterBlock(team.siguen, 'siguen', t('roster_stays'))}
+        ${rosterBlock(team.llegadas, 'llegadas', t('roster_arrivals'))}
+        ${rosterBlock(team.salidas, 'salidas', t('roster_departures'))}
+        ${rosterBlock(team.fa, 'fa', t('roster_fa'))}
+      </div>
+    </div>`).join('');
+  document.getElementById('rosters-count').innerHTML = `<span>${data.length}</span>&nbsp;${t('results')}`;
+}
+
+function rosterBlock(players, cls, label) {
+  if (!players.length) return '';
+  return `
+    <div class="roster-block">
+      <div class="roster-label ${cls}">${label}</div>
+      ${players.map(p => `<div class="roster-player">${esc(p)}</div>`).join('')}
+    </div>`;
+}
+
+function filterRosters() {
+  const q = document.getElementById('rosters-search').value.toLowerCase();
+  FILTERED.rosters = DATA.rosters.filter(d =>
+    !q || `${d.team} ${[...d.siguen,...d.llegadas,...d.salidas,...d.fa].join(' ')}`.toLowerCase().includes(q)
+  );
+  renderRosters(FILTERED.rosters);
+}
+
+function resetRosters() {
+  document.getElementById('rosters-search').value = '';
+  filterRosters();
+}
+
+// ─────────────────────────────────────────────
+// PROCESS COACHES
+// Columnas: EQUIPO | (vacía) | NUEVO | ROL | ANTIGUO | FECHA | FUENTE
+// ─────────────────────────────────────────────
+function processCoaches(rows) {
+  DATA.coaches = rows.slice(1).filter(r => cell(r,0)).map(r => ({
+    team:       cell(r,0),
+    new:        cell(r,1),
+    role:       cell(r,2),
+    dateHired:  cell(r,3),
+    prev:       cell(r,4),
+    dateFired:  cell(r,5),
+    source:     cell(r,6),
+  }));
+  document.getElementById('count-coaches').textContent = DATA.coaches.length;
+  populateSelect('coaches-role', [...new Set(DATA.coaches.map(d=>d.role).filter(Boolean))].sort());
+  populateSelect('coaches-team', [...new Set(DATA.coaches.map(d=>d.team).filter(Boolean))].sort());
+}
+
+function renderCoaches(data) {
+  const tbody = document.getElementById('coaches-tbody');
+  if (!data.length) { tbody.innerHTML = `<tr><td colspan="6"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
+  tbody.innerHTML = data.map(d => {
+    const roleCls = d.role.toUpperCase().includes('HC') || d.role.toUpperCase().includes('HEAD') ? 'badge-role-hc' : 'badge-role-gm';
+    return `<tr>
+      <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team)}')">${esc(d.team)}</span></td>
+      <td class="td-player">${esc(d.new)}</td>
+      <td><span class="badge ${roleCls}">${esc(d.role)}</span></td>
+      <td class="td-muted">${esc(d.dateHired) || '—'}</td>
+      <td class="td-muted">${esc(d.prev) || '—'}</td>
+      <td class="td-muted">${esc(d.dateFired) || '—'}</td>
+      <td class="td-muted">${esc(d.source)}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('coaches-count').innerHTML = `<span>${data.length}</span>&nbsp;${t('results')}`;
+}
+
+function filterCoaches() {
+  const q = document.getElementById('coaches-search').value.toLowerCase();
+  const role = document.getElementById('coaches-role').value;
+  const team = document.getElementById('coaches-team').value;
+  FILTERED.coaches = DATA.coaches.filter(d =>
+    (!q || `${d.team} ${d.new} ${d.prev} ${d.role}`.toLowerCase().includes(q)) &&
+    (!role || d.role === role) &&
+    (!team || d.team === team)
+  );
+  renderCoaches(FILTERED.coaches);
+}
+
+function resetCoaches() {
+  document.getElementById('coaches-search').value = '';
+  document.getElementById('coaches-role').value = '';
+  document.getElementById('coaches-team').value = '';
+  filterCoaches();
+}
+
+// ─────────────────────────────────────────────
+// SORT
+// ─────────────────────────────────────────────
+const GETTERS = {
+  fa:     d => [d.player, d.team25, d.dest, d.money, d.years, d.aav, d.source, d.notes],
+  draft:  d => [d.pick, d.team, d.player, d.pos, d.from, d.check, d.contract, d.notes],
+  coaches:d => [d.team, d.new, d.role, d.dateHired, d.prev, d.dateFired, d.source],
+};
+
+function sortSection(section, col) {
+  const s = SORT[section];
+  if (!s) return;
+  if (s.col === col) s.asc = !s.asc;
+  else { s.col = col; s.asc = true; }
+
+  const getter = GETTERS[section];
+  const src = FILTERED[section].length ? FILTERED[section] : DATA[section];
+
+  src.sort((a, b) => {
+    let av = getter(a)[col] || '';
+    let bv = getter(b)[col] || '';
+    const an = parseFloat(av), bn = parseFloat(bv);
+    const cmp = (!isNaN(an) && !isNaN(bn)) ? an - bn : av.localeCompare(bv);
+    return s.asc ? cmp : -cmp;
+  });
+
+  if (section === 'fa') renderFA(src);
+  else if (section === 'draft') renderDraft(src);
+  else if (section === 'coaches') renderCoaches(src);
+
+  document.querySelectorAll(`#section-${section === 'coaches' ? 'coaches' : section} thead th`).forEach((th, i) => {
+    th.classList.toggle('sorted', i === col);
+  });
+}
+
+// ─────────────────────────────────────────────
+// TABS
+// ─────────────────────────────────────────────
+function showTab(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+  document.getElementById(`section-${name}`).classList.add('active');
+  if (name !== 'home') {
+    document.getElementById(`tab-${name}`).classList.add('active');
+    document.body.classList.remove('on-home');
+  } else {
+    
+// ─────────────────────────────────────────────
+// URL ROUTING
+// ─────────────────────────────────────────────
+const BASE_PATH = '/nba-offseason-2026/';
+
+function slugify(str) {
+  return (str || '').toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+function pushURL(params) {
+  const url = new URL(window.location.href);
+  Object.keys(params).forEach(k => {
+    if (params[k]) url.searchParams.set(k, params[k]);
+    else url.searchParams.delete(k);
+  });
+  window.history.pushState({}, '', url.toString());
+}
+
+function readURL() {
+  const p = new URLSearchParams(window.location.search);
+  return { player: p.get('player'), team: p.get('team'), tab: p.get('tab') };
+}
+
+window.addEventListener('popstate', () => {
+  const { player, team, tab } = readURL();
+  if (team) { openTeamView(decodeURIComponent(team), false); }
+  else { closeDrawer(false); showTab(tab || 'home', false); }
+});
+
+// ─────────────────────────────────────────────
+// PLAYER DRAWER
+// ─────────────────────────────────────────────
+function openPlayerDrawer(playerName, pushHistory = true) {
+  // Recopilar todos los datos del jugador en todas las pestañas
+  const faData    = DATA.fa.filter(d => d.player === playerName);
+  const draftData = DATA.draft.filter(d => d.player === playerName);
+  const undData   = DATA.undrafted ? DATA.undrafted.filter(d => d.player === playerName) : [];
+  const tradeData = DATA.trades.filter(tr => tr.sides.some(s => s.receives.some(r => r.includes(playerName))));
+
+  document.getElementById('drawer-player-name').textContent = playerName;
+
+  let html = '';
+
+  // FA
+  if (faData.length) {
+    html += `<div class="drawer-section">
+      <div class="drawer-section-title">${t('tab_fa')}</div>`;
+    faData.forEach(d => {
+      if (d.team25) html += drawerRow(lang === 'es' ? 'Equipo 2025' : '2025 Team', `<span class="badge badge-team">${esc(d.team25)}</span>`);
+      if (d.dest)   html += drawerRow(lang === 'es' ? 'Destino' : 'Destination', `<span class="badge badge-team">${esc(d.dest)}</span>`);
+      if (d.money)  html += drawerRow(lang === 'es' ? 'Total' : 'Total', `$${esc(d.money)}M`, 'money');
+      if (d.years)  html += drawerRow(lang === 'es' ? 'Años' : 'Years', esc(d.years));
+      if (d.aav)    html += drawerRow('AAV', `$${esc(d.aav)}M`, 'money');
+      if (d.source) html += drawerRow(lang === 'es' ? 'Fuente' : 'Source', esc(d.source));
+      if (d.notes)  html += drawerRow(lang === 'es' ? 'Notas' : 'Notes', esc(d.notes), 'notes');
+    });
+    html += `</div>`;
+  }
+
+  // Draft
+  if (draftData.length) {
+    html += `<div class="drawer-section">
+      <div class="drawer-section-title">${t('tab_draft')}</div>`;
+    draftData.forEach(d => {
+      if (d.pick)     html += drawerRow('Pick', `<span class="pick-num ${parseInt(d.pick)<=5?'top5':parseInt(d.pick)<=30?'r1':''}">${esc(d.pick)}</span>`);
+      if (d.team)     html += drawerRow(lang === 'es' ? 'Equipo' : 'Team', `<span class="badge badge-team">${esc(d.team)}</span>`);
+      if (d.pos)      html += drawerRow(lang === 'es' ? 'Posición' : 'Position', `<span class="badge badge-pos">${esc(d.pos)}</span>`);
+      if (d.country) html += drawerRow(lang === 'es' ? 'País' : 'Country', flag(d.country) + ' ' + esc(d.country));
+      if (d.from)     html += drawerRow(lang === 'es' ? 'Procedencia' : 'From', esc(d.from));
+      if (d.contract) html += drawerRow(lang === 'es' ? 'Contrato' : 'Contract', esc(d.contract));
+      if (d.notes)    html += drawerRow(lang === 'es' ? 'Notas' : 'Notes', esc(d.notes), 'notes');
+    });
+    html += `</div>`;
+  }
+
+  // Undrafted
+  if (undData.length) {
+    html += `<div class="drawer-section">
+      <div class="drawer-section-title">${t('draft_undrafted_title')}</div>`;
+    undData.forEach(d => {
+      if (d.pos)   html += drawerRow(lang === 'es' ? 'Posición' : 'Position', `<span class="badge badge-pos">${esc(d.pos)}</span>`);
+      if (d.from)  html += drawerRow(lang === 'es' ? 'Procedencia' : 'From', esc(d.from));
+      if (d.notes) html += drawerRow(lang === 'es' ? 'Notas' : 'Notes', esc(d.notes), 'notes');
+    });
+    html += `</div>`;
+  }
+
+  // Trades
+  if (tradeData.length) {
+    html += `<div class="drawer-section">
+      <div class="drawer-section-title">${t('tab_trades')}</div>`;
+    tradeData.forEach(tr => {
+      tr.sides.forEach(side => {
+        if (side.receives.some(r => r.includes(playerName))) {
+          html += drawerRow(lang === 'es' ? 'Llega a' : 'Goes to', `<span class="badge badge-team">${esc(side.team)}</span>`);
+        }
+      });
+    });
+    html += `</div>`;
+  }
+
+  if (!html) {
+    html = `<div class="drawer-empty">${t('no_data')}</div>`;
+  }
+
+  // Enlace a vista de equipo destino
+  const dest = faData[0]?.dest || draftData[0]?.team;
+  if (dest) {
+    html += `<div style="margin-top:24px; padding-top:16px; border-top:1px solid var(--border)">
+      <button onclick="openTeamView('${esc(dest)}')" style="background:none;border:1px solid var(--border);color:var(--text-muted);padding:8px 14px;border-radius:4px;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
+        ${lang === 'es' ? 'Ver equipo' : 'View team'}: ${esc(dest)} →
+      </button>
+    </div>`;
+  }
+
+  document.getElementById('drawer-body').innerHTML = html;
+  document.getElementById('drawer-overlay').classList.add('open');
+  document.getElementById('player-drawer').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  // sin URL para jugadores
+}
+
+function drawerRow(label, value, cls = '') {
+  return `<div class="drawer-row">
+    <span class="drawer-label">${label}</span>
+    <span class="drawer-value ${cls}">${value}</span>
+  </div>`;
+}
+
+function closeDrawer(pushHistory = true) {
+  document.getElementById('drawer-overlay').classList.remove('open');
+  document.getElementById('player-drawer').classList.remove('open');
+  document.body.style.overflow = '';
+  // sin URL para jugadores
+}
+
+// ESC para cerrar drawer
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+
+// ─────────────────────────────────────────────
+// TEAM VIEW
+// ─────────────────────────────────────────────
+let _prevTab = 'home';
+
+function openTeamView(teamName, pushHistory = true) {
+  // FA de este equipo (sale de o llega a)
+  const faOut  = DATA.fa.filter(d => d.team25 === teamName);
+  const faIn   = DATA.fa.filter(d => d.dest   === teamName);
+  // Draft picks del equipo
+  const picks  = DATA.draft.filter(d => d.team === teamName);
+  // Trades que involucran al equipo
+  const trades = DATA.trades.filter(tr => tr.sides.some(s => s.team === teamName));
+  // Plantilla
+  const roster = DATA.rosters.find(r => r.team === teamName);
+  // Coaches
+  const coaches = DATA.coaches.filter(d => d.team === teamName);
+  // Cap
+  const inCap1 = DATA.cap1st && DATA.cap1st.includes(teamName);
+  const inCap2 = DATA.cap2nd && DATA.cap2nd.includes(teamName);
+  const capTrigger = DATA.triggers1st?.find(tr => tr.team === teamName) || DATA.triggers2nd?.find(tr => tr.team === teamName);
+
+  document.getElementById('tv-team-name').textContent = teamName;
+
+  // Meta info
+  let meta = '';
+  if (inCap1) meta += `<span>${t('cap_1st_badge')}</span><br>`;
+  if (inCap2) meta += `<span>${t('cap_2nd_badge')}</span><br>`;
+  if (coaches.length) {
+    coaches.forEach(c => { meta += `${esc(c.role)}: ${esc(c.new)}<br>`; });
+  }
+  document.getElementById('tv-team-meta').innerHTML = meta;
+
+  // Grid de cards
+  const grid = document.getElementById('tv-grid');
+  let gridHTML = '';
+
+  // Card: Jugadores que llegan (FA)
+  gridHTML += tvCard(
+    lang === 'es' ? 'Llegadas (FA)' : 'FA Arrivals',
+    faIn.length,
+    faIn.map(d => `<div class="tv-row">
+      <span class="tv-row-name" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</span>
+      <span class="tv-row-money">${d.money ? '$'+esc(d.money)+'M / '+esc(d.years)+'y' : '—'}</span>
+    </div>`).join('') || `<div class="tv-empty">—</div>`
+  );
+
+  // Card: Jugadores que salen (FA)
+  gridHTML += tvCard(
+    lang === 'es' ? 'Salidas (FA)' : 'FA Departures',
+    faOut.length,
+    faOut.map(d => `<div class="tv-row">
+      <span class="tv-row-name" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</span>
+      <span class="tv-row-detail">${esc(d.dest) || '—'}</span>
+    </div>`).join('') || `<div class="tv-empty">—</div>`
+  );
+
+  // Card: Picks del Draft
+  if (picks.length) {
+    gridHTML += tvCard(
+      t('tab_draft'),
+      picks.length,
+      picks.map(d => `<div class="tv-row">
+        <span class="tv-row-name" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</span>
+        <span class="tv-row-detail">${esc(d.pos)} · Pick ${esc(d.pick)}</span>
+      </div>`).join('')
+    );
+  }
+
+  // Card: Plantilla
+  if (roster) {
+    if (roster.siguen.length) {
+      gridHTML += tvCard(
+        lang === 'es' ? 'Siguen' : 'Returning',
+        roster.siguen.length,
+        roster.siguen.map(p => `<div class="tv-row">
+          <span class="tv-row-name" onclick="openPlayerDrawer('${esc(p)}')">${esc(p)}</span>
+        </div>`).join('')
+      );
+    }
+    if (roster.llegadas.length) {
+      gridHTML += tvCard(
+        lang === 'es' ? 'Llegadas (plantilla)' : 'Arrivals',
+        roster.llegadas.length,
+        roster.llegadas.map(p => `<div class="tv-row">
+          <span class="tv-row-name" onclick="openPlayerDrawer('${esc(p)}')">${esc(p)}</span>
+        </div>`).join('')
+      );
+    }
+    if (roster.salidas.length) {
+      gridHTML += tvCard(
+        lang === 'es' ? 'Salidas (plantilla)' : 'Departures',
+        roster.salidas.length,
+        roster.salidas.map(p => `<div class="tv-row">
+          <span class="tv-row-name" onclick="openPlayerDrawer('${esc(p)}')">${esc(p)}</span>
+        </div>`).join('')
+      );
+    }
+    if (roster.fa.length) {
+      gridHTML += tvCard(
+        lang === 'es' ? 'FA pendientes' : 'Pending FA',
+        roster.fa.length,
+        roster.fa.map(p => `<div class="tv-row">
+          <span class="tv-row-name" onclick="openPlayerDrawer('${esc(p)}')">${esc(p)}</span>
+        </div>`).join('')
+      );
+    }
+  }
+
+  grid.innerHTML = gridHTML;
+
+  // Trades
+  const tradesEl = document.getElementById('tv-trades-section');
+  if (trades.length) {
+    tradesEl.innerHTML = `<div class="tv-section-title">${t('tab_trades')}</div>` +
+      trades.map(tr => `
+        <div class="trade-card" style="margin-bottom:10px">
+          <div class="trade-header"><span class="trade-idx">${t('trade_label')} #${tr.id}</span></div>
+          <div class="trade-body">
+            ${tr.sides.map(side => `
+              <div class="trade-side">
+                <div class="trade-team-label">${esc(side.team)}</div>
+                <div class="trade-receives-label">← ${t('receives')}</div>
+                ${side.receives.map(item => `<div class="trade-item">${esc(item)}</div>`).join('') || '<div class="trade-item td-muted">—</div>'}
+              </div>`).join('')}
+          </div>
+        </div>`).join('');
+  } else {
+    tradesEl.innerHTML = '';
+  }
+
+  // Coaches
+  const coachesEl = document.getElementById('tv-coaches-section');
+  if (coaches.length) {
+    coachesEl.innerHTML = `<div class="tv-section-title" style="margin-top:24px">${t('tab_coaches')}</div>` +
+      `<div class="table-wrap"><table><thead><tr>
+        <th>${t('coaches_col_new')}</th><th>${t('coaches_col_role')}</th>
+        <th>${t('coaches_col_prev')}</th><th>${t('coaches_col_date')}</th>
+      </tr></thead><tbody>` +
+      coaches.map(d => {
+        const rc = d.role.toUpperCase().includes('HC') || d.role.toUpperCase().includes('HEAD') ? 'badge-role-hc' : 'badge-role-gm';
+        return `<tr>
+          <td class="td-player">${esc(d.new)}</td>
+          <td><span class="badge ${rc}">${esc(d.role)}</span></td>
+          <td class="td-muted">${esc(d.prev)||'—'}</td>
+          <td class="td-muted">${esc(d.date)}</td>
+        </tr>`;
+      }).join('') + `</tbody></table></div>`;
+  } else {
+    coachesEl.innerHTML = '';
+  }
+
+  // Cap info
+  const capEl = document.getElementById('tv-cap-section');
+  if (inCap1 || inCap2) {
+    const badge = inCap2 ? `<span class="badge badge-2nd">${t('cap_2nd_badge')}</span>` : `<span class="badge badge-1st">${t('cap_1st_badge')}</span>`;
+    capEl.innerHTML = `<div class="tv-section-title" style="margin-top:24px">Cap / Apron</div>
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 0">
+        ${badge}
+        ${capTrigger ? `<span class="td-muted" style="font-size:12px">${esc(capTrigger.trigger)}</span>` : ''}
+      </div>`;
+  } else {
+    capEl.innerHTML = '';
+  }
+
+  // Actualizar título del botón back
+  document.getElementById('team-back-btn').textContent = '← ' + (lang === 'es' ? 'Volver' : 'Back');
+
+  // Navegar
+  _prevTab = readURL().tab || 'home';
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+  document.getElementById('section-team').classList.add('active');
+  document.body.classList.remove('on-home');
+
+  if (pushHistory) pushURL({ team: teamName, player: null, tab: null });
+}
+
+function tvCard(label, count, bodyHTML) {
+  return `<div class="tv-card">
+    <div class="tv-card-header">
+      <span class="tv-label">${label}</span>
+      <span class="tv-count">${count}</span>
+    </div>
+    <div class="tv-card-body">${bodyHTML}</div>
+  </div>`;
+}
+
+function goBack() {
+  window.history.back();
+}
+
+document.body.classList.add('on-home');
+  }
+}
+
+// ─────────────────────────────────────────────
+// UTILS
+// ─────────────────────────────────────────────
+function flag(code) {
+  if (!code || code.trim().length !== 2) return code || '';
+  return code.trim().toUpperCase().replace(/./g, c =>
+    String.fromCodePoint(c.charCodeAt(0) + 127397)
+  );
+}
+
+function esc(s) {
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function populateSelect(id, values) {
+  const sel = document.getElementById(id);
+  if (!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">—</option>' + values.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join('');
+  if (cur) sel.value = cur;
+}
+
+function rerenderAll() {
+  filterFA();
+  filterDraft();
+  filterTrades();
+  filterRosters();
+  filterCoaches();
+  if (DATA.cap1st.length || DATA.cap2nd.length) renderCap();
+  updateHomeCounts();
+  applyTranslations();
+}
+
+function updateHomeCounts() {
+  const fa = DATA.fa.length;
+  const draft = DATA.draft.length;
+  const trades = DATA.trades.length;
+  const rosters = DATA.rosters.length;
+  const coaches = DATA.coaches.length;
+  const cap = (DATA.cap1st ? DATA.cap1st.length : 0) + (DATA.cap2nd ? DATA.cap2nd.length : 0);
+  document.getElementById('home-count-fa').textContent        = `${fa} ${t('home_records')}`;
+  document.getElementById('home-count-draft').textContent     = `${draft} ${t('home_records')}`;
+  document.getElementById('home-count-trades').textContent    = `${trades} ${t('home_records')}`;
+  document.getElementById('home-count-plantillas').textContent= `${rosters} ${t('home_teams')}`;
+  document.getElementById('home-count-coaches').textContent   = `${coaches} ${t('home_changes')}`;
+  document.getElementById('home-count-cap').textContent       = `${cap} ${t('cap_teams')}`;
+}
+
+// ─────────────────────────────────────────────
+// THEME TOGGLE
+// ─────────────────────────────────────────────
+let isLight = false;
+
+function toggleTheme() {
+  isLight = !isLight;
+  document.body.classList.toggle('light', isLight);
+  document.getElementById('theme-icon').textContent = isLight ? '🌙' : '☀️';
+  document.getElementById('theme-toggle').title = t(isLight ? 'theme_dark' : 'theme_light');
+}
+
+// ─────────────────────────────────────────────
+// FETCH CAP / APRON — SalarySwish
+// ─────────────────────────────────────────────
+const CAP_URL = 'https://www.salaryswish.com/hard-cap-tracker';
+
+// Triggers legibles (map de columna → etiqueta corta)
+const TRIGGER_LABELS = {
+  'TP-MLE Exceeded': 'MLE (taxpayer)',
+  'TP-MLE Length Exceeded': 'MLE length',
+  'MLE Trade': 'MLE trade',
+  'MLE Waivers': 'MLE waivers',
+  'BAE': 'BAE',
+  'S&T': 'Sign & Trade',
+  'Trade Salary Acquired': 'Salary acquired',
+  'Waived & Signed': 'Waived & signed',
+  'Past-Season TPE': 'TPE (past)',
+  'Any MLE': 'Cualquier MLE',
+  'Trade Aggregate': 'Agregación',
+  'Cash Traded': 'Cash enviado',
+  'S&T Room Used': 'S&T (room)',
+  'S&T Exc. Used': 'S&T (exc.)',
+};
+
+async function fetchCap() {
+  try {
+    const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(CAP_URL)}`;
+    const res = await fetch(proxy);
+    const json = await res.json();
+    const html = json.contents;
+
+    // Parsear con DOMParser
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+
+    // Extraer equipos del 1er y 2º apron desde las listas
+    const listItems = doc.querySelectorAll('ul li a');
+    const cap1st = [], cap2nd = [];
+    let inFirst = false, inSecond = false;
+
+    // Recorremos los párrafos fuertes para detectar la sección
+    const strongEls = doc.querySelectorAll('strong');
+    strongEls.forEach(s => {
+      if (s.textContent.includes('First apron')) inFirst = true;
+      if (s.textContent.includes('Second apron')) { inFirst = false; inSecond = true; }
+    });
+
+    // Mejor: buscar los <li> dentro de los <ul> que siguen a los <strong>
+    const allUls = doc.querySelectorAll('ul');
+    allUls.forEach(ul => {
+      const prev = ul.previousElementSibling;
+      if (!prev) return;
+      const txt = prev.textContent || '';
+      const isFirst = txt.includes('First apron') || txt.includes('first apron');
+      const isSecond = txt.includes('Second apron') || txt.includes('second apron');
+      if (isFirst || isSecond) {
+        ul.querySelectorAll('li a').forEach(a => {
+          const name = a.textContent.trim();
+          if (name && !name.includes('Logo')) {
+            if (isFirst) cap1st.push(name);
+            else cap2nd.push(name);
+          }
+        });
+      }
+    });
+
+    // Extraer triggers de las tablas
+    const tables = doc.querySelectorAll('table');
+    const triggers1st = [], triggers2nd = [];
+
+    tables.forEach((tbl, tblIdx) => {
+      const headers = [...tbl.querySelectorAll('thead th')].map(th => th.textContent.trim());
+      const teamIdx = headers.findIndex(h => h === 'Team');
+      const cappedIdx = headers.findIndex(h => h.includes('Capped At'));
+
+      tbl.querySelectorAll('tbody tr').forEach(row => {
+        const cells = [...row.querySelectorAll('td')];
+        if (!cells.length) return;
+
+        // Nombre del equipo: primer enlace de texto limpio
+        const teamLink = cells[0] ? cells[0].querySelector('a') : null;
+        const teamText = teamLink ? teamLink.textContent.replace(/Logo of the /g,'').trim() : '';
+        // Limpiar: quitar abreviaturas en mayúsculas al final
+        const teamName = teamText.replace(/[A-Z]{2,4}$/, '').trim();
+
+        if (!teamName) return;
+
+        // Trigger principal: primera celda no vacía después de "Capped At"
+        let mainTrigger = '';
+        for (let i = cappedIdx + 1; i < cells.length; i++) {
+          const ct = cells[i].textContent.trim();
+          if (ct) {
+            const hdr = headers[i] || '';
+            mainTrigger = TRIGGER_LABELS[hdr] || hdr;
+            // Si tiene texto específico (jugador + fecha), añadirlo
+            const detail = ct.replace(/\s+/g, ' ').trim();
+            if (detail && detail !== teamName) mainTrigger += `: ${detail}`;
+            break;
+          }
+        }
+
+        if (tblIdx === 0) triggers1st.push({ team: teamName, trigger: mainTrigger });
+        else triggers2nd.push({ team: teamName, trigger: mainTrigger });
+      });
+    });
+
+    DATA.cap1st = cap1st.length ? cap1st : triggers1st.map(tr => tr.team);
+    DATA.cap2nd = cap2nd.length ? cap2nd : triggers2nd.map(tr => tr.team);
+    DATA.triggers1st = triggers1st;
+    DATA.triggers2nd = triggers2nd;
+
+    document.getElementById('count-cap').textContent = DATA.cap1st.length + DATA.cap2nd.length;
+
+    const now = new Date().toLocaleString(lang === 'es' ? 'es-ES' : 'en-US', {
+      day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+    });
+    document.getElementById('cap-fetched-at').textContent = `· ${now}`;
+
+    renderCap();
+    updateHomeCounts();
+  } catch(e) {
+    console.error('Cap fetch error:', e);
+    ['teams-1st','teams-2nd','cap-1st-tbody','cap-2nd-tbody'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = `<div class="state-empty">Error al cargar. <a href="${CAP_URL}" target="_blank" style="color:var(--accent)">Ver en SalarySwish →</a></div>`;
+    });
+  }
+}
+
+function renderCap() {
+  const t1 = document.getElementById('teams-1st');
+  const t2 = document.getElementById('teams-2nd');
+  const b1 = document.getElementById('cap-1st-tbody');
+  const b2 = document.getElementById('cap-2nd-tbody');
+
+  if (DATA.cap1st && DATA.cap1st.length) {
+    document.getElementById('count-1st').textContent = `${DATA.cap1st.length} ${t('cap_teams')}`;
+    t1.innerHTML = DATA.cap1st.map(team =>
+      `<span class="apron-team-pill clickable-team" onclick="openTeamView('${esc(team)}')" style="cursor:pointer">${esc(team)}</span>`
+    ).join('');
+  } else {
+    t1.innerHTML = `<span class="state-empty">${t('no_data')}</span>`;
+  }
+
+  if (DATA.cap2nd && DATA.cap2nd.length) {
+    document.getElementById('count-2nd').textContent = `${DATA.cap2nd.length} ${t('cap_teams')}`;
+    t2.innerHTML = DATA.cap2nd.map(team =>
+      `<span class="apron-team-pill clickable-team" onclick="openTeamView('${esc(team)}')" style="cursor:pointer">${esc(team)}</span>`
+    ).join('');
+  } else {
+    t2.innerHTML = `<span class="state-empty">${t('no_data')}</span>`;
+  }
+
+  const badge1 = `<span class="badge badge-1st">${t('cap_1st_badge')}</span>`;
+  const badge2 = `<span class="badge badge-2nd">${t('cap_2nd_badge')}</span>`;
+
+  if (DATA.triggers1st && DATA.triggers1st.length) {
+    b1.innerHTML = DATA.triggers1st.map(d => `
+      <tr>
+        <td class="td-player">${esc(d.team)}</td>
+        <td>${badge1}</td>
+        <td class="td-muted">${esc(d.trigger) || '—'}</td>
+      </tr>`).join('');
+  } else {
+    b1.innerHTML = `<tr><td colspan="3"><div class="state-empty">${t('no_data')}</div></td></tr>`;
+  }
+
+  if (DATA.triggers2nd && DATA.triggers2nd.length) {
+    b2.innerHTML = DATA.triggers2nd.map(d => `
+      <tr>
+        <td class="td-player">${esc(d.team)}</td>
+        <td>${badge2}</td>
+        <td class="td-muted">${esc(d.trigger) || '—'}</td>
+      </tr>`).join('');
+  } else {
+    b2.innerHTML = `<tr><td colspan="3"><div class="state-empty">${t('no_data')}</div></td></tr>`;
+  }
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+
+// ─────────────────────────────────────────────
+// URL ROUTING
+// ─────────────────────────────────────────────
+const BASE_PATH = '/nba-offseason-2026/';
+
+function slugify(str) {
+  return (str || '').toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+function pushURL(params) {
+  const url = new URL(window.location.href);
+  Object.keys(params).forEach(k => {
+    if (params[k]) url.searchParams.set(k, params[k]);
+    else url.searchParams.delete(k);
+  });
+  window.history.pushState({}, '', url.toString());
+}
+
+function readURL() {
+  const p = new URLSearchParams(window.location.search);
+  return { player: p.get('player'), team: p.get('team'), tab: p.get('tab') };
+}
+
+window.addEventListener('popstate', () => {
+  const { player, team, tab } = readURL();
+  if (team) { openTeamView(decodeURIComponent(team), false); }
+  else if (player) { openPlayerDrawer(decodeURIComponent(player), false); }
+  else { closeDrawer(false); showTab(tab || 'home', false); }
+});
+
+// ─────────────────────────────────────────────
+// PLAYER DRAWER
+// ─────────────────────────────────────────────
+function openPlayerDrawer(playerName, pushHistory = true) {
+  // Recopilar todos los datos del jugador en todas las pestañas
+  const faData    = DATA.fa.filter(d => d.player === playerName);
+  const draftData = DATA.draft.filter(d => d.player === playerName);
+  const undData   = DATA.undrafted ? DATA.undrafted.filter(d => d.player === playerName) : [];
+  const tradeData = DATA.trades.filter(tr => tr.sides.some(s => s.receives.some(r => r.includes(playerName))));
+
+  document.getElementById('drawer-player-name').textContent = playerName;
+
+  let html = '';
+
+  // FA
+  if (faData.length) {
+    html += `<div class="drawer-section">
+      <div class="drawer-section-title">${t('tab_fa')}</div>`;
+    faData.forEach(d => {
+      if (d.team25) html += drawerRow(lang === 'es' ? 'Equipo 2025' : '2025 Team', `<span class="badge badge-team">${esc(d.team25)}</span>`);
+      if (d.dest)   html += drawerRow(lang === 'es' ? 'Destino' : 'Destination', `<span class="badge badge-team">${esc(d.dest)}</span>`);
+      if (d.money)  html += drawerRow(lang === 'es' ? 'Total' : 'Total', `$${esc(d.money)}M`, 'money');
+      if (d.years)  html += drawerRow(lang === 'es' ? 'Años' : 'Years', esc(d.years));
+      if (d.aav)    html += drawerRow('AAV', `$${esc(d.aav)}M`, 'money');
+      if (d.source) html += drawerRow(lang === 'es' ? 'Fuente' : 'Source', esc(d.source));
+      if (d.notes)  html += drawerRow(lang === 'es' ? 'Notas' : 'Notes', esc(d.notes), 'notes');
+    });
+    html += `</div>`;
+  }
+
+  // Draft
+  if (draftData.length) {
+    html += `<div class="drawer-section">
+      <div class="drawer-section-title">${t('tab_draft')}</div>`;
+    draftData.forEach(d => {
+      if (d.pick)     html += drawerRow('Pick', `<span class="pick-num ${parseInt(d.pick)<=5?'top5':parseInt(d.pick)<=30?'r1':''}">${esc(d.pick)}</span>`);
+      if (d.team)     html += drawerRow(lang === 'es' ? 'Equipo' : 'Team', `<span class="badge badge-team">${esc(d.team)}</span>`);
+      if (d.pos)      html += drawerRow(lang === 'es' ? 'Posición' : 'Position', `<span class="badge badge-pos">${esc(d.pos)}</span>`);
+      if (d.from)     html += drawerRow(lang === 'es' ? 'Procedencia' : 'From', esc(d.from));
+      if (d.contract) html += drawerRow(lang === 'es' ? 'Contrato' : 'Contract', esc(d.contract));
+      if (d.notes)    html += drawerRow(lang === 'es' ? 'Notas' : 'Notes', esc(d.notes), 'notes');
+    });
+    html += `</div>`;
+  }
+
+  // Undrafted
+  if (undData.length) {
+    html += `<div class="drawer-section">
+      <div class="drawer-section-title">${t('draft_undrafted_title')}</div>`;
+    undData.forEach(d => {
+      if (d.pos)   html += drawerRow(lang === 'es' ? 'Posición' : 'Position', `<span class="badge badge-pos">${esc(d.pos)}</span>`);
+      if (d.from)  html += drawerRow(lang === 'es' ? 'Procedencia' : 'From', esc(d.from));
+      if (d.notes) html += drawerRow(lang === 'es' ? 'Notas' : 'Notes', esc(d.notes), 'notes');
+    });
+    html += `</div>`;
+  }
+
+  // Trades
+  if (tradeData.length) {
+    html += `<div class="drawer-section">
+      <div class="drawer-section-title">${t('tab_trades')}</div>`;
+    tradeData.forEach(tr => {
+      tr.sides.forEach(side => {
+        if (side.receives.some(r => r.includes(playerName))) {
+          html += drawerRow(lang === 'es' ? 'Llega a' : 'Goes to', `<span class="badge badge-team">${esc(side.team)}</span>`);
+        }
+      });
+    });
+    html += `</div>`;
+  }
+
+  if (!html) {
+    html = `<div class="drawer-empty">${t('no_data')}</div>`;
+  }
+
+  // Enlace a vista de equipo destino
+  const dest = faData[0]?.dest || draftData[0]?.team;
+  if (dest) {
+    html += `<div style="margin-top:24px; padding-top:16px; border-top:1px solid var(--border)">
+      <button onclick="openTeamView('${esc(dest)}')" style="background:none;border:1px solid var(--border);color:var(--text-muted);padding:8px 14px;border-radius:4px;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
+        ${lang === 'es' ? 'Ver equipo' : 'View team'}: ${esc(dest)} →
+      </button>
+    </div>`;
+  }
+
+  document.getElementById('drawer-body').innerHTML = html;
+  document.getElementById('drawer-overlay').classList.add('open');
+  document.getElementById('player-drawer').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  if (pushHistory) pushURL({ player: playerName, team: null });
+}
+
+function drawerRow(label, value, cls = '') {
+  return `<div class="drawer-row">
+    <span class="drawer-label">${label}</span>
+    <span class="drawer-value ${cls}">${value}</span>
+  </div>`;
+}
+
+function closeDrawer(pushHistory = true) {
+  document.getElementById('drawer-overlay').classList.remove('open');
+  document.getElementById('player-drawer').classList.remove('open');
+  document.body.style.overflow = '';
+  if (pushHistory) pushURL({ player: null });
+}
+
+// ESC para cerrar drawer
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+
+// ─────────────────────────────────────────────
+// TEAM VIEW
+// ─────────────────────────────────────────────
+let _prevTab = 'home';
+
+function openTeamView(teamName, pushHistory = true) {
+  // FA de este equipo (sale de o llega a)
+  const faOut  = DATA.fa.filter(d => d.team25 === teamName);
+  const faIn   = DATA.fa.filter(d => d.dest   === teamName);
+  // Draft picks del equipo
+  const picks  = DATA.draft.filter(d => d.team === teamName);
+  // Trades que involucran al equipo
+  const trades = DATA.trades.filter(tr => tr.sides.some(s => s.team === teamName));
+  // Plantilla
+  const roster = DATA.rosters.find(r => r.team === teamName);
+  // Coaches
+  const coaches = DATA.coaches.filter(d => d.team === teamName);
+  // Cap
+  const inCap1 = DATA.cap1st && DATA.cap1st.includes(teamName);
+  const inCap2 = DATA.cap2nd && DATA.cap2nd.includes(teamName);
+  const capTrigger = DATA.triggers1st?.find(tr => tr.team === teamName) || DATA.triggers2nd?.find(tr => tr.team === teamName);
+
+  document.getElementById('tv-team-name').textContent = teamName;
+
+  // Meta info
+  let meta = '';
+  if (inCap1) meta += `<span>${t('cap_1st_badge')}</span><br>`;
+  if (inCap2) meta += `<span>${t('cap_2nd_badge')}</span><br>`;
+  if (coaches.length) {
+    coaches.forEach(c => { meta += `${esc(c.role)}: ${esc(c.new)}<br>`; });
+  }
+  document.getElementById('tv-team-meta').innerHTML = meta;
+
+  // Grid de cards
+  const grid = document.getElementById('tv-grid');
+  let gridHTML = '';
+
+  // Card: Jugadores que llegan (FA)
+  gridHTML += tvCard(
+    lang === 'es' ? 'Llegadas (FA)' : 'FA Arrivals',
+    faIn.length,
+    faIn.map(d => `<div class="tv-row">
+      <span class="tv-row-name" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</span>
+      <span class="tv-row-money">${d.money ? '$'+esc(d.money)+'M / '+esc(d.years)+'y' : '—'}</span>
+    </div>`).join('') || `<div class="tv-empty">—</div>`
+  );
+
+  // Card: Jugadores que salen (FA)
+  gridHTML += tvCard(
+    lang === 'es' ? 'Salidas (FA)' : 'FA Departures',
+    faOut.length,
+    faOut.map(d => `<div class="tv-row">
+      <span class="tv-row-name" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</span>
+      <span class="tv-row-detail">${esc(d.dest) || '—'}</span>
+    </div>`).join('') || `<div class="tv-empty">—</div>`
+  );
+
+  // Card: Picks del Draft
+  if (picks.length) {
+    gridHTML += tvCard(
+      t('tab_draft'),
+      picks.length,
+      picks.map(d => `<div class="tv-row">
+        <span class="tv-row-name" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</span>
+        <span class="tv-row-detail">${esc(d.pos)} · Pick ${esc(d.pick)}</span>
+      </div>`).join('')
+    );
+  }
+
+  // Card: Plantilla
+  if (roster) {
+    if (roster.siguen.length) {
+      gridHTML += tvCard(
+        lang === 'es' ? 'Siguen' : 'Returning',
+        roster.siguen.length,
+        roster.siguen.map(p => `<div class="tv-row">
+          <span class="tv-row-name" onclick="openPlayerDrawer('${esc(p)}')">${esc(p)}</span>
+        </div>`).join('')
+      );
+    }
+    if (roster.llegadas.length) {
+      gridHTML += tvCard(
+        lang === 'es' ? 'Llegadas (plantilla)' : 'Arrivals',
+        roster.llegadas.length,
+        roster.llegadas.map(p => `<div class="tv-row">
+          <span class="tv-row-name" onclick="openPlayerDrawer('${esc(p)}')">${esc(p)}</span>
+        </div>`).join('')
+      );
+    }
+    if (roster.salidas.length) {
+      gridHTML += tvCard(
+        lang === 'es' ? 'Salidas (plantilla)' : 'Departures',
+        roster.salidas.length,
+        roster.salidas.map(p => `<div class="tv-row">
+          <span class="tv-row-name" onclick="openPlayerDrawer('${esc(p)}')">${esc(p)}</span>
+        </div>`).join('')
+      );
+    }
+    if (roster.fa.length) {
+      gridHTML += tvCard(
+        lang === 'es' ? 'FA pendientes' : 'Pending FA',
+        roster.fa.length,
+        roster.fa.map(p => `<div class="tv-row">
+          <span class="tv-row-name" onclick="openPlayerDrawer('${esc(p)}')">${esc(p)}</span>
+        </div>`).join('')
+      );
+    }
+  }
+
+  grid.innerHTML = gridHTML;
+
+  // Trades
+  const tradesEl = document.getElementById('tv-trades-section');
+  if (trades.length) {
+    tradesEl.innerHTML = `<div class="tv-section-title">${t('tab_trades')}</div>` +
+      trades.map(tr => `
+        <div class="trade-card" style="margin-bottom:10px">
+          <div class="trade-header"><span class="trade-idx">${t('trade_label')} #${tr.id}</span></div>
+          <div class="trade-body">
+            ${tr.sides.map(side => `
+              <div class="trade-side">
+                <div class="trade-team-label">${esc(side.team)}</div>
+                <div class="trade-receives-label">← ${t('receives')}</div>
+                ${side.receives.map(item => `<div class="trade-item">${esc(item)}</div>`).join('') || '<div class="trade-item td-muted">—</div>'}
+              </div>`).join('')}
+          </div>
+        </div>`).join('');
+  } else {
+    tradesEl.innerHTML = '';
+  }
+
+  // Coaches
+  const coachesEl = document.getElementById('tv-coaches-section');
+  if (coaches.length) {
+    coachesEl.innerHTML = `<div class="tv-section-title" style="margin-top:24px">${t('tab_coaches')}</div>` +
+      `<div class="table-wrap"><table><thead><tr>
+        <th>${t('coaches_col_new')}</th><th>${t('coaches_col_role')}</th>
+        <th>${t('coaches_col_prev')}</th><th>${t('coaches_col_date')}</th>
+      </tr></thead><tbody>` +
+      coaches.map(d => {
+        const rc = d.role.toUpperCase().includes('HC') || d.role.toUpperCase().includes('HEAD') ? 'badge-role-hc' : 'badge-role-gm';
+        return `<tr>
+          <td class="td-player">${esc(d.new)}</td>
+          <td><span class="badge ${rc}">${esc(d.role)}</span></td>
+          <td class="td-muted">${esc(d.prev)||'—'}</td>
+          <td class="td-muted">${esc(d.date)}</td>
+        </tr>`;
+      }).join('') + `</tbody></table></div>`;
+  } else {
+    coachesEl.innerHTML = '';
+  }
+
+  // Cap info
+  const capEl = document.getElementById('tv-cap-section');
+  if (inCap1 || inCap2) {
+    const badge = inCap2 ? `<span class="badge badge-2nd">${t('cap_2nd_badge')}</span>` : `<span class="badge badge-1st">${t('cap_1st_badge')}</span>`;
+    capEl.innerHTML = `<div class="tv-section-title" style="margin-top:24px">Cap / Apron</div>
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 0">
+        ${badge}
+        ${capTrigger ? `<span class="td-muted" style="font-size:12px">${esc(capTrigger.trigger)}</span>` : ''}
+      </div>`;
+  } else {
+    capEl.innerHTML = '';
+  }
+
+  // Actualizar título del botón back
+  document.getElementById('team-back-btn').textContent = '← ' + (lang === 'es' ? 'Volver' : 'Back');
+
+  // Navegar
+  _prevTab = readURL().tab || 'home';
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+  document.getElementById('section-team').classList.add('active');
+  document.body.classList.remove('on-home');
+
+  if (pushHistory) pushURL({ team: teamName, player: null, tab: null });
+}
+
+function tvCard(label, count, bodyHTML) {
+  return `<div class="tv-card">
+    <div class="tv-card-header">
+      <span class="tv-label">${label}</span>
+      <span class="tv-count">${count}</span>
+    </div>
+    <div class="tv-card-body">${bodyHTML}</div>
+  </div>`;
+}
+
+function goBack() {
+  window.history.back();
+}
+
+document.body.classList.add('on-home');
+fetchAll();
+fetchCap();
+</script>
+<!-- PLAYER DRAWER -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+<div class="player-drawer" id="player-drawer">
+  <div class="drawer-header">
+    <div>
+      <div class="drawer-player-name" id="drawer-player-name">—</div>
+    </div>
+    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="drawer-body" id="drawer-body"></div>
+</div>
+
+</body>
+</html>
