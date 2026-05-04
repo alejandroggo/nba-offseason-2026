@@ -1235,15 +1235,14 @@
           <tr>
             <th onclick="sortSection('coaches',0)"><span data-i18n="col_team">Equipo</span> <span class="sort-icon">↕</span></th>
             <th onclick="sortSection('coaches',1)"><span data-i18n="coaches_col_new">Nuevo</span> <span class="sort-icon">↕</span></th>
-            <th onclick="sortSection('coaches',2)"><span data-i18n="coaches_col_role">Rol</span> <span class="sort-icon">↕</span></th>
-            <th onclick="sortSection('coaches',3)"><span data-i18n="coaches_col_date_hired">Contratado</span> <span class="sort-icon">↕</span></th>
-            <th onclick="sortSection('coaches',4)"><span data-i18n="coaches_col_prev">Anterior</span> <span class="sort-icon">↕</span></th>
-            <th onclick="sortSection('coaches',5)"><span data-i18n="coaches_col_date_fired">Despedido</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('coaches',2)"><span data-i18n="coaches_col_date_hired">Contratado</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('coaches',3)"><span data-i18n="coaches_col_prev">Anterior</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('coaches',4)"><span data-i18n="coaches_col_date_fired">Despedido</span> <span class="sort-icon">↕</span></th>
             <th><span data-i18n="col_source">Fuente</span></th>
           </tr>
         </thead>
         <tbody id="coaches-tbody">
-          <tr><td colspan="7"><div class="state-loading" data-i18n="loading">Cargando datos...</div></td></tr>
+          <tr><td colspan="6"><div class="state-loading" data-i18n="loading">Cargando datos...</div></td></tr>
         </tbody>
       </table>
     </div>
@@ -1253,6 +1252,7 @@
   <div class="section" id="section-team">
     <button class="team-view-back" id="team-back-btn" onclick="goBack()">Volver</button>
     <div class="team-view-header">
+      <div id="tv-team-logo" style="height:64px;display:flex;align-items:center"></div>
       <div class="team-view-name" id="tv-team-name">—</div>
       <div class="team-view-meta" id="tv-team-meta"></div>
     </div>
@@ -1640,9 +1640,11 @@ function processTrades(rows) {
     const team2 = cell(r, 3);
 
     if (team1 && team2) {
-      // nueva fila de trade con dos equipos
+      // nueva fila de trade — A,B,C | D,E,F | G=fecha H=fuente
       current = {
         id: trades.length + 1,
+        date:   cell(r,6),
+        source: cell(r,7),
         sides: [
           { team: team1, receives: [cell(r,1), cell(r,2)].filter(Boolean) },
           { team: team2, receives: [cell(r,4), cell(r,5)].filter(Boolean) },
@@ -1650,11 +1652,11 @@ function processTrades(rows) {
       };
       trades.push(current);
     } else if (current) {
-      // continuación: más jugadores/picks para el trade anterior
+      // continuación: más activos para el trade anterior
       if (team1) {
         const side = current.sides.find(s => s.team === team1);
         if (side) { [cell(r,1), cell(r,2)].filter(Boolean).forEach(v => side.receives.push(v)); }
-        else current.sides[0].receives.push(...[cell(r,0), cell(r,1), cell(r,2)].filter(Boolean));
+        else current.sides[0].receives.push(...[cell(r,1), cell(r,2)].filter(Boolean));
       }
       if (cell(r,3)) {
         const side = current.sides.find(s => s.team === cell(r,3));
@@ -1677,11 +1679,16 @@ function renderTrades(data) {
     <div class="trade-card">
       <div class="trade-header">
         <span class="trade-idx">${t('trade_label')} #${trade.id}</span>
+        <span class="td-muted" style="font-size:11px;font-family:'DM Mono',monospace">
+          ${trade.date ? fmtDate(trade.date) + ' · ' : ''}${trade.source ? esc(trade.source) : ''}
+        </span>
       </div>
       <div class="trade-body">
         ${trade.sides.map(side => `
           <div class="trade-side">
-            <div class="trade-team-label">${esc(side.team)}</div>
+            <div class="trade-team-label" style="display:flex;align-items:center;gap:8px">
+              ${teamLogo(side.team, 24)}${esc(side.team)}
+            </div>
             <div class="trade-receives-label">← ${t('receives')}</div>
             ${side.receives.map(item => `<div class="trade-item">${esc(item)}</div>`).join('') || '<div class="trade-item td-muted">—</div>'}
           </div>
@@ -1791,15 +1798,15 @@ function renderCoaches(data) {
   const tbody = document.getElementById('coaches-tbody');
   if (!data.length) { tbody.innerHTML = `<tr><td colspan="6"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
   tbody.innerHTML = data.map(d => {
-    const roleCls = d.role.toUpperCase().includes('HC') || d.role.toUpperCase().includes('HEAD') ? 'badge-role-hc' : 'badge-role-gm';
+    const roleCls = (d.role || '').toUpperCase().includes('HC') || (d.role || '').toUpperCase().includes('HEAD') ? 'badge-role-hc' : 'badge-role-gm';
+    const roleBadge = d.role ? ` <span class="badge ${roleCls}">${esc(d.role)}</span>` : '';
     return `<tr>
       <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team)}')">${esc(d.team)}</span></td>
-      <td class="td-player">${esc(d.new)}</td>
-      <td><span class="badge ${roleCls}">${esc(d.role)}</span></td>
-      <td class="td-muted">${esc(d.dateHired) || '—'}</td>
+      <td class="td-player">${esc(d.new)}${roleBadge}</td>
+      <td class="td-muted">${fmtDate(d.dateHired)}</td>
       <td class="td-muted">${esc(d.prev) || '—'}</td>
-      <td class="td-muted">${esc(d.dateFired) || '—'}</td>
-      <td class="td-muted">${esc(d.source)}</td>
+      <td class="td-muted">${fmtDate(d.dateFired)}</td>
+      <td class="td-muted">${esc(d.source) || '—'}</td>
     </tr>`;
   }).join('');
   document.getElementById('coaches-count').innerHTML = `<span>${data.length}</span>&nbsp;${t('results')}`;
@@ -1830,7 +1837,7 @@ function resetCoaches() {
 const GETTERS = {
   fa:     d => [d.player, d.team25, d.dest, d.money, d.years, d.aav, d.source, d.notes],
   draft:  d => [d.pick, d.team, d.player, d.pos, d.from, d.check, d.contract, d.notes],
-  coaches:d => [d.team, d.new, d.role, d.dateHired, d.prev, d.dateFired, d.source],
+  coaches:d => [d.team, d.new, d.dateHired, d.prev, d.dateFired, d.source],
 };
 
 function sortSection(section, col) {
@@ -1862,21 +1869,49 @@ function sortSection(section, col) {
 // ─────────────────────────────────────────────
 // TABS
 // ─────────────────────────────────────────────
-function showTab(name) {
+function showTab(name, pushHistory = true) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
   document.getElementById(`section-${name}`).classList.add('active');
   if (name !== 'home') {
     document.getElementById(`tab-${name}`).classList.add('active');
     document.body.classList.remove('on-home');
+    if (pushHistory) pushURL({ tab: name, team: null, player: null });
   } else {
     document.body.classList.add('on-home');
+    if (pushHistory) pushURL({ tab: null, team: null, player: null });
   }
 }
 
 // ─────────────────────────────────────────────
 // UTILS
 // ─────────────────────────────────────────────
+const TEAM_LOGOS = {
+  'Atlanta Hawks': 'atl', 'Boston Celtics': 'bos', 'Brooklyn Nets': 'bkn',
+  'Charlotte Hornets': 'cha', 'Chicago Bulls': 'chi', 'Cleveland Cavaliers': 'cle',
+  'Dallas Mavericks': 'dal', 'Denver Nuggets': 'den', 'Detroit Pistons': 'det',
+  'Golden State Warriors': 'gs', 'Houston Rockets': 'hou', 'Indiana Pacers': 'ind',
+  'Los Angeles Clippers': 'lac', 'Los Angeles Lakers': 'lal', 'Memphis Grizzlies': 'mem',
+  'Miami Heat': 'mia', 'Milwaukee Bucks': 'mil', 'Minnesota Timberwolves': 'min',
+  'New Orleans Pelicans': 'no', 'New York Knicks': 'ny', 'Oklahoma City Thunder': 'okc',
+  'Orlando Magic': 'orl', 'Philadelphia 76ers': 'phi', 'Phoenix Suns': 'phx',
+  'Portland Trail Blazers': 'por', 'Sacramento Kings': 'sac', 'San Antonio Spurs': 'sa',
+  'Toronto Raptors': 'tor', 'Utah Jazz': 'uta', 'Washington Wizards': 'wsh',
+};
+
+function teamLogo(name, size = 40) {
+  const abbrev = TEAM_LOGOS[name];
+  if (!abbrev) return '';
+  return `<img src="https://a.espncdn.com/i/teamlogos/nba/500/${abbrev}.png" width="${size}" height="${size}" alt="" style="object-fit:contain;vertical-align:middle" onerror="this.style.display='none'">`;
+}
+
+function fmtDate(str) {
+  if (!str) return '—';
+  const d = new Date(str);
+  if (isNaN(d.getTime())) return str;
+  return `${String(d.getDate()).padStart(2,'0')}-${String(d.getMonth()+1).padStart(2,'0')}-${d.getFullYear()}`;
+}
+
 function flag(code) {
   if (!code || code.trim().length !== 2) return code || '';
   return code.trim().toUpperCase().replace(/./g, c =>
@@ -2102,6 +2137,7 @@ function openTeamView(teamName, pushHistory = true) {
   const coaches = DATA.coaches.filter(d => d.team === teamName);
 
   document.getElementById('tv-team-name').textContent = teamName;
+  document.getElementById('tv-team-logo').innerHTML = teamLogo(teamName, 64);
 
   // Meta info
   let meta = '';
@@ -2213,16 +2249,16 @@ function openTeamView(teamName, pushHistory = true) {
   if (coaches.length) {
     coachesEl.innerHTML = `<div class="tv-section-title" style="margin-top:24px">${t('tab_coaches')}</div>` +
       `<div class="table-wrap"><table><thead><tr>
-        <th>${t('coaches_col_new')}</th><th>${t('coaches_col_role')}</th>
-        <th>${t('coaches_col_prev')}</th><th>${t('coaches_col_date')}</th>
+        <th>${t('coaches_col_new')}</th>
+        <th>${t('coaches_col_prev')}</th><th>${t('coaches_col_date_hired')}</th>
       </tr></thead><tbody>` +
       coaches.map(d => {
-        const rc = d.role.toUpperCase().includes('HC') || d.role.toUpperCase().includes('HEAD') ? 'badge-role-hc' : 'badge-role-gm';
+        const rc = (d.role||'').toUpperCase().includes('HC') || (d.role||'').toUpperCase().includes('HEAD') ? 'badge-role-hc' : 'badge-role-gm';
+        const roleBadge = d.role ? ` <span class="badge ${rc}">${esc(d.role)}</span>` : '';
         return `<tr>
-          <td class="td-player">${esc(d.new)}</td>
-          <td><span class="badge ${rc}">${esc(d.role)}</span></td>
+          <td class="td-player">${esc(d.new)}${roleBadge}</td>
           <td class="td-muted">${esc(d.prev)||'—'}</td>
-          <td class="td-muted">${esc(d.date)}</td>
+          <td class="td-muted">${fmtDate(d.dateHired)}</td>
         </tr>`;
       }).join('') + `</tbody></table></div>`;
   } else {
