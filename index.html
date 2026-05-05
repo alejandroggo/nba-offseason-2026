@@ -1724,20 +1724,31 @@ function resetTrades() {
 // Columnas: EQUIPO | SIGUEN | ... | LLEGADAS | ... | SALIDAS | ... | FA PENDIENTES | ...
 // ─────────────────────────────────────────────
 function processRosters(rows1, rows2) {
-  const parse = rows => rows.slice(1).filter(r => cell(r,0)).map(r => ({
-    team:       cell(r,0),
-    siguen:     collectCol(r, 1, 2),
-    llegadas:   collectCol(r, 3, 4),
-    salidas:    collectCol(r, 5, 6),
-    fa:         collectCol(r, 7, 8),
-  }));
+  const parse = rows => {
+    const teams = [];
+    let current = null;
+    rows.slice(1).forEach(r => {
+      const a = cell(r,0);
+      const cols = [cell(r,1),cell(r,2),cell(r,3),cell(r,4),cell(r,5),cell(r,6),cell(r,7),cell(r,8)];
+      // Fila completamente vacía → separador
+      if (!a && cols.every(v => !v)) { current = null; return; }
+      if (a) {
+        // Nueva fila con equipo → nuevo equipo
+        current = { team: a, siguen: [], llegadas: [], salidas: [], fa: [] };
+        teams.push(current);
+      }
+      if (!current) return;
+      // Añadir jugadores por posición de columna
+      [cell(r,1), cell(r,2)].filter(Boolean).forEach(v => current.siguen.push(v));
+      [cell(r,3), cell(r,4)].filter(Boolean).forEach(v => current.llegadas.push(v));
+      [cell(r,5), cell(r,6)].filter(Boolean).forEach(v => current.salidas.push(v));
+      [cell(r,7), cell(r,8)].filter(Boolean).forEach(v => current.fa.push(v));
+    });
+    return teams;
+  };
 
   DATA.rosters = [...parse(rows1), ...parse(rows2)].sort((a,b) => a.team.localeCompare(b.team));
   document.getElementById('count-plantillas').textContent = DATA.rosters.length;
-}
-
-function collectCol(row, ...indices) {
-  return indices.map(i => cell(row, i)).filter(Boolean);
 }
 
 function renderRosters(data) {
