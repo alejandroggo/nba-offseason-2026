@@ -1886,10 +1886,11 @@ function processRosters(rows1, rows2) {
       }
       if (!current) return;
       // B,C=siguen | D,E=llegadas | F,G=salidas | H,I=fa pendientes
-      [cell(r,1), cell(r,2)].filter(Boolean).forEach(v => current.siguen.push(v));
-      [cell(r,3), cell(r,4)].filter(Boolean).forEach(v => current.llegadas.push(v));
-      [cell(r,5), cell(r,6)].filter(Boolean).forEach(v => current.salidas.push(v));
-      [cell(r,7), cell(r,8)].filter(Boolean).forEach(v => current.fa.push(v));
+      const pair = (n, p) => n ? { name: n, pos: p || '' } : null;
+      const s = pair(cell(r,1), cell(r,2)); if (s) current.siguen.push(s);
+      const l = pair(cell(r,3), cell(r,4)); if (l) current.llegadas.push(l);
+      const x = pair(cell(r,5), cell(r,6)); if (x) current.salidas.push(x);
+      const f = pair(cell(r,7), cell(r,8)); if (f) current.fa.push(f);
     });
     return teams;
   };
@@ -2110,7 +2111,6 @@ function rerenderAll() {
   filterFA();
   filterDraft();
   filterTrades();
-  filterRosters();
   filterCoaches();
   updateHomeCounts();
   applyTranslations();
@@ -2380,7 +2380,7 @@ function openTeamView(teamName, pushHistory = true) {
     html += `<div class="tv-section-title">${t('roster_stays')}</div>
     <div class="tv-card" style="margin-bottom:28px">
       <div class="tv-card-body" style="padding:12px 16px">
-        <div class="roster-siguen">${siguen.map(p => `<span class="roster-pill">${esc(p)}</span>`).join('')}</div>
+        <div class="roster-siguen">${siguen.map(p => `<span class="roster-pill">${esc(p.name)}${p.pos ? ` <span class="badge badge-pos" style="font-size:9px;padding:1px 5px;margin-left:4px">${esc(p.pos)}</span>` : ''}</span>`).join('')}</div>
       </div>
     </div>`;
   }
