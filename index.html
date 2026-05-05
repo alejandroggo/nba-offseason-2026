@@ -1189,8 +1189,8 @@
         <thead>
           <tr>
             <th onclick="sortSection('fa',0)"><span data-i18n="fa_col_player">Jugador</span> <span class="sort-icon">↕</span></th>
-            <th onclick="sortSection('fa',1)"><span data-i18n="fa_col_team25">Equipo 2025</span> <span class="sort-icon">↕</span></th>
-            <th onclick="sortSection('fa',2)"><span data-i18n="fa_col_dest">Destino</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('fa',1)"><span data-i18n="fa_col_dest">Destino</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('fa',2)"><span data-i18n="fa_col_team25">Origen</span> <span class="sort-icon">↕</span></th>
             <th onclick="sortSection('fa',3)" style="text-align:center"><span data-i18n="fa_col_m">Millones</span> <span class="sort-icon">↕</span></th>
             <th onclick="sortSection('fa',4)" style="text-align:center"><span data-i18n="fa_col_yr">Años</span> <span class="sort-icon">↕</span></th>
             <th onclick="sortSection('fa',5)" style="text-align:center"><span data-i18n="fa_col_aav">AAV</span> <span class="sort-icon">↕</span></th>
@@ -1209,7 +1209,7 @@
         <thead>
           <tr>
             <th><span data-i18n="fa_col_player">Jugador</span></th>
-            <th><span data-i18n="fa_col_team25">Equipo 2025</span></th>
+            <th><span data-i18n="fa_col_team25">Origen</span></th>
             <th><span data-i18n="col_source">Fuente</span></th>
             <th><span data-i18n="col_notes">Notas</span></th>
           </tr>
@@ -1248,8 +1248,8 @@
         <thead>
           <tr>
             <th onclick="sortSection('draft',0)"><span data-i18n="draft_col_pick">Pick</span> <span class="sort-icon">↕</span></th>
-            <th onclick="sortSection('draft',1)"><span data-i18n="col_team">Equipo</span> <span class="sort-icon">↕</span></th>
-            <th onclick="sortSection('draft',2)"><span data-i18n="draft_col_player">Jugador</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('draft',1)"><span data-i18n="draft_col_player">Jugador</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('draft',2)"><span data-i18n="col_team">Equipo</span> <span class="sort-icon">↕</span></th>
             <th onclick="sortSection('draft',3)"><span data-i18n="draft_col_pos">Pos</span> <span class="sort-icon">↕</span></th>
             <th onclick="sortSection('draft',4)"><span data-i18n="draft_col_from">Procedencia</span> <span class="sort-icon">↕</span></th>
             <th>✓</th>
@@ -1354,16 +1354,17 @@
       <table>
         <thead>
           <tr>
-            <th onclick="sortSection('coaches',0)"><span data-i18n="col_team">Equipo</span> <span class="sort-icon">↕</span></th>
-            <th onclick="sortSection('coaches',1)"><span data-i18n="coaches_col_new">Nuevo</span> <span class="sort-icon">↕</span></th>
-            <th onclick="sortSection('coaches',2)"><span data-i18n="coaches_col_date_hired">Contratado</span> <span class="sort-icon">↕</span></th>
-            <th onclick="sortSection('coaches',3)"><span data-i18n="coaches_col_prev">Anterior</span> <span class="sort-icon">↕</span></th>
-            <th onclick="sortSection('coaches',4)"><span data-i18n="coaches_col_date_fired">Despedido</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('coaches',0)"><span data-i18n="coaches_col_new">Nombre</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('coaches',1)"><span data-i18n="col_team">Equipo</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('coaches',2)"><span data-i18n="coaches_col_role">Rol</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('coaches',3)"><span data-i18n="coaches_col_date_hired">Contratado</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('coaches',4)"><span data-i18n="coaches_col_prev">Anterior</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('coaches',5)"><span data-i18n="coaches_col_date_fired">Despedido</span> <span class="sort-icon">↕</span></th>
             <th><span data-i18n="col_source">Fuente</span></th>
           </tr>
         </thead>
         <tbody id="coaches-tbody">
-          <tr><td colspan="6"><div class="state-loading" data-i18n="loading">Cargando datos...</div></td></tr>
+          <tr><td colspan="7"><div class="state-loading" data-i18n="loading">Cargando datos...</div></td></tr>
         </tbody>
       </table>
     </div>
@@ -1438,7 +1439,7 @@ const i18n = {
     fa_title: 'Agencia Libre', fa_subtitle: 'Free Agents — Movimientos confirmados y pendientes',
     fa_signed_title: 'Firmados', fa_pending_title: 'Pendientes de firmar',
     fa_search_ph: 'Jugador, equipo…',
-    fa_col_player: 'Jugador', fa_col_team25: 'Equipo 2025', fa_col_dest: 'Destino',
+    fa_col_player: 'Jugador', fa_col_team25: 'Origen', fa_col_dest: 'Destino',
     fa_col_m: 'Millones', fa_col_yr: 'Años', fa_col_aav: 'AAV',
     draft_title: 'Draft 2026', draft_subtitle: 'Picks seleccionados — Rondas 1 y 2',
     draft_search_ph: 'Jugador, equipo, universidad…',
@@ -1486,7 +1487,7 @@ const i18n = {
     fa_title: 'Free Agency', fa_subtitle: 'Free Agents — Confirmed and pending moves',
     fa_signed_title: 'Signed', fa_pending_title: 'Pending free agents',
     fa_search_ph: 'Player, team…',
-    fa_col_player: 'Player', fa_col_team25: '2025 Team', fa_col_dest: 'Destination',
+    fa_col_player: 'Player', fa_col_team25: 'Origin', fa_col_dest: 'Destination',
     fa_col_m: 'Total ($M)', fa_col_yr: 'Years', fa_col_aav: 'AAV',
     draft_title: 'Draft 2026', draft_subtitle: 'Selected picks — Rounds 1 & 2',
     draft_search_ph: 'Player, team, college…',
@@ -1653,8 +1654,8 @@ function renderFA(data) {
     ? signed.map(d => `
       <tr>
         <td class="td-player clickable-player" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</td>
-        <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team25)}')">${esc(d.team25)}</span></td>
         <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.dest)}')">${esc(d.dest)}</span></td>
+        <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team25)}')">${esc(d.team25)}</span></td>
         <td class="td-money">${d.money ? '$'+esc(d.money)+'M' : '—'}</td>
         <td class="td-num">${esc(d.years) || '—'}</td>
         <td class="td-money">${d.aav ? '$'+esc(d.aav)+'M' : '—'}</td>
@@ -1733,8 +1734,8 @@ function renderDraft(data) {
     const chk = d.check ? `<span class="badge badge-check">${esc(d.check)}</span>` : '—';
     return `<tr>
       <td><span class="pick-num ${cls}">${esc(d.pick)}</span></td>
-      <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team)}')">${esc(d.team)}</span></td>
       <td class="td-player clickable-player" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</td>
+      <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team)}')">${esc(d.team)}</span></td>
       <td><span class="badge badge-pos">${esc(d.pos)}</span></td>
       <td class="td-muted">${esc(d.from)}</td>
       <td>${chk}</td>
@@ -1977,13 +1978,13 @@ function processCoaches(rows) {
 
 function renderCoaches(data) {
   const tbody = document.getElementById('coaches-tbody');
-  if (!data.length) { tbody.innerHTML = `<tr><td colspan="6"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
+  if (!data.length) { tbody.innerHTML = `<tr><td colspan="7"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
   tbody.innerHTML = data.map(d => {
     const roleCls = (d.role || '').toUpperCase().includes('HC') || (d.role || '').toUpperCase().includes('HEAD') ? 'badge-role-hc' : 'badge-role-gm';
-    const roleBadge = d.role ? ` <span class="badge ${roleCls}">${esc(d.role)}</span>` : '';
     return `<tr>
+      <td class="td-player">${esc(d.new)}</td>
       <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team)}')">${esc(d.team)}</span></td>
-      <td class="td-player">${esc(d.new)}${roleBadge}</td>
+      <td>${d.role ? `<span class="badge ${roleCls}">${esc(d.role)}</span>` : '—'}</td>
       <td class="td-muted">${fmtDate(d.dateHired)}</td>
       <td class="td-muted">${esc(d.prev) || '—'}</td>
       <td class="td-muted">${fmtDate(d.dateFired)}</td>
@@ -2016,9 +2017,9 @@ function resetCoaches() {
 // SORT
 // ─────────────────────────────────────────────
 const GETTERS = {
-  fa:     d => [d.player, d.team25, d.dest, d.money, d.years, d.aav, d.source, d.notes],
-  draft:  d => [d.pick, d.team, d.player, d.pos, d.from, d.check, d.contract, d.notes],
-  coaches:d => [d.team, d.new, d.dateHired, d.prev, d.dateFired, d.source],
+  fa:     d => [d.player, d.dest, d.team25, d.money, d.years, d.aav, d.source, d.notes],
+  draft:  d => [d.pick, d.player, d.team, d.pos, d.from, d.check, d.contract, d.notes],
+  coaches:d => [d.new, d.team, d.role, d.dateHired, d.prev, d.dateFired, d.source],
 };
 
 function sortSection(section, col) {
