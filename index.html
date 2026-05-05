@@ -347,10 +347,10 @@
     padding: 0 32px 12px;
   }
 
-  .td-money { font-family: 'DM Mono', monospace; color: var(--accent); font-size: 12px; text-align: center; }
-  .td-num   { text-align: center; font-size: 12px; color: var(--text-muted); font-family: 'DM Mono', monospace; }
+  .td-money { font-family: 'DM Mono', monospace; color: var(--accent); font-size: 11px; text-align: center; width: 70px; white-space: nowrap; }
+  .td-num   { text-align: center; font-size: 11px; color: var(--text-muted); font-family: 'DM Mono', monospace; width: 50px; white-space: nowrap; }
   .td-muted { color: var(--text-muted); font-size: 12px; }
-  .td-notes { max-width: 260px; white-space: normal; font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+  .td-notes { white-space: normal; font-size: 12px; color: var(--text-muted); line-height: 1.5; }
 
   /* BADGES */
   .badge {
@@ -811,9 +811,9 @@
   .tv-row-money { font-size: 12px; color: var(--accent); font-family: 'DM Mono', monospace; }
   .tv-empty { padding: 16px; font-size: 12px; color: var(--text-dim); font-family: 'DM Mono', monospace; }
   .tv-section-title {
-    font-family: 'DM Mono', monospace; font-size: 10px;
+    font-family: 'DM Mono', monospace; font-size: 13px;
     text-transform: uppercase; letter-spacing: 2px;
-    color: var(--text-muted); margin-bottom: 12px;
+    color: var(--text-muted); margin-bottom: 14px; margin-top: 8px;
     display: flex; align-items: center; gap: 10px;
   }
   .tv-section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
@@ -1100,10 +1100,6 @@
     <span data-i18n="tab_trades">Trades</span>
     <span class="tab-count" id="count-trades">—</span>
   </button>
-  <button class="tab" onclick="showTab('plantillas')" id="tab-plantillas">
-    <span data-i18n="tab_rosters">Plantillas</span>
-    <span class="tab-count" id="count-plantillas">—</span>
-  </button>
   <button class="tab" onclick="showTab('coaches')" id="tab-coaches">
     <span data-i18n="tab_coaches">HC / GMs</span>
     <span class="tab-count" id="count-coaches">—</span>
@@ -1143,13 +1139,6 @@
         <div class="home-card-title" data-i18n="tab_trades">Trades</div>
         <div class="home-card-desc" data-i18n="home_trades_desc">Traspasos confirmados entre franquicias</div>
         <div class="home-card-count" id="home-count-trades">— registros</div>
-      </button>
-      <button class="home-card" onclick="showTab('plantillas')">
-        <span class="home-card-arrow">↗</span>
-        <div class="home-card-icon">📋</div>
-        <div class="home-card-title" data-i18n="tab_rosters">Plantillas</div>
-        <div class="home-card-desc" data-i18n="home_rosters_desc">Los 30 equipos con altas, bajas y continuidades</div>
-        <div class="home-card-count" id="home-count-plantillas">— equipos</div>
       </button>
       <button class="home-card" onclick="showTab('coaches')">
         <span class="home-card-arrow">↗</span>
@@ -1210,12 +1199,11 @@
           <tr>
             <th><span data-i18n="fa_col_player">Jugador</span></th>
             <th><span data-i18n="fa_col_team25">Origen</span></th>
-            <th><span data-i18n="col_source">Fuente</span></th>
             <th><span data-i18n="col_notes">Notas</span></th>
           </tr>
         </thead>
         <tbody id="fa-pending-tbody">
-          <tr><td colspan="4"><div class="state-loading" data-i18n="loading">Cargando datos...</div></td></tr>
+          <tr><td colspan="3"><div class="state-loading" data-i18n="loading">Cargando datos...</div></td></tr>
         </tbody>
       </table>
     </div>
@@ -1249,6 +1237,7 @@
           <tr>
             <th onclick="sortSection('draft',0)"><span data-i18n="draft_col_pick">Pick</span> <span class="sort-icon">↕</span></th>
             <th onclick="sortSection('draft',1)"><span data-i18n="draft_col_player">Jugador</span> <span class="sort-icon">↕</span></th>
+            <th style="width:32px;text-align:center"></th>
             <th onclick="sortSection('draft',2)"><span data-i18n="col_team">Equipo</span> <span class="sort-icon">↕</span></th>
             <th onclick="sortSection('draft',3)"><span data-i18n="draft_col_pos">Pos</span> <span class="sort-icon">↕</span></th>
             <th onclick="sortSection('draft',4)"><span data-i18n="draft_col_from">Procedencia</span> <span class="sort-icon">↕</span></th>
@@ -1305,25 +1294,6 @@
       <span class="results-count" id="trades-count"></span>
     </div>
     <div id="trades-container">
-      <div class="state-loading" data-i18n="loading">Cargando datos...</div>
-    </div>
-  </div>
-
-  <!-- PLANTILLAS -->
-  <div class="section" id="section-plantillas">
-    <div class="section-header">
-      <div class="section-title" data-i18n="rosters_title">Plantillas</div>
-      <div class="section-subtitle" data-i18n="rosters_subtitle">Los 30 equipos — temporada 2025-26</div>
-    </div>
-    <div class="filters">
-      <div class="filter-group">
-        <span class="filter-label" data-i18n="filter_search">Buscar</span>
-        <input type="text" class="filter-input" id="rosters-search" oninput="filterRosters()" data-i18n-ph="rosters_search_ph">
-      </div>
-      <button class="btn-reset" onclick="resetRosters()" data-i18n="btn_reset">Limpiar</button>
-      <span class="results-count" id="rosters-count"></span>
-    </div>
-    <div class="plantillas-grid" id="rosters-container">
       <div class="state-loading" data-i18n="loading">Cargando datos...</div>
     </div>
   </div>
@@ -1640,7 +1610,7 @@ function processFA(rows) {
     source: cell(r,6),
     notes:  cell(r,7),
   }));
-  document.getElementById('count-fa').textContent = DATA.fa.length;
+  document.getElementById('count-fa').textContent = DATA.fa.filter(d => d.dest).length;
   populateSelect('fa-team25', [...new Set(DATA.fa.map(d=>d.team25).filter(Boolean))].sort());
   populateSelect('fa-dest',   [...new Set(DATA.fa.map(d=>d.dest).filter(Boolean))].sort());
 }
@@ -1670,12 +1640,11 @@ function renderFA(data) {
       <tr>
         <td class="td-player clickable-player" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</td>
         <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team25)}')">${esc(d.team25)}</span></td>
-        <td class="td-muted">${esc(d.source)}</td>
         <td class="td-notes">${esc(d.notes)}</td>
       </tr>`).join('')
-    : `<tr><td colspan="4"><div class="state-empty">${t('no_data')}</div></td></tr>`;
+    : `<tr><td colspan="3"><div class="state-empty">${t('no_data')}</div></td></tr>`;
 
-  document.getElementById('fa-count').innerHTML = `<span>${data.length}</span>&nbsp;${t('results')}`;
+  document.getElementById('fa-count').innerHTML = `<span>${signed.length}</span>&nbsp;${t('results')}`;
 }
 
 function filterFA() {
@@ -1703,22 +1672,24 @@ function resetFA() {
 // Undrafted: filas sin número de pick (col0 vacía o no numérico) pero con jugador
 // ─────────────────────────────────────────────
 function processDraft(rows) {
-  const all = rows.slice(1).filter(r => cell(r,2)); // tiene nombre de jugador
-  DATA.draft = all.filter(r => cell(r,0) && !isNaN(parseInt(cell(r,0)))).map(r => ({
+  const data = rows.slice(1).filter(r => cell(r,0) || cell(r,2));
+  DATA.draft = data.filter(r => cell(r,0) && !isNaN(parseInt(cell(r,0)))).map(r => ({
     pick:     cell(r,0),
     team:     cell(r,1),
     player:   cell(r,2),
+    country:  cell(r,3),
     pos:      cell(r,4),
     from:     cell(r,5),
     check:    cell(r,6),
     contract: cell(r,7),
     notes:    cell(r,8),
   }));
-  DATA.undrafted = all.filter(r => !cell(r,0) || isNaN(parseInt(cell(r,0)))).map(r => ({
-    player: cell(r,2),
-    pos:    cell(r,4),
-    from:   cell(r,5),
-    notes:  cell(r,8),
+  DATA.undrafted = data.filter(r => cell(r,2) && (!cell(r,0) || isNaN(parseInt(cell(r,0))))).map(r => ({
+    player:  cell(r,2),
+    country: cell(r,3),
+    pos:     cell(r,4),
+    from:    cell(r,5),
+    notes:   cell(r,8),
   }));
   document.getElementById('count-draft').textContent = DATA.draft.length;
   populateSelect('draft-pos',  [...new Set(DATA.draft.map(d=>d.pos).filter(Boolean))].sort());
@@ -1727,14 +1698,18 @@ function processDraft(rows) {
 
 function renderDraft(data) {
   const tbody = document.getElementById('draft-tbody');
-  if (!data.length) { tbody.innerHTML = `<tr><td colspan="8"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
+  if (!data.length) { tbody.innerHTML = `<tr><td colspan="9"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
   tbody.innerHTML = data.map(d => {
     const n = parseInt(d.pick);
     const cls = n <= 5 ? 'top5' : n <= 30 ? 'r1' : '';
     const chk = d.check ? `<span class="badge badge-check">${esc(d.check)}</span>` : '—';
+    const playerCell = d.player
+      ? `<td class="td-player clickable-player" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</td>`
+      : `<td class="td-muted">—</td>`;
     return `<tr>
       <td><span class="pick-num ${cls}">${esc(d.pick)}</span></td>
-      <td class="td-player clickable-player" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</td>
+      ${playerCell}
+      <td style="font-size:18px;text-align:center" title="${esc(d.country)}">${flag(d.country)}</td>
       <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team)}')">${esc(d.team)}</span></td>
       <td><span class="badge badge-pos">${esc(d.pos)}</span></td>
       <td class="td-muted">${esc(d.from)}</td>
@@ -1840,8 +1815,8 @@ function tradeReceivesHTML(receives) {
     if (grp) grp.items.push(r.item);
     else byFrom.push({ from: r.from, items: [r.item] });
   });
-  return byFrom.map(grp => `
-    <div class="trade-receives-label">← ${lang === 'es' ? 'De' : 'From'}: <strong>${esc(grp.from)}</strong></div>
+  return byFrom.map((grp, i) => `
+    <div class="trade-receives-label" style="${i > 0 ? 'margin-top:14px' : ''}">← ${lang === 'es' ? 'De' : 'From'}: <strong>${esc(grp.from)}</strong></div>
     ${grp.items.map(item => `<div class="trade-item">${esc(item)}</div>`).join('')}
   `).join('');
 }
@@ -1913,7 +1888,6 @@ function processRosters(rows1, rows2) {
   };
 
   DATA.rosters = [...parse(rows1), ...parse(rows2)].sort((a,b) => a.team.localeCompare(b.team));
-  document.getElementById('count-plantillas').textContent = DATA.rosters.length;
 }
 
 function renderRosters(data) {
@@ -2052,6 +2026,7 @@ function sortSection(section, col) {
 // TABS
 // ─────────────────────────────────────────────
 function showTab(name, pushHistory = true) {
+  if (!document.getElementById(`section-${name}`)) { showTab('home', pushHistory); return; }
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
   document.getElementById(`section-${name}`).classList.add('active');
@@ -2364,10 +2339,10 @@ function openTeamView(teamName, pushHistory = true) {
   <div class="team-view-grid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:28px">
     ${tvCard(t('roster_fa'), faIn.length,
         faIn.length ? faIn.map(d => tvRow(esc(d.player), '', d.money ? `$${esc(d.money)}M/${esc(d.years)}y` : '')).join('') : tvEmpty())}
-    ${tvCard(t('roster_draft'), picks.length,
-        picks.length ? picks.map(d => tvRow(esc(d.player), `#${esc(d.pick)}`)).join('') : tvEmpty())}
     ${tvCard(t('roster_trade'), tradeIn.length,
         tradeIn.length ? tradeIn.map(item => tvRow(esc(item))).join('') : tvEmpty())}
+    ${tvCard(t('roster_draft'), picks.length,
+        picks.length ? picks.map(d => tvRow(esc(d.player), `#${esc(d.pick)}`)).join('') : tvEmpty())}
   </div>`;
 
   // ── SALIDAS ───────────────────────────────────
