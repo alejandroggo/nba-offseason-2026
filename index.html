@@ -1630,37 +1630,42 @@ function resetDraft() {
 // Estructura: cada fila es una parte del trade, agrupadas por número
 // ─────────────────────────────────────────────
 function processTrades(rows) {
-  // Agrupa filas: cuando col0 tiene texto = nueva parte del trade
-  // Asumimos estructura: col0=equipo, col1..col2=lo que recibe, col3=equipo2, col4..col5=lo que recibe
   const trades = [];
   let current = null;
 
-  rows.slice(1).forEach((r, i) => {
-    const team1 = cell(r, 0);
-    const team2 = cell(r, 3);
+  rows.slice(1).forEach(r => {
+    const a = cell(r,0), b = cell(r,1), c = cell(r,2);
+    const d = cell(r,3), e = cell(r,4), f = cell(r,5);
+    const g = cell(r,6), h = cell(r,7);
 
-    if (team1 && team2) {
-      // nueva fila de trade — A,B,C | D,E,F | G=fecha H=fuente
-      current = {
-        id: trades.length + 1,
-        date:   cell(r,6),
-        source: cell(r,7),
-        sides: [
-          { team: team1, receives: [cell(r,1), cell(r,2)].filter(Boolean) },
-          { team: team2, receives: [cell(r,4), cell(r,5)].filter(Boolean) },
-        ]
-      };
+    // Fila completamente vacía → separador entre trades
+    if (!a && !b && !c && !d && !e && !f) { current = null; return; }
+
+    // Sin trade activo → nuevo trade
+    if (!current) {
+      current = { id: trades.length + 1, date: g, source: h, sides: [] };
       trades.push(current);
-    } else if (current) {
-      // continuación: más activos para el trade anterior
-      if (team1) {
-        const side = current.sides.find(s => s.team === team1);
-        if (side) { [cell(r,1), cell(r,2)].filter(Boolean).forEach(v => side.receives.push(v)); }
-        else current.sides[0].receives.push(...[cell(r,1), cell(r,2)].filter(Boolean));
+    }
+
+    // Lado izquierdo (A=equipo, B+C=activos)
+    if (a || b || c) {
+      if (a) {
+        let side = current.sides.find(s => s.team === a);
+        if (!side) { side = { team: a, receives: [] }; current.sides.push(side); }
+        [b, c].filter(Boolean).forEach(v => side.receives.push(v));
+      } else {
+        [b, c].filter(Boolean).forEach(v => current.sides[0]?.receives.push(v));
       }
-      if (cell(r,3)) {
-        const side = current.sides.find(s => s.team === cell(r,3));
-        if (side) { [cell(r,4), cell(r,5)].filter(Boolean).forEach(v => side.receives.push(v)); }
+    }
+
+    // Lado derecho (D=equipo, E+F=activos)
+    if (d || e || f) {
+      if (d) {
+        let side = current.sides.find(s => s.team === d);
+        if (!side) { side = { team: d, receives: [] }; current.sides.push(side); }
+        [e, f].filter(Boolean).forEach(v => side.receives.push(v));
+      } else {
+        [e, f].filter(Boolean).forEach(v => current.sides[1]?.receives.push(v));
       }
     }
   });
