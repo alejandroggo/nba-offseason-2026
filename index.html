@@ -1636,16 +1636,17 @@ async function fetchAll() {
 // Columnas: JUGADOR | 2025 | 2024 | MILLONES | AÑOS | AAV | FUENTE | NOTAS
 // ─────────────────────────────────────────────
 function processFA(rows) {
+  // Columnas: JUGADOR | POS | 2026(origen) | 2027(destino) | MILLONES | AÑOS | AAV | FUENTE | NOTAS
   DATA.fa = rows.slice(1).filter(r => cell(r,0)).map(r => ({
     player: cell(r,0),
-    team25: cell(r,1),
-    dest:   cell(r,2),
-    money:  cell(r,3),
-    years:  cell(r,4),
-    aav:    cell(r,5),
-    source: cell(r,6),
-    notes:  cell(r,7),
-    pos:    cell(r,8),
+    pos:    cell(r,1),
+    team25: cell(r,2),
+    dest:   cell(r,3),
+    money:  cell(r,4),
+    years:  cell(r,5),
+    aav:    cell(r,6),
+    source: cell(r,7),
+    notes:  cell(r,8),
   }));
   document.getElementById('count-fa').textContent = DATA.fa.filter(d => d.dest).length;
   populateSelect('fa-team25', [...new Set(DATA.fa.map(d=>d.team25).filter(Boolean))].sort());
