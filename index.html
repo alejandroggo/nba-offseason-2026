@@ -2347,67 +2347,79 @@ function openTeamView(teamName, pushHistory = true) {
       ${items.length ? items.map(renderFn).join('') : '<div class="roster-player td-muted">—</div>'}
     </div>`;
 
-  let html = '';
+  const tvRow = (name, detail = '', money = '') => `
+    <div class="tv-row">
+      <span class="tv-row-name">${name}</span>
+      ${money ? `<span class="tv-row-money">${money}</span>` : detail ? `<span class="tv-row-detail">${detail}</span>` : ''}
+    </div>`;
 
-  // LLEGADAS
-  html += `<div class="roster-section">
-    <div class="roster-section-title llegadas">${t('roster_arrivals')}</div>
-    <div class="roster-3col">
-      ${subcol(faIn, t('roster_fa'), d => `<div class="roster-player">${esc(d.player)}${d.money ? ` <span class="td-muted" style="font-size:10px">$${esc(d.money)}M/${esc(d.years)}y</span>` : ''}</div>`)}
-      ${subcol(picks, t('roster_draft'), d => `<div class="roster-player">${esc(d.player)} <span class="td-muted" style="font-size:10px">#${esc(d.pick)}</span></div>`)}
-      ${subcol(tradeIn, t('roster_trade'), item => `<div class="roster-player">${esc(item)}</div>`)}
-    </div>
+  const tvEmpty = () => `<div class="tv-empty">—</div>`;
+
+  let html = `<div style="padding:24px 32px">`;
+
+  // ── LLEGADAS ──────────────────────────────────
+  html += `<div class="tv-section-title" style="color:var(--signed)">${t('roster_arrivals')}</div>
+  <div class="team-view-grid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:28px">
+    ${tvCard(t('roster_fa'), faIn.length,
+        faIn.length ? faIn.map(d => tvRow(esc(d.player), '', d.money ? `$${esc(d.money)}M/${esc(d.years)}y` : '')).join('') : tvEmpty())}
+    ${tvCard(t('roster_draft'), picks.length,
+        picks.length ? picks.map(d => tvRow(esc(d.player), `#${esc(d.pick)}`)).join('') : tvEmpty())}
+    ${tvCard(t('roster_trade'), tradeIn.length,
+        tradeIn.length ? tradeIn.map(item => tvRow(esc(item))).join('') : tvEmpty())}
   </div>`;
 
-  // SALIDAS
-  html += `<div class="roster-section">
-    <div class="roster-section-title salidas">${t('roster_departures')}</div>
-    <div class="roster-3col">
-      ${subcol(faOut, t('roster_salidas_fa'), d => `<div class="roster-player">${esc(d.player)}${d.dest ? ` <span class="td-muted" style="font-size:10px">→ ${esc(d.dest)}</span>` : ''}</div>`)}
-      ${subcol(tradeOut, t('roster_salidas_trade'), item => `<div class="roster-player">${esc(item)}</div>`)}
-      ${subcol(faPending, t('roster_fa_pending'), d => `<div class="roster-player">${esc(d.player)}</div>`)}
-    </div>
+  // ── SALIDAS ───────────────────────────────────
+  html += `<div class="tv-section-title" style="color:var(--gone)">${t('roster_departures')}</div>
+  <div class="team-view-grid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:28px">
+    ${tvCard(t('roster_salidas_fa'), faOut.length,
+        faOut.length ? faOut.map(d => tvRow(esc(d.player), d.dest ? `→ ${esc(d.dest)}` : '')).join('') : tvEmpty())}
+    ${tvCard(t('roster_salidas_trade'), tradeOut.length,
+        tradeOut.length ? tradeOut.map(item => tvRow(esc(item))).join('') : tvEmpty())}
+    ${tvCard(t('roster_fa_pending'), faPending.length,
+        faPending.length ? faPending.map(d => tvRow(esc(d.player))).join('') : tvEmpty())}
   </div>`;
 
-  // SIGUEN
+  // ── SIGUEN ────────────────────────────────────
   const siguen = roster?.siguen || [];
   if (siguen.length) {
-    html += `<div class="roster-section">
-      <div class="roster-section-title siguen">${t('roster_stays')}</div>
-      <div class="roster-siguen">${siguen.map(p => `<span class="roster-pill">${esc(p)}</span>`).join('')}</div>
+    html += `<div class="tv-section-title">${t('roster_stays')}</div>
+    <div class="tv-card" style="margin-bottom:28px">
+      <div class="tv-card-body" style="padding:12px 16px">
+        <div class="roster-siguen">${siguen.map(p => `<span class="roster-pill">${esc(p)}</span>`).join('')}</div>
+      </div>
     </div>`;
   }
 
-  // TRASPASOS
+  // ── TRASPASOS ─────────────────────────────────
   if (trades.length) {
-    html += `<div class="roster-section">
-      <div class="roster-section-title trades">${t('roster_section_trades')}</div>
-      ${trades.map(tr => `
-        <div class="trade-card" style="margin-bottom:10px">
-          <div class="trade-header">
-            <span class="trade-idx">${t('trade_label')} #${tr.id}</span>
-            ${tr.date ? `<span class="td-muted" style="font-size:11px;margin-left:8px">${fmtDate(tr.date)}</span>` : ''}
-          </div>
-          <div class="trade-body" style="grid-template-columns:repeat(${tr.sides.length},1fr)">
-            ${tr.sides.map(side => `
-              <div class="trade-side">
-                <div class="trade-team-label">${esc(side.team)}</div>
-                ${tradeReceivesHTML(side.receives)}
-              </div>`).join('')}
-          </div>
-        </div>`).join('')}
-    </div>`;
+    html += `<div class="tv-section-title">${t('roster_section_trades')}</div>`;
+    html += trades.map(tr => `
+      <div class="trade-card" style="margin-bottom:10px">
+        <div class="trade-header">
+          <span class="trade-idx">${t('trade_label')} #${tr.id}</span>
+          ${tr.date ? `<span class="td-muted" style="font-size:11px;margin-left:8px">${fmtDate(tr.date)}</span>` : ''}
+        </div>
+        <div class="trade-body" style="grid-template-columns:repeat(${tr.sides.length},1fr)">
+          ${tr.sides.map(side => `
+            <div class="trade-side">
+              <div class="trade-team-label">${esc(side.team)}</div>
+              ${tradeReceivesHTML(side.receives)}
+            </div>`).join('')}
+        </div>
+      </div>`).join('');
+    html += `<div style="margin-bottom:28px"></div>`;
   }
 
-  // HC/GMs
+  // ── HC/GMs ────────────────────────────────────
   if (coaches.length) {
-    html += `<div class="roster-section">
-      <div class="roster-section-title coaches">${t('roster_section_coaches')}</div>
-      <div class="table-wrap"><table><thead><tr>
-        <th>${t('coaches_col_new')}</th>
-        <th>${t('coaches_col_prev')}</th>
-        <th>${t('coaches_col_date_hired')}</th>
-      </tr></thead><tbody>` +
+    html += `<div class="tv-section-title">${t('roster_section_coaches')}</div>
+    <div class="tv-card" style="margin-bottom:28px">
+      <div class="tv-card-body">
+        <div class="table-wrap"><table><thead><tr>
+          <th>${t('coaches_col_new')}</th>
+          <th>${t('coaches_col_prev')}</th>
+          <th>${t('coaches_col_date_hired')}</th>
+        </tr></thead><tbody>` +
       coaches.map(d => {
         const rc = (d.role||'').toUpperCase().includes('HC') || (d.role||'').toUpperCase().includes('HEAD') ? 'badge-role-hc' : 'badge-role-gm';
         const roleBadge = d.role ? ` <span class="badge ${rc}">${esc(d.role)}</span>` : '';
@@ -2417,7 +2429,11 @@ function openTeamView(teamName, pushHistory = true) {
           <td class="td-muted">${fmtDate(d.dateHired)}</td>
         </tr>`;
       }).join('') + `</tbody></table></div>
+      </div>
     </div>`;
+  }
+
+  html += `</div>`;
   }
 
   document.getElementById('tv-content').innerHTML = html;
