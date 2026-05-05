@@ -1601,7 +1601,8 @@ async function fetchAll() {
 
     processFA(parseCSV(faTxt));
     processDraft(parseCSV(draftTxt));
-    processTrades(parseCSV(tradesTxt));
+    window._rawTradeRows = parseCSV(tradesTxt);
+    processTrades(window._rawTradeRows);
     processRosters(parseCSV(r1Txt), parseCSV(r2Txt));
     processCoaches(parseCSV(coachTxt));
 
@@ -2474,6 +2475,15 @@ function renderTeamsGrid() {
 
 document.body.classList.add('on-home');
 renderTeamsGrid();
+
+// Debug: escribe _debugTrades() en la consola del navegador para ver los datos
+window._debugTrades = () => {
+  const raw = window._rawTradeRows;
+  console.group('TRADES DEBUG');
+  console.log('Filas CSV (primeras 10):', raw ? raw.slice(0,10) : 'No disponible — recarga la página');
+  console.log('Trades parseados:', JSON.parse(JSON.stringify(DATA.trades)));
+  console.groupEnd();
+};
 fetchAll();
 </script>
 <!-- PLAYER DRAWER -->
