@@ -470,6 +470,21 @@
     letter-spacing: 1px;
   }
 
+  .roster-block { }
+
+  .roster-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 6px;
+  }
+
+  .roster-label.siguen   { color: var(--text-muted); }
+  .roster-label.llegadas { color: var(--signed); }
+  .roster-label.salidas  { color: var(--gone); }
+  .roster-label.fa       { color: var(--pending); }
+
   .roster-section {
     padding: 10px 16px;
     border-bottom: 1px solid var(--border);
@@ -1297,9 +1312,7 @@
       <div class="team-view-name" id="tv-team-name">—</div>
       <div class="team-view-meta" id="tv-team-meta"></div>
     </div>
-    <div class="team-view-grid" id="tv-grid"></div>
-    <div id="tv-trades-section"></div>
-    <div id="tv-coaches-section"></div>
+    <div id="tv-content"></div>
 
   </div>
 
@@ -1774,23 +1787,18 @@ function processRosters(rows1, rows2) {
     let current = null;
     rows.slice(1).forEach(r => {
       const a = cell(r,0);
-      const vals = [1,2,3,4,5,6,7,8].map(i => cell(r,i));
-      if (!a && vals.every(v => !v)) { current = null; return; }
+      const cols = [cell(r,1),cell(r,2),cell(r,3),cell(r,4),cell(r,5),cell(r,6),cell(r,7),cell(r,8)];
+      if (!a && cols.every(v => !v)) { current = null; return; }
       if (a) {
-        current = { team: a, llegadas_fa: [], llegadas_draft: [], llegadas_trade: [],
-                    salidas_fa: [], salidas_trade: [], fa_pendientes: [], siguen: [] };
+        current = { team: a, siguen: [], llegadas: [], salidas: [], fa: [] };
         teams.push(current);
       }
       if (!current) return;
-      // A=Equipo | B=LlegFA | C=LlegDraft | D=LlegTrade | E=SalFA | F=SalTrade | G=FAPend | H,I=Siguen
-      if (cell(r,1)) current.llegadas_fa.push(cell(r,1));
-      if (cell(r,2)) current.llegadas_draft.push(cell(r,2));
-      if (cell(r,3)) current.llegadas_trade.push(cell(r,3));
-      if (cell(r,4)) current.salidas_fa.push(cell(r,4));
-      if (cell(r,5)) current.salidas_trade.push(cell(r,5));
-      if (cell(r,6)) current.fa_pendientes.push(cell(r,6));
-      if (cell(r,7)) current.siguen.push(cell(r,7));
-      if (cell(r,8)) current.siguen.push(cell(r,8));
+      // B,C=siguen | D,E=llegadas | F,G=salidas | H,I=fa pendientes
+      [cell(r,1), cell(r,2)].filter(Boolean).forEach(v => current.siguen.push(v));
+      [cell(r,3), cell(r,4)].filter(Boolean).forEach(v => current.llegadas.push(v));
+      [cell(r,5), cell(r,6)].filter(Boolean).forEach(v => current.salidas.push(v));
+      [cell(r,7), cell(r,8)].filter(Boolean).forEach(v => current.fa.push(v));
     });
     return teams;
   };
@@ -1802,73 +1810,29 @@ function processRosters(rows1, rows2) {
 function renderRosters(data) {
   const container = document.getElementById('rosters-container');
   if (!data.length) { container.innerHTML = `<div class="state-empty">${t('no_data')}</div>`; return; }
-
-  container.innerHTML = data.map(team => {
-    const trades  = DATA.trades.filter(tr => tr.sides.some(s => s.team === team.team));
-    const coaches = DATA.coaches.filter(d => d.team === team.team);
-
-    const subcol = (players, label) => `
-      <div>
-        <div class="roster-subcol-label">${label}</div>
-        ${players.length ? players.map(p => `<div class="roster-player">${esc(p)}</div>`).join('') : '<div class="roster-player td-muted">—</div>'}
-      </div>`;
-
-    const tradesHtml = trades.length ? `
-      <div class="roster-section">
-        <div class="roster-section-title trades">${t('roster_section_trades')}</div>
-        ${trades.map(tr => {
-          const mySide = tr.sides.find(s => s.team === team.team);
-          const other  = tr.sides.filter(s => s.team !== team.team).map(s => s.team).join(' · ');
-          return `<div class="roster-trade-item">↔ ${esc(other)}${mySide?.receives.length ? ' — ' + mySide.receives.map(esc).join(', ') : ''}</div>`;
-        }).join('')}
-      </div>` : '';
-
-    const coachesHtml = coaches.length ? `
-      <div class="roster-section">
-        <div class="roster-section-title coaches">${t('roster_section_coaches')}</div>
-        ${coaches.map(c => {
-          const roleCls = (c.role||'').toUpperCase().includes('HC') || (c.role||'').toUpperCase().includes('HEAD') ? 'badge-role-hc' : 'badge-role-gm';
-          return `<div class="roster-coach-row">
-            <span class="td-player">${esc(c.new)}</span>
-            ${c.role ? `<span class="badge ${roleCls}">${esc(c.role)}</span>` : ''}
-            ${c.dateHired ? `<span class="td-muted" style="font-size:11px">${fmtDate(c.dateHired)}</span>` : ''}
-          </div>`;
-        }).join('')}
-      </div>` : '';
-
-    return `
-      <div class="team-card">
-        <div class="team-card-header">
-          ${teamLogo(team.team, 28)}
-          <span class="team-name clickable-team" onclick="openTeamView('${esc(team.team)}')" style="cursor:pointer">${esc(team.team)}</span>
-        </div>
-        <div class="roster-section">
-          <div class="roster-section-title llegadas">${t('roster_arrivals')}</div>
-          <div class="roster-3col">
-            ${subcol(team.llegadas_fa,    t('roster_fa'))}
-            ${subcol(team.llegadas_draft, t('roster_draft'))}
-            ${subcol(team.llegadas_trade, t('roster_trade'))}
-          </div>
-        </div>
-        <div class="roster-section">
-          <div class="roster-section-title salidas">${t('roster_departures')}</div>
-          <div class="roster-3col">
-            ${subcol(team.salidas_fa,    t('roster_salidas_fa'))}
-            ${subcol(team.salidas_trade, t('roster_salidas_trade'))}
-            ${subcol(team.fa_pendientes, t('roster_fa_pending'))}
-          </div>
-        </div>
-        ${team.siguen.length ? `
-        <div class="roster-section">
-          <div class="roster-section-title siguen">${t('roster_stays')}</div>
-          <div class="roster-siguen">${team.siguen.map(p => `<span class="roster-pill">${esc(p)}</span>`).join('')}</div>
-        </div>` : ''}
-        ${tradesHtml}
-        ${coachesHtml}
-      </div>`;
-  }).join('');
-
+  container.innerHTML = data.map(team => `
+    <div class="team-card">
+      <div class="team-card-header">
+        ${teamLogo(team.team, 28)}
+        <span class="team-name clickable-team" onclick="openTeamView('${esc(team.team)}')" style="cursor:pointer">${esc(team.team)}</span>
+      </div>
+      <div class="team-card-body" style="padding:12px 16px">
+        ${rosterBlock(team.siguen, 'siguen', t('roster_stays'))}
+        ${rosterBlock(team.llegadas, 'llegadas', t('roster_arrivals'))}
+        ${rosterBlock(team.salidas, 'salidas', t('roster_departures'))}
+        ${rosterBlock(team.fa, 'fa', t('roster_fa'))}
+      </div>
+    </div>`).join('');
   document.getElementById('rosters-count').innerHTML = `<span>${data.length}</span>&nbsp;${t('results')}`;
+}
+
+function rosterBlock(players, cls, label) {
+  if (!players.length) return '';
+  return `
+    <div class="roster-block">
+      <div class="roster-label ${cls}">${label}</div>
+      ${players.map(p => `<div class="roster-player">${esc(p)}</div>`).join('')}
+    </div>`;
 }
 
 function filterRosters() {
@@ -2233,113 +2197,75 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(
 let _prevTab = 'home';
 
 function openTeamView(teamName, pushHistory = true) {
-  // FA de este equipo (sale de o llega a)
-  const faOut  = DATA.fa.filter(d => d.team25 === teamName);
-  const faIn   = DATA.fa.filter(d => d.dest   === teamName);
-  // Draft picks del equipo
-  const picks  = DATA.draft.filter(d => d.team === teamName);
-  // Trades que involucran al equipo
-  const trades = DATA.trades.filter(tr => tr.sides.some(s => s.team === teamName));
-  // Plantilla
-  const roster = DATA.rosters.find(r => r.team === teamName);
-  // Coaches
-  const coaches = DATA.coaches.filter(d => d.team === teamName);
+  const faIn      = DATA.fa.filter(d => d.dest === teamName);
+  const faOut     = DATA.fa.filter(d => d.team25 === teamName && d.dest);
+  const faPending = DATA.fa.filter(d => d.team25 === teamName && !d.dest);
+  const picks     = DATA.draft.filter(d => d.team === teamName);
+  const trades    = DATA.trades.filter(tr => tr.sides.some(s => s.team === teamName));
+  const roster    = DATA.rosters.find(r => r.team === teamName);
+  const coaches   = DATA.coaches.filter(d => d.team === teamName);
 
   document.getElementById('tv-team-name').textContent = teamName;
   document.getElementById('tv-team-logo').innerHTML = teamLogo(teamName, 64);
 
-  // Meta info
   let meta = '';
-  if (coaches.length) {
-    coaches.forEach(c => { meta += `${esc(c.role)}: ${esc(c.new)}<br>`; });
-  }
+  coaches.forEach(c => { meta += `<span>${esc(c.role)}: <strong>${esc(c.new)}</strong></span>  `; });
   document.getElementById('tv-team-meta').innerHTML = meta;
 
-  // Grid de cards
-  const grid = document.getElementById('tv-grid');
-  let gridHTML = '';
+  const tradeIn = [], tradeOut = [];
+  trades.forEach(tr => {
+    const mySide = tr.sides.find(s => s.team === teamName);
+    if (mySide) mySide.receives.forEach(item => tradeIn.push(item));
+    tr.sides.filter(s => s.team !== teamName).forEach(side => side.receives.forEach(item => tradeOut.push(item)));
+  });
 
-  // Card: Jugadores que llegan (FA)
-  gridHTML += tvCard(
-    lang === 'es' ? 'Llegadas (FA)' : 'FA Arrivals',
-    faIn.length,
-    faIn.map(d => `<div class="tv-row">
-      <span class="tv-row-name" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</span>
-      <span class="tv-row-money">${d.money ? '$'+esc(d.money)+'M / '+esc(d.years)+'y' : '—'}</span>
-    </div>`).join('') || `<div class="tv-empty">—</div>`
-  );
+  const subcol = (items, label, renderFn) => `
+    <div>
+      <div class="roster-subcol-label">${label}</div>
+      ${items.length ? items.map(renderFn).join('') : '<div class="roster-player td-muted">—</div>'}
+    </div>`;
 
-  // Card: Jugadores que salen (FA)
-  gridHTML += tvCard(
-    lang === 'es' ? 'Salidas (FA)' : 'FA Departures',
-    faOut.length,
-    faOut.map(d => `<div class="tv-row">
-      <span class="tv-row-name" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</span>
-      <span class="tv-row-detail">${esc(d.dest) || '—'}</span>
-    </div>`).join('') || `<div class="tv-empty">—</div>`
-  );
+  let html = '';
 
-  // Card: Picks del Draft
-  if (picks.length) {
-    gridHTML += tvCard(
-      t('tab_draft'),
-      picks.length,
-      picks.map(d => `<div class="tv-row">
-        <span class="tv-row-name" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</span>
-        <span class="tv-row-detail">${esc(d.pos)} · Pick ${esc(d.pick)}</span>
-      </div>`).join('')
-    );
+  // LLEGADAS
+  html += `<div class="roster-section">
+    <div class="roster-section-title llegadas">${t('roster_arrivals')}</div>
+    <div class="roster-3col">
+      ${subcol(faIn, t('roster_fa'), d => `<div class="roster-player">${esc(d.player)}${d.money ? ` <span class="td-muted" style="font-size:10px">$${esc(d.money)}M/${esc(d.years)}y</span>` : ''}</div>`)}
+      ${subcol(picks, t('roster_draft'), d => `<div class="roster-player">${esc(d.player)} <span class="td-muted" style="font-size:10px">#${esc(d.pick)}</span></div>`)}
+      ${subcol(tradeIn, t('roster_trade'), item => `<div class="roster-player">${esc(item)}</div>`)}
+    </div>
+  </div>`;
+
+  // SALIDAS
+  html += `<div class="roster-section">
+    <div class="roster-section-title salidas">${t('roster_departures')}</div>
+    <div class="roster-3col">
+      ${subcol(faOut, t('roster_salidas_fa'), d => `<div class="roster-player">${esc(d.player)}${d.dest ? ` <span class="td-muted" style="font-size:10px">→ ${esc(d.dest)}</span>` : ''}</div>`)}
+      ${subcol(tradeOut, t('roster_salidas_trade'), item => `<div class="roster-player">${esc(item)}</div>`)}
+      ${subcol(faPending, t('roster_fa_pending'), d => `<div class="roster-player">${esc(d.player)}</div>`)}
+    </div>
+  </div>`;
+
+  // SIGUEN
+  const siguen = roster?.siguen || [];
+  if (siguen.length) {
+    html += `<div class="roster-section">
+      <div class="roster-section-title siguen">${t('roster_stays')}</div>
+      <div class="roster-siguen">${siguen.map(p => `<span class="roster-pill">${esc(p)}</span>`).join('')}</div>
+    </div>`;
   }
 
-  // Card: Plantilla
-  if (roster) {
-    if (roster.siguen.length) {
-      gridHTML += tvCard(
-        lang === 'es' ? 'Siguen' : 'Returning',
-        roster.siguen.length,
-        roster.siguen.map(p => `<div class="tv-row">
-          <span class="tv-row-name" onclick="openPlayerDrawer('${esc(p)}')">${esc(p)}</span>
-        </div>`).join('')
-      );
-    }
-    if (roster.llegadas.length) {
-      gridHTML += tvCard(
-        lang === 'es' ? 'Llegadas (plantilla)' : 'Arrivals',
-        roster.llegadas.length,
-        roster.llegadas.map(p => `<div class="tv-row">
-          <span class="tv-row-name" onclick="openPlayerDrawer('${esc(p)}')">${esc(p)}</span>
-        </div>`).join('')
-      );
-    }
-    if (roster.salidas.length) {
-      gridHTML += tvCard(
-        lang === 'es' ? 'Salidas (plantilla)' : 'Departures',
-        roster.salidas.length,
-        roster.salidas.map(p => `<div class="tv-row">
-          <span class="tv-row-name" onclick="openPlayerDrawer('${esc(p)}')">${esc(p)}</span>
-        </div>`).join('')
-      );
-    }
-    if (roster.fa.length) {
-      gridHTML += tvCard(
-        lang === 'es' ? 'FA pendientes' : 'Pending FA',
-        roster.fa.length,
-        roster.fa.map(p => `<div class="tv-row">
-          <span class="tv-row-name" onclick="openPlayerDrawer('${esc(p)}')">${esc(p)}</span>
-        </div>`).join('')
-      );
-    }
-  }
-
-  grid.innerHTML = gridHTML;
-
-  // Trades
-  const tradesEl = document.getElementById('tv-trades-section');
+  // TRASPASOS
   if (trades.length) {
-    tradesEl.innerHTML = `<div class="tv-section-title">${t('tab_trades')}</div>` +
-      trades.map(tr => `
+    html += `<div class="roster-section">
+      <div class="roster-section-title trades">${t('roster_section_trades')}</div>
+      ${trades.map(tr => `
         <div class="trade-card" style="margin-bottom:10px">
-          <div class="trade-header"><span class="trade-idx">${t('trade_label')} #${tr.id}</span></div>
+          <div class="trade-header">
+            <span class="trade-idx">${t('trade_label')} #${tr.id}</span>
+            ${tr.date ? `<span class="td-muted" style="font-size:11px;margin-left:8px">${fmtDate(tr.date)}</span>` : ''}
+          </div>
           <div class="trade-body">
             ${tr.sides.map(side => `
               <div class="trade-side">
@@ -2348,18 +2274,18 @@ function openTeamView(teamName, pushHistory = true) {
                 ${side.receives.map(item => `<div class="trade-item">${esc(item)}</div>`).join('') || '<div class="trade-item td-muted">—</div>'}
               </div>`).join('')}
           </div>
-        </div>`).join('');
-  } else {
-    tradesEl.innerHTML = '';
+        </div>`).join('')}
+    </div>`;
   }
 
-  // Coaches
-  const coachesEl = document.getElementById('tv-coaches-section');
+  // HC/GMs
   if (coaches.length) {
-    coachesEl.innerHTML = `<div class="tv-section-title" style="margin-top:24px">${t('tab_coaches')}</div>` +
-      `<div class="table-wrap"><table><thead><tr>
+    html += `<div class="roster-section">
+      <div class="roster-section-title coaches">${t('roster_section_coaches')}</div>
+      <div class="table-wrap"><table><thead><tr>
         <th>${t('coaches_col_new')}</th>
-        <th>${t('coaches_col_prev')}</th><th>${t('coaches_col_date_hired')}</th>
+        <th>${t('coaches_col_prev')}</th>
+        <th>${t('coaches_col_date_hired')}</th>
       </tr></thead><tbody>` +
       coaches.map(d => {
         const rc = (d.role||'').toUpperCase().includes('HC') || (d.role||'').toUpperCase().includes('HEAD') ? 'badge-role-hc' : 'badge-role-gm';
@@ -2369,17 +2295,14 @@ function openTeamView(teamName, pushHistory = true) {
           <td class="td-muted">${esc(d.prev)||'—'}</td>
           <td class="td-muted">${fmtDate(d.dateHired)}</td>
         </tr>`;
-      }).join('') + `</tbody></table></div>`;
-  } else {
-    coachesEl.innerHTML = '';
+      }).join('') + `</tbody></table></div>
+    </div>`;
   }
 
-  // Cap info
+  document.getElementById('tv-content').innerHTML = html;
 
-  // Actualizar título del botón back
   document.getElementById('team-back-btn').textContent = '← ' + (lang === 'es' ? 'Volver' : 'Back');
 
-  // Navegar
   _prevTab = readURL().tab || 'home';
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
