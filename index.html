@@ -365,6 +365,7 @@
   }
 
   .badge-pos { background: rgba(29,66,138,0.3); color: #7aadff; border: 1px solid rgba(29,66,138,0.5); }
+  body.light .badge-pos { background: rgba(29,66,138,0.12); color: #1a4a9b; border-color: rgba(29,66,138,0.35); }
   .badge-check { background: rgba(200,255,0,0.12); color: var(--accent); border: 1px solid rgba(200,255,0,0.25); }
   .badge-pending-c { background: rgba(255,159,0,0.12); color: var(--pending); border: 1px solid rgba(255,159,0,0.25); }
   .badge-role-hc { background: rgba(200,255,0,0.08); color: var(--accent); border: 1px solid rgba(200,255,0,0.2); }
@@ -449,7 +450,7 @@
     margin-bottom: 6px;
   }
 
-  .trade-item { font-size: 16px; font-weight: 600; color: var(--text); padding: 3px 0; cursor: pointer; }
+  .trade-item { font-size: 14px; font-weight: 600; color: var(--text); padding: 3px 0; cursor: pointer; }
   .trade-item:hover { color: var(--accent); }
 
   /* PLANTILLAS */
@@ -553,7 +554,7 @@
     border: 1px solid var(--border);
     border-radius: 3px;
     padding: 3px 9px;
-    font-size: 13px;
+    font-size: 14px;
   }
 
   .roster-trade-item {
@@ -1174,12 +1175,16 @@
         <input type="text" class="filter-input" id="fa-search" oninput="filterFA()" data-i18n-ph="fa_search_ph">
       </div>
       <div class="filter-group">
-        <span class="filter-label" data-i18n="fa_col_team25">Equipo 2025</span>
+        <span class="filter-label" data-i18n="fa_col_team25">Equipo 2026</span>
         <select class="filter-select" id="fa-team25" onchange="filterFA()"><option value="">—</option></select>
       </div>
       <div class="filter-group">
         <span class="filter-label" data-i18n="fa_col_dest">Destino</span>
         <select class="filter-select" id="fa-dest" onchange="filterFA()"><option value="">—</option></select>
+      </div>
+      <div class="filter-group">
+        <span class="filter-label" data-i18n="draft_col_pos">Posición</span>
+        <select class="filter-select" id="fa-pos" onchange="filterFA()"><option value="">—</option></select>
       </div>
       <button class="btn-reset" onclick="resetFA()" data-i18n="btn_reset">Limpiar</button>
       <span class="results-count" id="fa-count"></span>
@@ -1195,17 +1200,18 @@
         <thead>
           <tr>
             <th onclick="sortSection('fa',0)"><span data-i18n="fa_col_player">Jugador</span> <span class="sort-icon">↕</span></th>
-            <th onclick="sortSection('fa',1)"><span data-i18n="fa_col_dest">Destino</span> <span class="sort-icon">↕</span></th>
-            <th onclick="sortSection('fa',2)"><span data-i18n="fa_col_team25">Origen</span> <span class="sort-icon">↕</span></th>
-            <th onclick="sortSection('fa',3)" style="text-align:center"><span data-i18n="fa_col_m">Millones</span> <span class="sort-icon">↕</span></th>
-            <th onclick="sortSection('fa',4)" style="text-align:center"><span data-i18n="fa_col_yr">Años</span> <span class="sort-icon">↕</span></th>
-            <th onclick="sortSection('fa',5)" style="text-align:center"><span data-i18n="fa_col_aav">AAV</span> <span class="sort-icon">↕</span></th>
-            <th onclick="sortSection('fa',6)"><span data-i18n="col_source">Fuente</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('fa',1)"><span data-i18n="draft_col_pos">Pos</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('fa',2)"><span data-i18n="fa_col_dest">Destino</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('fa',3)"><span data-i18n="fa_col_team25">Equipo 2026</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('fa',4)" style="text-align:center"><span data-i18n="fa_col_m">Millones</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('fa',5)" style="text-align:center"><span data-i18n="fa_col_yr">Años</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('fa',6)" style="text-align:center"><span data-i18n="fa_col_aav">AAV</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('fa',7)"><span data-i18n="col_source">Fuente</span> <span class="sort-icon">↕</span></th>
             <th><span data-i18n="col_notes">Notas</span></th>
           </tr>
         </thead>
         <tbody id="fa-tbody">
-          <tr><td colspan="8"><div class="state-loading" data-i18n="loading">Cargando datos...</div></td></tr>
+          <tr><td colspan="9"><div class="state-loading" data-i18n="loading">Cargando datos...</div></td></tr>
         </tbody>
       </table>
     </div>
@@ -1215,6 +1221,10 @@
         <span class="filter-label" data-i18n="col_team">Equipo</span>
         <select class="filter-select" id="fa-pending-team" onchange="filterFAPending()"><option value="">—</option></select>
       </div>
+      <div class="filter-group">
+        <span class="filter-label" data-i18n="draft_col_pos">Posición</span>
+        <select class="filter-select" id="fa-pending-pos" onchange="filterFAPending()"><option value="">—</option></select>
+      </div>
       <button class="btn-reset" onclick="resetFAPending()" data-i18n="btn_reset">Limpiar</button>
       <span class="results-count" id="fa-pending-count"></span>
     </div>
@@ -1223,12 +1233,13 @@
         <thead>
           <tr>
             <th><span data-i18n="fa_col_player">Jugador</span></th>
-            <th><span data-i18n="fa_col_team25">Origen</span></th>
+            <th><span data-i18n="draft_col_pos">Pos</span></th>
+            <th><span data-i18n="fa_col_team25">Equipo 2026</span></th>
             <th><span data-i18n="col_notes">Notas</span></th>
           </tr>
         </thead>
         <tbody id="fa-pending-tbody">
-          <tr><td colspan="3"><div class="state-loading" data-i18n="loading">Cargando datos...</div></td></tr>
+          <tr><td colspan="4"><div class="state-loading" data-i18n="loading">Cargando datos...</div></td></tr>
         </tbody>
       </table>
     </div>
@@ -1634,11 +1645,14 @@ function processFA(rows) {
     aav:    cell(r,5),
     source: cell(r,6),
     notes:  cell(r,7),
+    pos:    cell(r,8),
   }));
   document.getElementById('count-fa').textContent = DATA.fa.filter(d => d.dest).length;
   populateSelect('fa-team25', [...new Set(DATA.fa.map(d=>d.team25).filter(Boolean))].sort());
   populateSelect('fa-dest',   [...new Set(DATA.fa.map(d=>d.dest).filter(Boolean))].sort());
+  populateSelect('fa-pos',    [...new Set(DATA.fa.map(d=>d.pos).filter(Boolean))].sort());
   populateSelect('fa-pending-team', [...new Set(DATA.fa.filter(d=>!d.dest).map(d=>d.team25).filter(Boolean))].sort());
+  populateSelect('fa-pending-pos',  [...new Set(DATA.fa.filter(d=>!d.dest).map(d=>d.pos).filter(Boolean))].sort());
   DATA.faPending = DATA.fa.filter(d => !d.dest);
   FILTERED.faPending = [...DATA.faPending];
 }
@@ -1654,6 +1668,7 @@ function renderFA(data) {
         return `
       <tr>
         <td class="td-player clickable-player" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(name)}${badge}</td>
+        <td><span class="badge badge-pos">${esc(d.pos) || '—'}</span></td>
         <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.dest)}')">${esc(d.dest)}</span></td>
         <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team25)}')">${esc(d.team25)}</span></td>
         <td class="td-money">${d.money ? '$'+esc(d.money)+'M' : '—'}</td>
@@ -1662,7 +1677,7 @@ function renderFA(data) {
         <td class="td-muted">${esc(d.source)}</td>
         <td class="td-notes">${esc(d.notes)}</td>
       </tr>`;}).join('')
-    : `<tr><td colspan="8"><div class="state-empty">${t('no_data')}</div></td></tr>`;
+    : `<tr><td colspan="9"><div class="state-empty">${t('no_data')}</div></td></tr>`;
 
   document.getElementById('fa-count').innerHTML = `<span>${signed.length}</span>&nbsp;${t('results')}`;
 }
@@ -1675,21 +1690,24 @@ function renderFAPending(data) {
         return `
       <tr>
         <td class="td-player clickable-player" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(name)}${badge}</td>
+        <td><span class="badge badge-pos">${esc(d.pos) || '—'}</span></td>
         <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team25)}')">${esc(d.team25)}</span></td>
         <td class="td-notes">${esc(d.notes)}</td>
       </tr>`;}).join('')
-    : `<tr><td colspan="3"><div class="state-empty">${t('no_data')}</div></td></tr>`;
+    : `<tr><td colspan="4"><div class="state-empty">${t('no_data')}</div></td></tr>`;
   document.getElementById('fa-pending-count').innerHTML = `<span>${data.length}</span>&nbsp;${t('results')}`;
 }
 
 function filterFAPending() {
   const team = document.getElementById('fa-pending-team').value;
-  FILTERED.faPending = (DATA.faPending || []).filter(d => !team || d.team25 === team);
+  const pos  = document.getElementById('fa-pending-pos').value;
+  FILTERED.faPending = (DATA.faPending || []).filter(d => (!team || d.team25 === team) && (!pos || d.pos === pos));
   renderFAPending(FILTERED.faPending);
 }
 
 function resetFAPending() {
   document.getElementById('fa-pending-team').value = '';
+  document.getElementById('fa-pending-pos').value = '';
   filterFAPending();
 }
 
@@ -1697,10 +1715,12 @@ function filterFA() {
   const q = document.getElementById('fa-search').value.toLowerCase();
   const t25 = document.getElementById('fa-team25').value;
   const dest = document.getElementById('fa-dest').value;
+  const pos = document.getElementById('fa-pos').value;
   FILTERED.fa = DATA.fa.filter(d =>
     (!q || `${d.player} ${d.team25} ${d.dest} ${d.notes}`.toLowerCase().includes(q)) &&
     (!t25 || d.team25 === t25) &&
-    (!dest || d.dest === dest)
+    (!dest || d.dest === dest) &&
+    (!pos || d.pos === pos)
   );
   renderFA(FILTERED.fa);
 }
@@ -1709,6 +1729,7 @@ function resetFA() {
   document.getElementById('fa-search').value = '';
   document.getElementById('fa-team25').value = '';
   document.getElementById('fa-dest').value = '';
+  document.getElementById('fa-pos').value = '';
   filterFA();
 }
 
@@ -1755,7 +1776,8 @@ function renderDraft(data) {
       : `<td class="td-muted">—</td>`;
     const prev = i > 0 ? parseInt(data[i-1].pick) : null;
     if (prev === 14 || prev === 30) {
-      rows.push(`<tr><td colspan="9" style="padding:0;border:none"><div style="height:2px;background:var(--border);margin:4px 0;opacity:0.6"></div></td></tr>`);
+      const label = prev === 14 ? (lang === 'es' ? 'FIN DE LA LOTERÍA' : 'END OF LOTTERY') : (lang === 'es' ? 'FIN DE LA PRIMERA RONDA' : 'END OF ROUND 1');
+      rows.push(`<tr><td colspan="9" style="padding:4px 8px;border:none;background:var(--surface2)"><span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted)">${label}</span></td></tr>`);
     }
     rows.push(`<tr>
       <td><span class="pick-num ${cls}">${esc(d.pick)}</span></td>
@@ -2043,7 +2065,7 @@ function resetCoaches() {
 // SORT
 // ─────────────────────────────────────────────
 const GETTERS = {
-  fa:     d => [d.player, d.dest, d.team25, d.money, d.years, d.aav, d.source, d.notes],
+  fa:     d => [d.player, d.pos, d.dest, d.team25, d.money, d.years, d.aav, d.source, d.notes],
   draft:  d => [d.pick, d.player, d.team, d.pos, d.from, d.check, d.contract, d.notes],
   coaches:d => [d.new, d.team, d.role, d.dateHired, d.prev, d.dateFired, d.source],
 };
@@ -2135,7 +2157,7 @@ function faStatus(player) {
 function flag(code) {
   if (!code || code.trim().length !== 2) return '';
   const c = code.trim().toLowerCase();
-  return `<img src="https://flagcdn.com/20x15/${c}.png" width="20" height="15" alt="${c.toUpperCase()}" style="vertical-align:middle;border-radius:2px" onerror="this.style.display='none'">`;
+  return `<img src="https://flagpedia.net/data/flags/w40/${c}.png" width="24" height="16" alt="${c.toUpperCase()}" style="vertical-align:middle;border-radius:2px;object-fit:cover" onerror="this.style.display='none'">`;
 }
 
 function esc(s) {
@@ -2246,7 +2268,7 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     html += `<div class="drawer-section">
       <div class="drawer-section-title">${t('tab_fa')}</div>`;
     faData.forEach(d => {
-      if (d.team25) html += drawerRow(lang === 'es' ? 'Equipo 2025' : '2025 Team', `<span class="badge badge-team">${esc(d.team25)}</span>`);
+      if (d.team25) html += drawerRow(lang === 'es' ? 'Equipo 2026' : '2026 Team', `<span class="badge badge-team">${esc(d.team25)}</span>`);
       if (d.dest)   html += drawerRow(lang === 'es' ? 'Destino' : 'Destination', `<span class="badge badge-team">${esc(d.dest)}</span>`);
       if (d.money)  html += drawerRow(lang === 'es' ? 'Total' : 'Total', `$${esc(d.money)}M`, 'money');
       if (d.years)  html += drawerRow(lang === 'es' ? 'Años' : 'Years', esc(d.years));
@@ -2313,10 +2335,11 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     if (draftData[0].team) teamLinks.push({ label: t('drawer_view_team'), team: draftData[0].team });
   } else if (tradeData.length) {
     tradeData[0].sides.forEach(side => {
-      if (side.receives.some(r => r.item.includes(playerName)))
+      const match = side.receives.find(r => r.item.includes(playerName));
+      if (match) {
         teamLinks.push({ label: t('drawer_view_team'), team: side.team });
-      else
-        teamLinks.push({ label: t('drawer_view_old_team'), team: side.team });
+        if (match.from) teamLinks.push({ label: t('drawer_view_old_team'), team: match.from });
+      }
     });
   }
   if (teamLinks.length) {
@@ -2440,8 +2463,9 @@ function openTeamView(teamName, pushHistory = true) {
     html += trades.map(tr => `
       <div class="trade-card" style="margin-bottom:10px">
         <div class="trade-header">
-          <span class="trade-idx">${t('trade_label')} #${tr.id}</span>
-          ${tr.date ? `<span class="td-muted" style="font-size:11px;margin-left:8px">${fmtDate(tr.date)}</span>` : ''}
+          <span class="td-muted" style="font-size:11px;font-family:'DM Mono',monospace">
+            ${tr.date ? fmtDate(tr.date) : ''}${tr.date && tr.source ? ' · ' : ''}${tr.source ? esc(tr.source) : ''}
+          </span>
         </div>
         <div class="trade-body" style="grid-template-columns:repeat(${tr.sides.length},1fr)">
           ${tr.sides.map(side => `
