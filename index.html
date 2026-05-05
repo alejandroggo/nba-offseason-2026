@@ -1785,65 +1785,69 @@ function resetDraft() {
 // Columnas: RECIBE | (jugadores/picks) | ... | RECIBE | ...
 // Estructura: cada fila es una parte del trade, agrupadas por número
 // ─────────────────────────────────────────────
+// Columnas: # | Activo | De | A | Fecha | Fuente
+// Una fila por activo movido entre equipos. Misma # = mismo traspaso.
 function processTrades(rows) {
-  const trades = [];
-  let current = null;
+  const tradeMap = new Map();
+  const trades   = [];
+  let lastId     = null;
 
   rows.slice(1).forEach(r => {
-    const a = cell(r,0), b = cell(r,1), c = cell(r,2);
-    const d = cell(r,3), e = cell(r,4), f = cell(r,5);
-    const g = cell(r,6), h = cell(r,7);
+    const id    = cell(r,0);
+    const asset = cell(r,1);
+    const from  = cell(r,2);
+    const to    = cell(r,3);
+    const date  = cell(r,4);
+    const src   = cell(r,5);
 
-    // Fila completamente vacía → separador entre trades
-    if (!a && !b && !c && !d && !e && !f) { current = null; return; }
+    if (!id && !asset && !from && !to) return;
 
-    // Sin trade activo → nuevo trade
-    if (!current) {
-      current = { id: trades.length + 1, date: g, source: h, sides: [] };
-      trades.push(current);
+    const tradeId = id || lastId;
+    if (!tradeId) return;
+    if (id) lastId = id;
+
+    if (!tradeMap.has(tradeId)) {
+      const trade = { id: tradeId, date: '', source: '', sides: [] };
+      tradeMap.set(tradeId, trade);
+      trades.push(trade);
     }
+    const trade = tradeMap.get(tradeId);
+    if (date) trade.date   = date;
+    if (src)  trade.source = src;
 
-    // Lado izquierdo (A=equipo, B+C=activos)
-    if (a || b || c) {
-      if (a) {
-        let side = current.sides.find(s => s.team === a);
-        if (!side) { side = { team: a, receives: [] }; current.sides.push(side); }
-        [b, c].filter(Boolean).forEach(v => side.receives.push(v));
-      } else {
-        [b, c].filter(Boolean).forEach(v => current.sides[0]?.receives.push(v));
-      }
-    }
-
-    // Lado derecho (D=equipo, E+F=activos)
-    if (d || e || f) {
-      if (d) {
-        let side = current.sides.find(s => s.team === d);
-        if (!side) { side = { team: d, receives: [] }; current.sides.push(side); }
-        [e, f].filter(Boolean).forEach(v => side.receives.push(v));
-      } else {
-        [e, f].filter(Boolean).forEach(v => current.sides[1]?.receives.push(v));
-      }
+    if (asset && to) {
+      let side = trade.sides.find(s => s.team === to);
+      if (!side) { side = { team: to, receives: [] }; trade.sides.push(side); }
+      side.receives.push({ item: asset, from });
     }
   });
 
   DATA.trades = trades;
   document.getElementById('count-trades').textContent = DATA.trades.length;
 
-  const allTeams = [...new Set(DATA.trades.flatMap(trade => trade.sides.map(s => s.team)).filter(Boolean))].sort();
+  const allTeams = [...new Set(DATA.trades.flatMap(tr => tr.sides.map(s => s.team)).filter(Boolean))].sort();
   populateSelect('trades-team', allTeams);
+}
+
+function tradeReceivesHTML(receives) {
+  if (!receives.length) return '<div class="trade-item td-muted">—</div>';
+  // Agrupar activos por equipo de origen
+  const byFrom = [];
+  receives.forEach(r => {
+    const grp = byFrom.find(g => g.from === r.from);
+    if (grp) grp.items.push(r.item);
+    else byFrom.push({ from: r.from, items: [r.item] });
+  });
+  return byFrom.map(grp => `
+    <div class="trade-receives-label">← ${lang === 'es' ? 'De' : 'From'}: <strong>${esc(grp.from)}</strong></div>
+    ${grp.items.map(item => `<div class="trade-item">${esc(item)}</div>`).join('')}
+  `).join('');
 }
 
 function renderTrades(data) {
   const container = document.getElementById('trades-container');
   if (!data.length) { container.innerHTML = `<div class="state-empty">${t('no_data')}</div>`; return; }
-  container.innerHTML = data.map(trade => {
-    const is2way = trade.sides.length === 2;
-    // Para 2 equipos: "← De: TeamB" deja claro el origen. Para 3+: "← Recibe" genérico.
-    const receivesLabel = (side) => is2way
-      ? `← ${lang === 'es' ? 'De' : 'From'}: <strong>${esc(trade.sides.find(s => s.team !== side.team)?.team || '')}</strong>`
-      : `← ${t('receives')}`;
-
-    return `
+  container.innerHTML = data.map(trade => `
     <div class="trade-card">
       <div class="trade-header">
         <span class="trade-idx">${t('trade_label')} #${trade.id}</span>
@@ -1857,21 +1861,18 @@ function renderTrades(data) {
             <div class="trade-team-label" style="display:flex;align-items:center;gap:8px">
               ${teamLogo(side.team, 24)}<span class="clickable-team" onclick="openTeamView('${esc(side.team)}')">${esc(side.team)}</span>
             </div>
-            <div class="trade-receives-label">${receivesLabel(side)}</div>
-            ${side.receives.map(item => `<div class="trade-item">${esc(item)}</div>`).join('') || '<div class="trade-item td-muted">—</div>'}
-          </div>
-        `).join('')}
+            ${tradeReceivesHTML(side.receives)}
+          </div>`).join('')}
       </div>
-    </div>`;
-  }).join('');
+    </div>`).join('');
   document.getElementById('trades-count').innerHTML = `<span>${data.length}</span>&nbsp;${t('results')}`;
 }
 
 function filterTrades() {
-  const q = document.getElementById('trades-search').value.toLowerCase();
+  const q    = document.getElementById('trades-search').value.toLowerCase();
   const team = document.getElementById('trades-team').value;
   FILTERED.trades = DATA.trades.filter(trade => {
-    const text = trade.sides.flatMap(s => [s.team, ...s.receives]).join(' ').toLowerCase();
+    const text = trade.sides.flatMap(s => [s.team, ...s.receives.flatMap(r => [r.item, r.from])]).join(' ').toLowerCase();
     return (!q || text.includes(q)) && (!team || trade.sides.some(s => s.team === team));
   });
   renderTrades(FILTERED.trades);
@@ -2195,7 +2196,7 @@ function openPlayerDrawer(playerName, pushHistory = true) {
   const faData    = DATA.fa.filter(d => d.player === playerName);
   const draftData = DATA.draft.filter(d => d.player === playerName);
   const undData   = DATA.undrafted ? DATA.undrafted.filter(d => d.player === playerName) : [];
-  const tradeData = DATA.trades.filter(tr => tr.sides.some(s => s.receives.some(r => r.includes(playerName))));
+  const tradeData = DATA.trades.filter(tr => tr.sides.some(s => s.receives.some(r => r.item.includes(playerName))));
 
   document.getElementById('drawer-player-name').textContent = playerName;
 
@@ -2250,8 +2251,10 @@ function openPlayerDrawer(playerName, pushHistory = true) {
       <div class="drawer-section-title">${t('tab_trades')}</div>`;
     tradeData.forEach(tr => {
       tr.sides.forEach(side => {
-        if (side.receives.some(r => r.includes(playerName))) {
+        if (side.receives.some(r => r.item.includes(playerName))) {
           html += drawerRow(lang === 'es' ? 'Llega a' : 'Goes to', `<span class="badge badge-team">${esc(side.team)}</span>`);
+          const fromTeam = side.receives.find(r => r.item.includes(playerName))?.from;
+          if (fromTeam) html += drawerRow(lang === 'es' ? 'Viene de' : 'Comes from', `<span class="badge badge-team">${esc(fromTeam)}</span>`);
         }
       });
     });
@@ -2271,7 +2274,7 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     if (draftData[0].team) teamLinks.push({ label: t('drawer_view_team'), team: draftData[0].team });
   } else if (tradeData.length) {
     tradeData[0].sides.forEach(side => {
-      if (side.receives.some(r => r.includes(playerName)))
+      if (side.receives.some(r => r.item.includes(playerName)))
         teamLinks.push({ label: t('drawer_view_team'), team: side.team });
       else
         teamLinks.push({ label: t('drawer_view_old_team'), team: side.team });
@@ -2333,12 +2336,9 @@ function openTeamView(teamName, pushHistory = true) {
   const tradeIn = [], tradeOut = [];
   trades.forEach(tr => {
     const mySide = tr.sides.find(s => s.team === teamName);
-    if (mySide) mySide.receives.forEach(item => tradeIn.push(item));
-    // En trades de 2 equipos podemos inferir lo que enviamos (= lo que el otro recibe).
-    // En trades de 3+ equipos no es posible inferirlo sin más datos en el sheet.
-    if (tr.sides.length === 2) {
-      tr.sides.filter(s => s.team !== teamName).forEach(side => side.receives.forEach(item => tradeOut.push(item)));
-    }
+    if (mySide) mySide.receives.forEach(r => tradeIn.push(r.item));
+    // Salidas: activos donde from === este equipo (cualquier número de equipos)
+    tr.sides.forEach(side => side.receives.filter(r => r.from === teamName).forEach(r => tradeOut.push(r.item)));
   });
 
   const subcol = (items, label, renderFn) => `
@@ -2367,7 +2367,6 @@ function openTeamView(teamName, pushHistory = true) {
       ${subcol(tradeOut, t('roster_salidas_trade'), item => `<div class="roster-player">${esc(item)}</div>`)}
       ${subcol(faPending, t('roster_fa_pending'), d => `<div class="roster-player">${esc(d.player)}</div>`)}
     </div>
-    ${trades.some(tr => tr.sides.length > 2) ? `<div class="roster-player td-muted" style="font-size:11px;margin-top:6px">* ${lang === 'es' ? 'Traspasos de 3+ equipos: ver detalle abajo' : '3-team+ trades: see details below'}</div>` : ''}
   </div>`;
 
   // SIGUEN
@@ -2383,27 +2382,20 @@ function openTeamView(teamName, pushHistory = true) {
   if (trades.length) {
     html += `<div class="roster-section">
       <div class="roster-section-title trades">${t('roster_section_trades')}</div>
-      ${trades.map(tr => {
-        const is2way = tr.sides.length === 2;
-        return `
+      ${trades.map(tr => `
         <div class="trade-card" style="margin-bottom:10px">
           <div class="trade-header">
             <span class="trade-idx">${t('trade_label')} #${tr.id}</span>
             ${tr.date ? `<span class="td-muted" style="font-size:11px;margin-left:8px">${fmtDate(tr.date)}</span>` : ''}
           </div>
           <div class="trade-body" style="grid-template-columns:repeat(${tr.sides.length},1fr)">
-            ${tr.sides.map(side => {
-              const from = is2way ? (lang === 'es' ? 'De' : 'From') + ': <strong>' + esc(tr.sides.find(s => s.team !== side.team)?.team || '') + '</strong>' : t('receives');
-              return `
+            ${tr.sides.map(side => `
               <div class="trade-side">
                 <div class="trade-team-label">${esc(side.team)}</div>
-                <div class="trade-receives-label">← ${from}</div>
-                ${side.receives.map(item => `<div class="trade-item">${esc(item)}</div>`).join('') || '<div class="trade-item td-muted">—</div>'}
-              </div>`;
-            }).join('')}
+                ${tradeReceivesHTML(side.receives)}
+              </div>`).join('')}
           </div>
-        </div>`;
-      }).join('')}
+        </div>`).join('')}
     </div>`;
   }
 
