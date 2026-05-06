@@ -364,8 +364,7 @@
     text-transform: uppercase;
   }
 
-  .badge-pos { background: rgba(29,66,138,0.3); color: #7aadff; border: 1px solid rgba(29,66,138,0.5); }
-  body.light .badge-pos { background: rgba(29,66,138,0.12); color: #1a4a9b; border-color: rgba(29,66,138,0.35); }
+  .pos-text { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.5px; }
   .badge-check { background: rgba(200,255,0,0.12); color: var(--accent); border: 1px solid rgba(200,255,0,0.25); }
   .badge-pending-c { background: rgba(255,159,0,0.12); color: var(--pending); border: 1px solid rgba(255,159,0,0.25); }
   .badge-role-hc { background: rgba(200,255,0,0.08); color: var(--accent); border: 1px solid rgba(200,255,0,0.2); }
@@ -1127,35 +1126,35 @@
     <div class="home-cards">
       <button class="home-card" onclick="showTab('fa')">
         <span class="home-card-arrow">↗</span>
-        <div class="home-card-icon">🏀</div>
+        <div class="home-card-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><path d="M16 13l2 2 4-4"/></svg></div>
         <div class="home-card-title" data-i18n="tab_fa">Agencia Libre</div>
         <div class="home-card-desc" data-i18n="home_fa_desc">Fichajes confirmados y mercado pendiente</div>
         <div class="home-card-count" id="home-count-fa">— registros</div>
       </button>
       <button class="home-card" onclick="showTab('draft')">
         <span class="home-card-arrow">↗</span>
-        <div class="home-card-icon">🎓</div>
+        <div class="home-card-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
         <div class="home-card-title" data-i18n="tab_draft">Draft</div>
         <div class="home-card-desc" data-i18n="home_draft_desc">Picks seleccionados en rondas 1 y 2</div>
         <div class="home-card-count" id="home-count-draft">— registros</div>
       </button>
       <button class="home-card" onclick="showTab('trades')">
         <span class="home-card-arrow">↗</span>
-        <div class="home-card-icon">🔄</div>
+        <div class="home-card-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/></svg></div>
         <div class="home-card-title" data-i18n="tab_trades">Trades</div>
         <div class="home-card-desc" data-i18n="home_trades_desc">Traspasos confirmados entre franquicias</div>
         <div class="home-card-count" id="home-count-trades">— registros</div>
       </button>
       <button class="home-card" onclick="showTab('coaches')">
         <span class="home-card-arrow">↗</span>
-        <div class="home-card-icon">🎽</div>
+        <div class="home-card-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg></div>
         <div class="home-card-title" data-i18n="tab_coaches">HC / GMs</div>
         <div class="home-card-desc" data-i18n="home_coaches_desc">Cambios en banquillos y gerencias</div>
         <div class="home-card-count" id="home-count-coaches">— cambios</div>
       </button>
       <button class="home-card" onclick="showTab('teams')">
         <span class="home-card-arrow">↗</span>
-        <div class="home-card-icon">🏟️</div>
+        <div class="home-card-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
         <div class="home-card-title" data-i18n="tab_teams">Equipos</div>
         <div class="home-card-desc" data-i18n="home_teams_desc">Las 30 franquicias — movimientos y plantilla</div>
         <div class="home-card-count">30 equipos</div>
@@ -1656,6 +1655,7 @@ function processFA(rows) {
   populateSelect('fa-pending-pos',  [...new Set(DATA.fa.filter(d=>!d.dest).map(d=>d.pos).filter(Boolean))].sort());
   DATA.faPending = DATA.fa.filter(d => !d.dest);
   FILTERED.faPending = [...DATA.faPending];
+  renderFAPending(FILTERED.faPending);
 }
 
 function renderFA(data) {
@@ -1669,7 +1669,7 @@ function renderFA(data) {
         return `
       <tr>
         <td class="td-player clickable-player" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(name)}${badge}</td>
-        <td><span class="badge badge-pos">${esc(d.pos) || '—'}</span></td>
+        <td><span class="pos-text">${esc(d.pos) || '—'}</span></td>
         <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.dest)}')">${esc(d.dest)}</span></td>
         <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team25)}')">${esc(d.team25)}</span></td>
         <td class="td-money">${d.money ? '$'+esc(d.money)+'M' : '—'}</td>
@@ -1691,7 +1691,7 @@ function renderFAPending(data) {
         return `
       <tr>
         <td class="td-player clickable-player" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(name)}${badge}</td>
-        <td><span class="badge badge-pos">${esc(d.pos) || '—'}</span></td>
+        <td><span class="pos-text">${esc(d.pos) || '—'}</span></td>
         <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team25)}')">${esc(d.team25)}</span></td>
         <td class="td-notes">${esc(d.notes)}</td>
       </tr>`;}).join('')
@@ -1778,14 +1778,14 @@ function renderDraft(data) {
     const prev = i > 0 ? parseInt(data[i-1].pick) : null;
     if (prev === 14 || prev === 30) {
       const label = prev === 14 ? (lang === 'es' ? 'FIN DE LA LOTERÍA' : 'END OF LOTTERY') : (lang === 'es' ? 'FIN DE LA PRIMERA RONDA' : 'END OF ROUND 1');
-      rows.push(`<tr><td colspan="9" style="padding:4px 8px;border:none;background:var(--surface2)"><span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted)">${label}</span></td></tr>`);
+      rows.push(`<tr><td colspan="9" style="padding:6px 12px;border:none;background:var(--surface2)"><span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted)">${label}</span></td></tr>`);
     }
     rows.push(`<tr>
       <td><span class="pick-num ${cls}">${esc(d.pick)}</span></td>
       ${playerCell}
       <td style="text-align:center" title="${esc(d.country)}">${flag(d.country)}</td>
       <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team)}')">${esc(d.team)}</span></td>
-      <td><span class="badge badge-pos">${esc(d.pos)}</span></td>
+      <td><span class="pos-text">${esc(d.pos)}</span></td>
       <td class="td-muted">${esc(d.from)}</td>
       <td>${chk}</td>
       <td class="td-muted">${esc(d.contract)}</td>
@@ -1803,7 +1803,7 @@ function renderUndrafted(data) {
     <tr>
       <td class="td-player clickable-player" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</td>
       <td style="font-size:18px;text-align:center" title="${esc(d.country)}">${flag(d.country)}</td>
-      <td><span class="badge badge-pos">${esc(d.pos) || '—'}</span></td>
+      <td><span class="pos-text">${esc(d.pos) || '—'}</span></td>
       <td class="td-muted">${esc(d.from) || '—'}</td>
       <td class="td-notes">${esc(d.notes)}</td>
     </tr>`).join('');
@@ -2141,7 +2141,8 @@ function fmtDate(str) {
   if (!str) return '—';
   const d = new Date(str);
   if (isNaN(d.getTime())) return str;
-  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+  const months = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  return `${String(d.getDate()).padStart(2,'0')}/${months[d.getMonth()]}/${d.getFullYear()}`;
 }
 
 function faStatus(player) {
@@ -2270,7 +2271,7 @@ function openPlayerDrawer(playerName, pushHistory = true) {
       <div class="drawer-section-title">${t('tab_fa')}</div>`;
     faData.forEach(d => {
       if (d.team25) html += drawerRow(lang === 'es' ? 'Equipo 2026' : '2026 Team', `<span class="badge badge-team">${esc(d.team25)}</span>`);
-      if (d.dest)   html += drawerRow(lang === 'es' ? 'Destino' : 'Destination', `<span class="badge badge-team">${esc(d.dest)}</span>`);
+      if (d.dest)   html += drawerRow(lang === 'es' ? 'Nuevo equipo' : 'New Team', `<span class="badge badge-team">${esc(d.dest)}</span>`);
       if (d.money)  html += drawerRow(lang === 'es' ? 'Total' : 'Total', `$${esc(d.money)}M`, 'money');
       if (d.years)  html += drawerRow(lang === 'es' ? 'Años' : 'Years', esc(d.years));
       if (d.aav)    html += drawerRow('AAV', `$${esc(d.aav)}M`, 'money');
@@ -2287,7 +2288,7 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     draftData.forEach(d => {
       if (d.pick)     html += drawerRow('Pick', `<span class="pick-num ${parseInt(d.pick)<=5?'top5':parseInt(d.pick)<=30?'r1':''}">${esc(d.pick)}</span>`);
       if (d.team)     html += drawerRow(lang === 'es' ? 'Equipo' : 'Team', `<span class="badge badge-team">${esc(d.team)}</span>`);
-      if (d.pos)      html += drawerRow(lang === 'es' ? 'Posición' : 'Position', `<span class="badge badge-pos">${esc(d.pos)}</span>`);
+      if (d.pos)      html += drawerRow(lang === 'es' ? 'Posición' : 'Position', `<span class="pos-text">${esc(d.pos)}</span>`);
       if (d.from)     html += drawerRow(lang === 'es' ? 'Procedencia' : 'From', esc(d.from));
       if (d.contract) html += drawerRow(lang === 'es' ? 'Contrato' : 'Contract', esc(d.contract));
       if (d.notes)    html += drawerRow(lang === 'es' ? 'Notas' : 'Notes', esc(d.notes), 'notes');
@@ -2300,7 +2301,7 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     html += `<div class="drawer-section">
       <div class="drawer-section-title">${t('draft_undrafted_title')}</div>`;
     undData.forEach(d => {
-      if (d.pos)   html += drawerRow(lang === 'es' ? 'Posición' : 'Position', `<span class="badge badge-pos">${esc(d.pos)}</span>`);
+      if (d.pos)   html += drawerRow(lang === 'es' ? 'Posición' : 'Position', `<span class="pos-text">${esc(d.pos)}</span>`);
       if (d.from)  html += drawerRow(lang === 'es' ? 'Procedencia' : 'From', esc(d.from));
       if (d.notes) html += drawerRow(lang === 'es' ? 'Notas' : 'Notes', esc(d.notes), 'notes');
     });
@@ -2401,7 +2402,7 @@ function openTeamView(teamName, pushHistory = true) {
     const mySide = tr.sides.find(s => s.team === teamName);
     if (mySide) mySide.receives.forEach(r => tradeIn.push(r.item));
     // Salidas: activos donde from === este equipo (cualquier número de equipos)
-    tr.sides.forEach(side => side.receives.filter(r => r.from === teamName).forEach(r => tradeOut.push(r.item)));
+    tr.sides.forEach(side => side.receives.filter(r => r.from === teamName).forEach(r => tradeOut.push({item: r.item, to: side.team})));
   });
 
   const subcol = (items, label, renderFn) => `
@@ -2437,7 +2438,7 @@ function openTeamView(teamName, pushHistory = true) {
     ${tvCard(t('roster_salidas_fa'), faOut.length,
         faOut.length ? faOut.map(d => tvRow(esc(d.player), d.dest ? `→ ${esc(d.dest)}` : '')).join('') : tvEmpty())}
     ${tvCard(t('roster_salidas_trade'), tradeOut.length,
-        tradeOut.length ? tradeOut.map(item => tvRow(esc(item))).join('') : tvEmpty())}
+        tradeOut.length ? tradeOut.map(r => tvRow(esc(r.item), `→ ${esc(r.to)}`)).join('') : tvEmpty())}
     ${tvCard(t('roster_fa_pending'), faPending.length,
         faPending.length ? faPending.map(d => { const {name,badge} = faStatus(d.player); return tvRow(esc(name) + badge); }).join('') : tvEmpty())}
   </div>`;
@@ -2453,7 +2454,7 @@ function openTeamView(teamName, pushHistory = true) {
     html += `<div class="tv-section-title">${t('roster_stays')}</div>
     <div class="tv-card" style="margin-bottom:28px">
       <div class="tv-card-body" style="padding:12px 16px">
-        <div class="roster-siguen">${siguen.map(p => `<span class="roster-pill">${esc(p.name)}${p.pos ? `&nbsp;<span class="badge badge-pos" style="font-size:9px;padding:1px 5px">${esc(p.pos)}</span>` : ''}</span>`).join('')}</div>
+        <div class="roster-siguen">${siguen.map(p => `<span class="roster-pill">${esc(p.name)}${p.pos ? `&nbsp;<span class="pos-text">${esc(p.pos)}</span>` : ''}</span>`).join('')}</div>
       </div>
     </div>`;
   }
