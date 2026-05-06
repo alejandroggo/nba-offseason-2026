@@ -1738,11 +1738,6 @@ function processFA(rows) {
   populateSelect('fa-team25', [...new Set(DATA.fa.map(d=>d.team25).filter(Boolean))].sort());
   populateSelect('fa-dest',   [...new Set(DATA.fa.map(d=>d.dest).filter(Boolean))].sort());
   populateSelect('fa-pos',    [...new Set(DATA.fa.map(d=>d.pos).filter(Boolean))].sort());
-  populateSelect('fa-pending-team', [...new Set(DATA.fa.filter(d=>!d.dest).map(d=>d.team25).filter(Boolean))].sort());
-  populateSelect('fa-pending-pos',  [...new Set(DATA.fa.filter(d=>!d.dest).map(d=>d.pos).filter(Boolean))].sort());
-  DATA.faPending = DATA.fa.filter(d => !d.dest);
-  FILTERED.faPending = [...DATA.faPending];
-  renderFAPending(FILTERED.faPending);
 }
 
 function renderFA(data) {
@@ -2050,6 +2045,11 @@ function processRosters(rows1, rows2) {
   };
 
   DATA.rosters = [...parse(rows1), ...parse(rows2)].sort((a,b) => a.team.localeCompare(b.team));
+  DATA.faPending = DATA.rosters.flatMap(r => r.fa.map(p => ({ player: p.name, pos: p.pos, team25: r.team })));
+  FILTERED.faPending = [...DATA.faPending];
+  populateSelect('fa-pending-team', [...new Set(DATA.faPending.map(d => d.team25).filter(Boolean))].sort());
+  populateSelect('fa-pending-pos',  [...new Set(DATA.faPending.map(d => d.pos).filter(Boolean))].sort());
+  renderFAPending(FILTERED.faPending);
 }
 
 function renderRosters(data) {
@@ -2474,10 +2474,10 @@ let _prevTab = 'home';
 function openTeamView(teamName, pushHistory = true) {
   const faIn      = DATA.fa.filter(d => d.dest === teamName);
   const faOut     = DATA.fa.filter(d => d.team25 === teamName && d.dest);
-  const faPending = DATA.fa.filter(d => d.team25 === teamName && !d.dest);
   const picks     = DATA.draft.filter(d => d.team === teamName);
   const trades    = DATA.trades.filter(tr => tr.sides.some(s => s.team === teamName));
   const roster    = DATA.rosters.find(r => r.team === teamName);
+  const faPending = roster?.fa || [];
   const coaches   = DATA.coaches.filter(d => d.team === teamName);
 
   document.getElementById('tv-team-name').textContent = teamName;
@@ -2530,7 +2530,7 @@ function openTeamView(teamName, pushHistory = true) {
     ${tvCard(t('roster_salidas_trade'), tradeOut.length,
         tradeOut.length ? tradeOut.map(r => tvRow(esc(r.item), `→ ${esc(r.to)}`)).join('') : tvEmpty())}
     ${tvCard(t('roster_fa_pending'), faPending.length,
-        faPending.length ? faPending.map(d => { const {name,badge} = faStatus(d.player); return tvRow(esc(name) + badge); }).join('') : tvEmpty())}
+        faPending.length ? faPending.map(d => { const {name,badge} = faStatus(d.name); return tvRow(esc(name) + badge); }).join('') : tvEmpty())}
   </div>`;
 
   // ── SIGUEN ────────────────────────────────────
