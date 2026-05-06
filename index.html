@@ -1738,11 +1738,6 @@ function processFA(rows) {
   populateSelect('fa-team25', [...new Set(DATA.fa.map(d=>d.team25).filter(Boolean))].sort());
   populateSelect('fa-dest',   [...new Set(DATA.fa.map(d=>d.dest).filter(Boolean))].sort());
   populateSelect('fa-pos',    [...new Set(DATA.fa.map(d=>d.pos).filter(Boolean))].sort());
-  populateSelect('fa-pending-team', [...new Set(DATA.fa.filter(d=>!d.dest).map(d=>d.team25).filter(Boolean))].sort());
-  populateSelect('fa-pending-pos',  [...new Set(DATA.fa.filter(d=>!d.dest).map(d=>d.pos).filter(Boolean))].sort());
-  DATA.faPending = DATA.fa.filter(d => !d.dest);
-  FILTERED.faPending = [...DATA.faPending];
-  renderFAPending(FILTERED.faPending);
 }
 
 function renderFA(data) {
@@ -2032,8 +2027,6 @@ function processRosters(rows1, rows2) {
     let current = null;
     rows.slice(1).forEach(r => {
       const a = cell(r,0);
-      const cols = [cell(r,1),cell(r,2),cell(r,3),cell(r,4),cell(r,5),cell(r,6),cell(r,7),cell(r,8)];
-      if (!a && cols.every(v => !v)) { current = null; return; }
       if (a) {
         current = { team: a, siguen: [], llegadas: [], salidas: [], fa: [] };
         teams.push(current);
@@ -2050,6 +2043,11 @@ function processRosters(rows1, rows2) {
   };
 
   DATA.rosters = [...parse(rows1), ...parse(rows2)].sort((a,b) => a.team.localeCompare(b.team));
+  DATA.faPending = DATA.rosters.flatMap(r => r.fa.map(p => ({ player: p.name, pos: p.pos, team25: r.team })));
+  FILTERED.faPending = [...DATA.faPending];
+  populateSelect('fa-pending-team', [...new Set(DATA.faPending.map(d => d.team25).filter(Boolean))].sort());
+  populateSelect('fa-pending-pos',  [...new Set(DATA.faPending.map(d => d.pos).filter(Boolean))].sort());
+  renderFAPending(FILTERED.faPending);
 }
 
 function renderRosters(data) {
@@ -2474,10 +2472,10 @@ let _prevTab = 'home';
 function openTeamView(teamName, pushHistory = true) {
   const faIn      = DATA.fa.filter(d => d.dest === teamName);
   const faOut     = DATA.fa.filter(d => d.team25 === teamName && d.dest);
-  const faPending = DATA.fa.filter(d => d.team25 === teamName && !d.dest);
   const picks     = DATA.draft.filter(d => d.team === teamName);
   const trades    = DATA.trades.filter(tr => tr.sides.some(s => s.team === teamName));
   const roster    = DATA.rosters.find(r => r.team === teamName);
+  const faPending = roster?.fa || [];
   const coaches   = DATA.coaches.filter(d => d.team === teamName);
 
   document.getElementById('tv-team-name').textContent = teamName;
@@ -2530,22 +2528,31 @@ function openTeamView(teamName, pushHistory = true) {
     ${tvCard(t('roster_salidas_trade'), tradeOut.length,
         tradeOut.length ? tradeOut.map(r => tvRow(esc(r.item), `→ ${esc(r.to)}`)).join('') : tvEmpty())}
     ${tvCard(t('roster_fa_pending'), faPending.length,
-        faPending.length ? faPending.map(d => { const {name,badge} = faStatus(d.player); return tvRow(esc(name) + badge); }).join('') : tvEmpty())}
+        faPending.length ? faPending.map(d => { const {name,badge} = faStatus(d.name); return tvRow(esc(name) + badge); }).join('') : tvEmpty())}
   </div>`;
 
   // ── SIGUEN ────────────────────────────────────
   const posOrder = {PG:0, SG:1, SF:2, PF:3, C:4};
-  const siguen = [...(roster?.siguen || [])].sort((a, b) => {
-    const ao = posOrder[a.pos?.toUpperCase()] ?? 9;
-    const bo = posOrder[b.pos?.toUpperCase()] ?? 9;
-    return ao - bo;
-  });
-  if (siguen.length) {
+  const POS_LIST = ['PG','SG','SF','PF','C'];
+  const siguenRaw = roster?.siguen || [];
+  if (siguenRaw.length) {
+    const byPos = {};
+    siguenRaw.forEach(p => {
+      const key = POS_LIST.includes(p.pos?.toUpperCase()) ? p.pos.toUpperCase() : '?';
+      (byPos[key] = byPos[key] || []).push(p);
+    });
+    const rows = [...POS_LIST, '?'].flatMap(pos => {
+      const group = byPos[pos];
+      if (!group) return [];
+      return group.map(p => `
+        <div class="tv-row">
+          <span class="pos-text" style="min-width:28px;display:inline-block">${esc(pos === '?' ? (p.pos || '—') : pos)}</span>
+          <span class="tv-row-name">${esc(p.name)}</span>
+        </div>`);
+    }).join('');
     html += `<div class="tv-section-title">${t('roster_stays')}</div>
     <div class="tv-card" style="margin-bottom:28px">
-      <div class="tv-card-body" style="padding:12px 16px">
-        <div class="roster-siguen">${siguen.map(p => `<span class="roster-pill">${esc(p.name)}${p.pos ? `&nbsp;<span class="pos-text">${esc(p.pos)}</span>` : ''}</span>`).join('')}</div>
-      </div>
+      <div class="tv-card-body">${rows}</div>
     </div>`;
   }
 
