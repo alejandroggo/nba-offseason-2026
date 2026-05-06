@@ -1269,12 +1269,9 @@
   <div class="section" id="section-fa">
     <div class="section-header">
       <div class="section-title" data-i18n="fa_title">Agencia Libre</div>
-      <div class="section-subtitle" data-i18n="fa_subtitle">Free Agents — Movimientos confirmados y pendientes</div>
+      <div class="section-subtitle" data-i18n="fa_subtitle">Free Agents — Movimientos confirmados y pendientes<span id="fa-event-date" style="display:none;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-left:10px">· <span id="fa-event-date-val"></span></span></div>
     </div>
     <div class="fa-subsection-title" data-i18n="fa_signed_title">Firmados</div>
-    <div id="fa-event-date" style="display:none;align-items:center;gap:0;margin-bottom:12px;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px">
-      <span id="fa-event-date-val"></span>
-    </div>
     <div class="filters">
       <div class="filter-group">
         <span class="filter-label" data-i18n="filter_search">Buscar</span>
@@ -1362,10 +1359,7 @@
   <div class="section" id="section-draft">
     <div class="section-header">
       <div class="section-title" data-i18n="draft_title">Draft 2026</div>
-      <div class="section-subtitle" data-i18n="draft_subtitle">Picks seleccionados — Rondas 1 y 2</div>
-    </div>
-    <div id="draft-event-date" style="display:none;align-items:center;gap:0;margin-bottom:16px;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px">
-      <span id="draft-event-date-val"></span>
+      <div class="section-subtitle" data-i18n="draft_subtitle">Picks seleccionados — Rondas 1 y 2<span id="draft-event-date" style="display:none;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-left:10px">· <span id="draft-event-date-val"></span></span></div>
     </div>
     <div class="filters">
       <div class="filter-group">
@@ -2336,7 +2330,7 @@ function setEventDate(elId, valId, dateStr) {
   const valEl = document.getElementById(valId);
   if (el && valEl && dateStr) {
     valEl.textContent = dateStr;
-    el.style.display = 'flex';
+    el.style.display = 'inline';
   }
 }
 
