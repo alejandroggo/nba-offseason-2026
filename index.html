@@ -2728,6 +2728,8 @@ window._debugTrades = () => {
   console.log('Trades parseados:', JSON.parse(JSON.stringify(DATA.trades)));
   console.groupEnd();
 };
+setEventDate('fa-event-date',    'fa-event-date-val',    FA_OPEN_DATE);
+setEventDate('draft-event-date', 'draft-event-date-val', DRAFT_DATE);
 fetchAll();
 </script>
 <!-- PLAYER DRAWER -->
