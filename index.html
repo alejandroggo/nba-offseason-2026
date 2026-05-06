@@ -1088,22 +1088,6 @@
       line-height: 1;
     }
 
-    .mobile-tab-badge {
-      position: absolute;
-      top: -5px; right: -10px;
-      background: var(--accent);
-      color: #0a0a0f;
-      font-family: 'DM Mono', monospace;
-      font-size: 8px;
-      font-weight: 700;
-      min-width: 15px;
-      height: 15px;
-      border-radius: 8px;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 0 3px;
-    }
   }
 
   @media (max-width: 1100px) {
@@ -1188,28 +1172,24 @@
   <button class="mobile-tab" onclick="showTab('fa')" id="mtab-fa">
     <span class="mobile-tab-icon">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
-      <span class="mobile-tab-badge" id="mcount-fa"></span>
     </span>
     <span class="mobile-tab-label" data-i18n="tab_fa_short">AG. LIBRE</span>
   </button>
   <button class="mobile-tab" onclick="showTab('draft')" id="mtab-draft">
     <span class="mobile-tab-icon">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-      <span class="mobile-tab-badge" id="mcount-draft"></span>
     </span>
     <span class="mobile-tab-label" data-i18n="tab_draft">DRAFT</span>
   </button>
   <button class="mobile-tab" onclick="showTab('trades')" id="mtab-trades">
     <span class="mobile-tab-icon">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-      <span class="mobile-tab-badge" id="mcount-trades"></span>
     </span>
     <span class="mobile-tab-label" data-i18n="tab_trades">TRADES</span>
   </button>
   <button class="mobile-tab" onclick="showTab('coaches')" id="mtab-coaches">
     <span class="mobile-tab-icon">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
-      <span class="mobile-tab-badge" id="mcount-coaches"></span>
     </span>
     <span class="mobile-tab-label" data-i18n="tab_coaches_short">HC / GMs</span>
   </button>
@@ -1233,35 +1213,35 @@
     <div class="home-cards">
       <button class="home-card" onclick="showTab('fa')">
         <span class="home-card-arrow">↗</span>
-        <div class="home-card-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><path d="M16 13l2 2 4-4"/></svg></div>
+        <div class="home-card-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
         <div class="home-card-title" data-i18n="tab_fa">Agencia Libre</div>
         <div class="home-card-desc" data-i18n="home_fa_desc">Fichajes confirmados y mercado pendiente</div>
         <div class="home-card-count" id="home-count-fa">— registros</div>
       </button>
       <button class="home-card" onclick="showTab('draft')">
         <span class="home-card-arrow">↗</span>
-        <div class="home-card-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+        <div class="home-card-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M4.93 4.93c4.04 4.04 10.1 4.04 14.14 0"/><path d="M4.93 19.07c4.04-4.04 10.1-4.04 14.14 0"/><line x1="12" y1="2" x2="12" y2="22"/></svg></div>
         <div class="home-card-title" data-i18n="tab_draft">Draft</div>
         <div class="home-card-desc" data-i18n="home_draft_desc">Picks seleccionados en rondas 1 y 2</div>
         <div class="home-card-count" id="home-count-draft">— registros</div>
       </button>
       <button class="home-card" onclick="showTab('trades')">
         <span class="home-card-arrow">↗</span>
-        <div class="home-card-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/></svg></div>
+        <div class="home-card-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></div>
         <div class="home-card-title" data-i18n="tab_trades">Trades</div>
         <div class="home-card-desc" data-i18n="home_trades_desc">Traspasos confirmados entre franquicias</div>
         <div class="home-card-count" id="home-count-trades">— registros</div>
       </button>
       <button class="home-card" onclick="showTab('coaches')">
         <span class="home-card-arrow">↗</span>
-        <div class="home-card-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg></div>
+        <div class="home-card-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
         <div class="home-card-title" data-i18n="tab_coaches">HC / GMs</div>
         <div class="home-card-desc" data-i18n="home_coaches_desc">Cambios en banquillos y gerencias</div>
         <div class="home-card-count" id="home-count-coaches">— cambios</div>
       </button>
       <button class="home-card" onclick="showTab('teams')">
         <span class="home-card-arrow">↗</span>
-        <div class="home-card-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+        <div class="home-card-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
         <div class="home-card-title" data-i18n="tab_teams">Equipos</div>
         <div class="home-card-desc" data-i18n="home_teams_desc">Las 30 franquicias — movimientos y plantilla</div>
         <div class="home-card-count">30 equipos</div>
@@ -1747,7 +1727,7 @@ function processFA(rows) {
     player: cell(r,0),
     pos:    cell(r,1),
     team25: cell(r,2),
-    dest:   cell(r,3),
+    dest:   cell(r,3) === '—' ? '' : cell(r,3),
     money:  cell(r,4),
     years:  cell(r,5),
     aav:    cell(r,6),
@@ -1776,7 +1756,7 @@ function renderFA(data) {
         return `
       <tr>
         <td class="td-player clickable-player" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(name)}${badge}</td>
-        <td><span class="pos-text">${esc(d.pos) || '—'}</span></td>
+        <td style="text-align:center"><span class="pos-text">${esc(d.pos) || '—'}</span></td>
         <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.dest)}')">${esc(d.dest)}</span></td>
         <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team25)}')">${esc(d.team25)}</span></td>
         <td class="td-money">${d.money ? '$'+esc(d.money)+'M' : '—'}</td>
@@ -1798,7 +1778,7 @@ function renderFAPending(data) {
         return `
       <tr>
         <td class="td-player clickable-player" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(name)}${badge}</td>
-        <td><span class="pos-text">${esc(d.pos) || '—'}</span></td>
+        <td style="text-align:center"><span class="pos-text">${esc(d.pos) || '—'}</span></td>
         <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team25)}')">${esc(d.team25)}</span></td>
         <td class="td-notes">${esc(d.notes)}</td>
       </tr>`;}).join('')
@@ -1885,7 +1865,7 @@ function renderDraft(data) {
     const prev = i > 0 ? parseInt(data[i-1].pick) : null;
     if (prev === 14 || prev === 30) {
       const label = prev === 14 ? (lang === 'es' ? 'FIN DE LA LOTERÍA' : 'END OF LOTTERY') : (lang === 'es' ? 'FIN DE LA PRIMERA RONDA' : 'END OF ROUND 1');
-      rows.push(`<tr><td colspan="9" style="padding:6px 12px;border:none;background:var(--surface2)"><span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted)">${label}</span></td></tr>`);
+      rows.push(`<tr><td colspan="9" style="padding:8px 12px;border:none;background:var(--surface2);text-align:center"><span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted)">${label}</span></td></tr>`);
     }
     rows.push(`<tr>
       <td><span class="pick-num ${cls}">${esc(d.pick)}</span></td>
@@ -2252,7 +2232,7 @@ function fmtDate(str) {
   const d = new Date(str);
   if (isNaN(d.getTime())) return str;
   const months = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-  return `${String(d.getDate()).padStart(2,'0')}/${months[d.getMonth()]}/${d.getFullYear()}`;
+  return `${String(d.getDate()).padStart(2,'0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
 }
 
 function faStatus(player) {
@@ -2284,22 +2264,6 @@ function populateSelect(id, values) {
   if (cur) sel.value = cur;
 }
 
-function syncMobileCounts() {
-  ['fa','draft','trades','coaches'].forEach(key => {
-    const src = document.getElementById(`count-${key}`);
-    const badge = document.getElementById(`mcount-${key}`);
-    if (!src || !badge) return;
-    const val = src.textContent.trim();
-    const num = parseInt(val, 10);
-    if (num > 0) {
-      badge.textContent = val;
-      badge.style.display = 'flex';
-    } else {
-      badge.style.display = 'none';
-    }
-  });
-}
-
 function rerenderAll() {
   filterFA();
   filterFAPending();
@@ -2308,7 +2272,6 @@ function rerenderAll() {
   filterCoaches();
   updateHomeCounts();
   applyTranslations();
-  syncMobileCounts();
 }
 
 function updateHomeCounts() {
@@ -2397,7 +2360,7 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     html += `<div class="drawer-section">
       <div class="drawer-section-title">${t('tab_fa')}</div>`;
     faData.forEach(d => {
-      if (d.team25) html += drawerRow(lang === 'es' ? 'Equipo 2026' : '2026 Team', `<span class="badge badge-team">${esc(d.team25)}</span>`);
+      if (d.team25) html += drawerRow(lang === 'es' ? 'Antiguo equipo' : 'Old Team', `<span class="badge badge-team">${esc(d.team25)}</span>`);
       if (d.dest)   html += drawerRow(lang === 'es' ? 'Nuevo equipo' : 'New Team', `<span class="badge badge-team">${esc(d.dest)}</span>`);
       if (d.money)  html += drawerRow(lang === 'es' ? 'Total' : 'Total', `$${esc(d.money)}M`, 'money');
       if (d.years)  html += drawerRow(lang === 'es' ? 'Años' : 'Years', esc(d.years));
@@ -2444,7 +2407,7 @@ function openPlayerDrawer(playerName, pushHistory = true) {
         if (side.receives.some(r => r.item.includes(playerName))) {
           html += drawerRow(lang === 'es' ? 'Llega a' : 'Goes to', `<span class="badge badge-team">${esc(side.team)}</span>`);
           const fromTeam = side.receives.find(r => r.item.includes(playerName))?.from;
-          if (fromTeam) html += drawerRow(lang === 'es' ? 'Viene de' : 'Comes from', `<span class="badge badge-team">${esc(fromTeam)}</span>`);
+          if (fromTeam) html += drawerRow(lang === 'es' ? 'Antiguo equipo' : 'Old Team', `<span class="badge badge-team">${esc(fromTeam)}</span>`);
         }
       });
     });
@@ -2529,7 +2492,7 @@ function openTeamView(teamName, pushHistory = true) {
     const mySide = tr.sides.find(s => s.team === teamName);
     if (mySide) mySide.receives.forEach(r => tradeIn.push(r.item));
     // Salidas: activos donde from === este equipo (cualquier número de equipos)
-    tr.sides.forEach(side => side.receives.filter(r => r.from === teamName).forEach(r => tradeOut.push({item: r.item, to: side.team})));
+    tr.sides.forEach(side => side.receives.filter(r => r.from === teamName && !/pick|cash/i.test(r.item)).forEach(r => tradeOut.push({item: r.item, to: side.team})));
   });
 
   const subcol = (items, label, renderFn) => `
