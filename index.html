@@ -793,7 +793,7 @@
 
   .team-view-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 20px; margin-bottom: 32px;
   }
   .tv-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
@@ -2590,7 +2590,7 @@ function openTeamView(teamName, pushHistory = true) {
 
   // ── LLEGADAS ──────────────────────────────────
   html += `<div class="tv-section-title" style="color:var(--signed)">${t('roster_arrivals')}</div>
-  <div class="team-view-grid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:28px">
+  <div class="team-view-grid" style="margin-bottom:28px">
     ${tvCard(t('roster_fa'), faIn.length,
         faIn.length ? faIn.map(d => tvRow(esc(d.player), '', d.money ? `$${esc(d.money)}M/${esc(d.years)}y` : '')).join('') : tvEmpty())}
     ${tvCard(t('roster_trade'), tradeIn.length,
@@ -2601,7 +2601,7 @@ function openTeamView(teamName, pushHistory = true) {
 
   // ── SALIDAS ───────────────────────────────────
   html += `<div class="tv-section-title" style="color:var(--gone)">${t('roster_departures')}</div>
-  <div class="team-view-grid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:28px">
+  <div class="team-view-grid" style="margin-bottom:28px">
     ${tvCard(t('roster_salidas_fa'), faOut.length,
         faOut.length ? faOut.map(d => tvRow(esc(d.player), d.dest ? `→ ${esc(d.dest)}` : '')).join('') : tvEmpty())}
     ${tvCard(t('roster_salidas_trade'), tradeOut.length,
@@ -2624,7 +2624,7 @@ function openTeamView(teamName, pushHistory = true) {
       if (!group) return [];
       const label = pos === '?' ? '—' : pos;
       const names = group.map(p => esc(p.name)).join(', ');
-      return [`<div class="tv-row" style="align-items:baseline;gap:10px">
+      return [`<div class="tv-row" style="align-items:baseline;gap:10px;justify-content:flex-start">
         <span class="pos-text" style="min-width:30px;flex-shrink:0">${label}</span>
         <span style="font-size:13px;color:var(--text)">${names}</span>
       </div>`];
