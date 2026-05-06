@@ -1257,6 +1257,10 @@
       <div class="section-subtitle" data-i18n="fa_subtitle">Free Agents — Movimientos confirmados y pendientes</div>
     </div>
     <div class="fa-subsection-title" data-i18n="fa_signed_title">Firmados</div>
+    <div id="fa-event-date" style="display:none;align-items:center;gap:8px;margin-bottom:12px;font-family:'DM Mono',monospace;font-size:11px">
+      <span style="color:var(--text-muted);text-transform:uppercase;letter-spacing:1px" data-i18n="fa_event_date_label">Apertura agencia libre</span>
+      <span style="color:var(--accent);font-weight:700" id="fa-event-date-val"></span>
+    </div>
     <div class="filters">
       <div class="filter-group">
         <span class="filter-label" data-i18n="filter_search">Buscar</span>
@@ -1295,7 +1299,6 @@
             <th onclick="sortSection('fa',6)" style="text-align:center"><span data-i18n="fa_col_aav">AAV</span> <span class="sort-icon">↕</span></th>
             <th onclick="sortSection('fa',7)"><span data-i18n="col_source">Fuente</span> <span class="sort-icon">↕</span></th>
             <th><span data-i18n="col_notes">Notas</span></th>
-            <th onclick="sortSection('fa',9)"><span data-i18n="col_date">Fecha</span> <span class="sort-icon">↕</span></th>
           </tr>
         </thead>
         <tbody id="fa-tbody">
@@ -1347,6 +1350,10 @@
       <div class="section-title" data-i18n="draft_title">Draft 2026</div>
       <div class="section-subtitle" data-i18n="draft_subtitle">Picks seleccionados — Rondas 1 y 2</div>
     </div>
+    <div id="draft-event-date" style="display:none;align-items:center;gap:8px;margin-bottom:16px;font-family:'DM Mono',monospace;font-size:11px">
+      <span style="color:var(--text-muted);text-transform:uppercase;letter-spacing:1px" data-i18n="draft_event_date_label">Fecha del draft</span>
+      <span style="color:var(--accent);font-weight:700" id="draft-event-date-val"></span>
+    </div>
     <div class="filters">
       <div class="filter-group">
         <span class="filter-label" data-i18n="filter_search">Buscar</span>
@@ -1376,11 +1383,10 @@
             <th>✓</th>
             <th onclick="sortSection('draft',6)"><span data-i18n="draft_col_contract">Contrato</span> <span class="sort-icon">↕</span></th>
             <th><span data-i18n="col_notes">Notas</span></th>
-            <th onclick="sortSection('draft',9)"><span data-i18n="col_date">Fecha</span> <span class="sort-icon">↕</span></th>
           </tr>
         </thead>
         <tbody id="draft-tbody">
-          <tr><td colspan="10"><div class="state-loading" data-i18n="loading">Cargando datos...</div></td></tr>
+          <tr><td colspan="9"><div class="state-loading" data-i18n="loading">Cargando datos...</div></td></tr>
         </tbody>
       </table>
     </div>
@@ -1510,6 +1516,10 @@
 // URLS — reemplaza con las de tu Sheet 2026
 // ─────────────────────────────────────────────
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZAb1-oLDkidOmC6LrplPJ_468sZ10eESYSrPLg8Pp9DsCg6KNI3YMezhYokdhyCA/exec';
+
+// ── Fechas de evento (actualizar según calendario) ──────────────────────────
+const FA_OPEN_DATE   = '2026-07-01'; // Apertura agencia libre
+const DRAFT_DATE     = '2026-06-26'; // Fecha del draft
 
 const URLS = {
   fa:       `${SCRIPT_URL}?tab=fa`,
@@ -1771,9 +1781,8 @@ function renderFA(data) {
         <td class="td-money">${d.aav ? '$'+esc(d.aav)+'M' : '—'}</td>
         <td class="td-muted">${esc(d.source)}</td>
         <td class="td-notes">${esc(d.notes)}</td>
-        <td class="td-muted">${fmtDate(d.date)}</td>
       </tr>`;}).join('')
-    : `<tr><td colspan="10"><div class="state-empty">${t('no_data')}</div></td></tr>`;
+    : `<tr><td colspan="9"><div class="state-empty">${t('no_data')}</div></td></tr>`;
 
   document.getElementById('fa-count').innerHTML = `<span>${signed.length}</span>&nbsp;${t('results')}`;
 }
@@ -1886,7 +1895,7 @@ function processDraft(rows) {
 
 function renderDraft(data) {
   const tbody = document.getElementById('draft-tbody');
-  if (!data.length) { tbody.innerHTML = `<tr><td colspan="10"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
+  if (!data.length) { tbody.innerHTML = `<tr><td colspan="9"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
   const rows = [];
   data.forEach((d, i) => {
     const n = parseInt(d.pick);
@@ -1898,7 +1907,7 @@ function renderDraft(data) {
     const prev = i > 0 ? parseInt(data[i-1].pick) : null;
     if (prev === 14 || prev === 30) {
       const label = prev === 14 ? (lang === 'es' ? 'FIN DE LA LOTERÍA' : 'END OF LOTTERY') : (lang === 'es' ? 'FIN DE LA PRIMERA RONDA' : 'END OF ROUND 1');
-      rows.push(`<tr><td colspan="10" style="padding:8px 12px;border:none;background:var(--surface2);text-align:center"><span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted)">${label}</span></td></tr>`);
+      rows.push(`<tr><td colspan="9" style="padding:8px 12px;border:none;background:var(--surface2);text-align:center"><span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted)">${label}</span></td></tr>`);
     }
     rows.push(`<tr>
       <td><span class="pick-num ${cls}">${esc(d.pick)}</span></td>
@@ -1910,7 +1919,6 @@ function renderDraft(data) {
       <td>${chk}</td>
       <td class="td-muted">${esc(d.contract)}</td>
       <td class="td-notes">${esc(d.notes)}</td>
-      <td class="td-muted">${fmtDate(d.date)}</td>
     </tr>`);
   });
   tbody.innerHTML = rows.join('');
@@ -2301,6 +2309,16 @@ function populateSelect(id, values) {
   if (cur) sel.value = cur;
 }
 
+function setEventDate(elId, valId, dateStr) {
+  const val = fmtDate(dateStr);
+  const el  = document.getElementById(elId);
+  const valEl = document.getElementById(valId);
+  if (el && valEl && val && val !== '—') {
+    valEl.textContent = val;
+    el.style.display = 'flex';
+  }
+}
+
 function rerenderAll() {
   filterFA();
   filterFAPending();
@@ -2309,6 +2327,8 @@ function rerenderAll() {
   filterCoaches();
   updateHomeCounts();
   applyTranslations();
+  setEventDate('fa-event-date',    'fa-event-date-val',    FA_OPEN_DATE);
+  setEventDate('draft-event-date', 'draft-event-date-val', DRAFT_DATE);
 }
 
 function updateHomeCounts() {
