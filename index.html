@@ -2602,7 +2602,7 @@ function openTeamView(teamName, pushHistory = true) {
     ${tvCard(t('roster_salidas_trade'), tradeOut.length,
         tradeOut.length ? tradeOut.map(r => tvRow(esc(r.item), `→ ${esc(r.to)}`)).join('') : tvEmpty())}
     ${tvCard(t('roster_fa_pending'), faPending.length,
-        faPending.length ? faPending.map(d => { const {name,badge} = faStatus(d.player); return tvRow(esc(name) + badge); }).join('') : tvEmpty())}
+        faPending.length ? faPending.map(d => { const {name,badge} = faStatus(d.name); return tvRow(esc(name) + badge); }).join('') : tvEmpty())}
   </div>`;
 
   // ── SIGUEN ────────────────────────────────────
