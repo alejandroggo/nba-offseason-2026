@@ -1043,8 +1043,6 @@
   @media (max-width: 640px) {
     nav { display: none; }
 
-    body.on-home .mobile-nav { display: none !important; }
-
     .mobile-nav {
       display: flex;
       position: fixed;
@@ -1108,12 +1106,19 @@
     main { padding: 20px 16px 78px; }
     .section-title { font-size: 28px; }
     .trade-body { grid-template-columns: 1fr; }
-    .trade-side { border-right: none; border-bottom: 1px solid var(--border); }
+    .trade-side { border-right: none; border-bottom: 1px solid var(--border); padding: 12px 14px; }
     .trade-side:last-child { border-bottom: none; }
+    .trade-team-label { font-size: 9px; margin-bottom: 6px; }
+    .trade-item { font-size: 13px; }
+    .trade-header { padding: 8px 14px; }
+    .trade-card { margin-bottom: 8px; }
     .logo-title { font-size: 22px; }
     .home-cards { grid-template-columns: 1fr; }
     .home-card { border-right: none; }
     .home-hero { padding: 48px 20px 32px; }
+    .teams-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 16px; }
+    .teams-grid-card { padding: 10px 6px; gap: 6px; }
+    .teams-grid-name { font-size: 11px; letter-spacing: 0; }
 
     /* Responsive tables */
     .table-wrap { -webkit-overflow-scrolling: touch; }
@@ -1130,7 +1135,7 @@
 <body>
 
 <header>
-  <div class="logo" onclick="showTab('home')" title="Inicio">
+  <div class="logo" onclick="showTab(window.innerWidth<=640?'fa':'home')" title="Inicio">
     <span class="logo-title">NBA Off-Season</span>
     <span class="logo-year">2026</span>
   </div>
@@ -2410,7 +2415,7 @@ window.addEventListener('popstate', () => {
   const { player, team, tab } = readURL();
   if (team) { openTeamView(decodeURIComponent(team), false); }
   else if (player) { openPlayerDrawer(decodeURIComponent(player), false); }
-  else { closeDrawer(false); showTab(tab || 'home', false); }
+  else { closeDrawer(false); showTab(tab || (window.innerWidth <= 640 ? 'fa' : 'home'), false); }
 });
 
 // ─────────────────────────────────────────────
@@ -2712,7 +2717,11 @@ function renderTeamsGrid() {
     </div>`).join('');
 }
 
-document.body.classList.add('on-home');
+if (window.innerWidth <= 640) {
+  showTab('fa', false);
+} else {
+  document.body.classList.add('on-home');
+}
 renderTeamsGrid();
 
 // Debug: escribe _debugTrades() en la consola del navegador para ver los datos
