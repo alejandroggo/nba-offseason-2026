@@ -2109,7 +2109,7 @@ function processRosters(rows1, rows2) {
   };
 
   DATA.rosters = [...parse(rows1), ...parse(rows2)].sort((a,b) => a.team.localeCompare(b.team));
-  DATA.faPending = DATA.rosters.flatMap(r => r.fa.map(p => ({ player: p.name, pos: p.pos, team25: r.team })));
+  DATA.faPending = DATA.fa.filter(d => !d.dest).map(d => ({ player: d.player, pos: d.pos, team25: d.team25 }));
   FILTERED.faPending = [...DATA.faPending];
   populateSelect('fa-pending-team', [...new Set(DATA.faPending.map(d => d.team25).filter(Boolean))].sort());
   populateSelect('fa-pending-pos',  [...new Set(DATA.faPending.map(d => d.pos).filter(Boolean))].sort());
@@ -2554,7 +2554,7 @@ function openTeamView(teamName, pushHistory = true) {
   const picks     = DATA.draft.filter(d => d.team === teamName);
   const trades    = DATA.trades.filter(tr => tr.sides.some(s => s.team === teamName));
   const roster    = DATA.rosters.find(r => r.team === teamName);
-  const faPending = roster?.fa || [];
+  const faPending = DATA.fa.filter(d => d.team25 === teamName && !d.dest);
   const coaches   = DATA.coaches.filter(d => d.team === teamName);
 
   document.getElementById('tv-team-name').textContent = teamName;
@@ -2607,7 +2607,7 @@ function openTeamView(teamName, pushHistory = true) {
     ${tvCard(t('roster_salidas_trade'), tradeOut.length,
         tradeOut.length ? tradeOut.map(r => tvRow(esc(r.item), `→ ${esc(r.to)}`)).join('') : tvEmpty())}
     ${tvCard(t('roster_fa_pending'), faPending.length,
-        faPending.length ? faPending.map(d => { const {name,badge} = faStatus(d.name); return tvRow(esc(name) + badge); }).join('') : tvEmpty())}
+        faPending.length ? faPending.map(d => { const {name,badge} = faStatus(d.player); return tvRow(esc(name) + badge); }).join('') : tvEmpty())}
   </div>`;
 
   // ── SIGUEN ────────────────────────────────────
