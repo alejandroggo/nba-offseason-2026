@@ -1114,6 +1114,16 @@
     .home-cards { grid-template-columns: 1fr; }
     .home-card { border-right: none; }
     .home-hero { padding: 48px 20px 32px; }
+
+    /* Responsive tables */
+    .table-wrap { -webkit-overflow-scrolling: touch; }
+    table { min-width: 540px; }
+    th, td { white-space: nowrap; }
+    td.td-notes { white-space: normal; min-width: 120px; }
+    .filters { flex-wrap: wrap; gap: 8px; }
+    .filter-group { flex: 1 1 140px; }
+    .filter-input, .filter-select { width: 100%; }
+    .section-header { margin-bottom: 16px; }
   }
 </style>
 </head>
@@ -1257,9 +1267,8 @@
       <div class="section-subtitle" data-i18n="fa_subtitle">Free Agents — Movimientos confirmados y pendientes</div>
     </div>
     <div class="fa-subsection-title" data-i18n="fa_signed_title">Firmados</div>
-    <div id="fa-event-date" style="display:none;align-items:center;gap:8px;margin-bottom:12px;font-family:'DM Mono',monospace;font-size:11px">
-      <span style="color:var(--text-muted);text-transform:uppercase;letter-spacing:1px" data-i18n="fa_event_date_label">Apertura agencia libre</span>
-      <span style="color:var(--accent);font-weight:700" id="fa-event-date-val"></span>
+    <div id="fa-event-date" style="display:none;align-items:center;gap:0;margin-bottom:12px;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px">
+      <span id="fa-event-date-val"></span>
     </div>
     <div class="filters">
       <div class="filter-group">
@@ -1331,9 +1340,9 @@
       <table>
         <thead>
           <tr>
-            <th><span data-i18n="fa_col_player">Jugador</span></th>
-            <th><span data-i18n="draft_col_pos">Pos</span></th>
-            <th><span data-i18n="fa_col_team25">Equipo 2026</span></th>
+            <th style="width:200px"><span data-i18n="fa_col_player">Jugador</span></th>
+            <th style="width:48px;text-align:center"><span data-i18n="draft_col_pos">Pos</span></th>
+            <th style="width:160px"><span data-i18n="fa_col_team25">Equipo</span></th>
             <th><span data-i18n="col_notes">Notas</span></th>
           </tr>
         </thead>
@@ -1350,9 +1359,8 @@
       <div class="section-title" data-i18n="draft_title">Draft 2026</div>
       <div class="section-subtitle" data-i18n="draft_subtitle">Picks seleccionados — Rondas 1 y 2</div>
     </div>
-    <div id="draft-event-date" style="display:none;align-items:center;gap:8px;margin-bottom:16px;font-family:'DM Mono',monospace;font-size:11px">
-      <span style="color:var(--text-muted);text-transform:uppercase;letter-spacing:1px" data-i18n="draft_event_date_label">Fecha del draft</span>
-      <span style="color:var(--accent);font-weight:700" id="draft-event-date-val"></span>
+    <div id="draft-event-date" style="display:none;align-items:center;gap:0;margin-bottom:16px;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px">
+      <span id="draft-event-date-val"></span>
     </div>
     <div class="filters">
       <div class="filter-group">
@@ -1518,8 +1526,8 @@
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZAb1-oLDkidOmC6LrplPJ_468sZ10eESYSrPLg8Pp9DsCg6KNI3YMezhYokdhyCA/exec';
 
 // ── Fechas de evento (actualizar según calendario) ──────────────────────────
-const FA_OPEN_DATE   = '2026-07-01'; // Apertura agencia libre
-const DRAFT_DATE     = '2026-06-26'; // Fecha del draft
+const FA_OPEN_DATE = '30 jun 2026';
+const DRAFT_DATE   = '23 y 24 jun 2026';
 
 const URLS = {
   fa:       `${SCRIPT_URL}?tab=fa`,
@@ -1542,6 +1550,9 @@ const i18n = {
     home_trades_desc: 'Traspasos confirmados entre franquicias',
     home_rosters_desc: 'Los 30 equipos con altas, bajas y continuidades',
     home_coaches_desc: 'Cambios en banquillos y gerencias',
+    home_teams_desc: 'Las 30 franquicias — movimientos y plantilla',
+    fa_event_date_label: 'Apertura agencia libre',
+    draft_event_date_label: 'Fecha del draft',
     home_records: 'registros',
     home_teams: 'equipos',
     home_changes: 'cambios',
@@ -1580,7 +1591,7 @@ const i18n = {
     last_update: 'Actualizado',
     trade_label: 'Traspaso',
     teams_title: 'Equipos', teams_subtitle: 'Las 30 franquicias de la NBA',
-    drawer_view_team: 'Ver equipo', drawer_view_old_team: 'Ver equipo anterior',
+    drawer_view_team: 'Nuevo equipo', drawer_view_old_team: 'Ver equipo anterior',
   },
   en: {
     home_eyebrow: 'Off-Season',
@@ -1590,6 +1601,9 @@ const i18n = {
     home_trades_desc: 'Confirmed trades between franchises',
     home_rosters_desc: 'All 30 teams — arrivals, departures, returning',
     home_coaches_desc: 'Coaching and front office changes',
+    home_teams_desc: 'All 30 franchises — moves and roster',
+    fa_event_date_label: 'Free agency opens',
+    draft_event_date_label: 'Draft date',
     home_records: 'records',
     home_teams: 'teams',
     home_changes: 'changes',
@@ -1628,7 +1642,7 @@ const i18n = {
     last_update: 'Updated',
     trade_label: 'Trade',
     teams_title: 'Teams', teams_subtitle: 'All 30 NBA franchises',
-    drawer_view_team: 'View team', drawer_view_old_team: 'View previous team',
+    drawer_view_team: 'New team', drawer_view_old_team: 'View previous team',
   }
 };
 
@@ -1927,7 +1941,7 @@ function renderDraft(data) {
 
 function renderUndrafted(data) {
   const tbody = document.getElementById('undrafted-tbody');
-  if (!data.length) { tbody.innerHTML = `<tr><td colspan="4"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
+  if (!data.length) { tbody.innerHTML = `<tr><td colspan="5"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
   tbody.innerHTML = data.map(d => `
     <tr>
       <td class="td-player clickable-player" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</td>
@@ -2121,14 +2135,14 @@ function rosterBlock(players, cls, label) {
   return `
     <div class="roster-block">
       <div class="roster-label ${cls}">${label}</div>
-      ${players.map(p => `<div class="roster-player">${esc(p)}</div>`).join('')}
+      ${players.map(p => `<div class="roster-player">${esc(typeof p === 'object' ? p.name : p)}</div>`).join('')}
     </div>`;
 }
 
 function filterRosters() {
   const q = document.getElementById('rosters-search').value.toLowerCase();
   FILTERED.rosters = DATA.rosters.filter(d =>
-    !q || `${d.team} ${[...d.siguen,...d.llegadas,...d.salidas,...d.fa].join(' ')}`.toLowerCase().includes(q)
+    !q || `${d.team} ${[...d.siguen,...d.llegadas,...d.salidas,...d.fa].map(p => typeof p === 'object' ? p.name : p).join(' ')}`.toLowerCase().includes(q)
   );
   renderRosters(FILTERED.rosters);
 }
@@ -2210,7 +2224,8 @@ function sortSection(section, col) {
   else { s.col = col; s.asc = true; }
 
   const getter = GETTERS[section];
-  const src = FILTERED[section].length ? FILTERED[section] : DATA[section];
+  const src = FILTERED[section].length ? FILTERED[section] : [...(DATA[section] || [])];
+  if (!FILTERED[section].length) FILTERED[section] = src;
 
   src.sort((a, b) => {
     let av = getter(a)[col] || '';
@@ -2310,11 +2325,10 @@ function populateSelect(id, values) {
 }
 
 function setEventDate(elId, valId, dateStr) {
-  const val = fmtDate(dateStr);
   const el  = document.getElementById(elId);
   const valEl = document.getElementById(valId);
-  if (el && valEl && val && val !== '—') {
-    valEl.textContent = val;
+  if (el && valEl && dateStr) {
+    valEl.textContent = dateStr;
     el.style.display = 'flex';
   }
 }
@@ -2332,11 +2346,12 @@ function rerenderAll() {
 }
 
 function updateHomeCounts() {
-  const fa = DATA.fa.length;
-  const draft = DATA.draft.length;
-  const trades = DATA.trades.length;
-  const rosters = DATA.rosters.length;
-  const coaches = DATA.coaches.length;
+  const rec = lang === 'es' ? 'registros' : 'records';
+  const chg = lang === 'es' ? 'cambios'   : 'changes';
+  document.getElementById('home-count-fa').textContent      = `${DATA.fa.filter(d=>d.dest).length} ${rec}`;
+  document.getElementById('home-count-draft').textContent   = `${DATA.draft.length} ${rec}`;
+  document.getElementById('home-count-trades').textContent  = `${DATA.trades.length} ${rec}`;
+  document.getElementById('home-count-coaches').textContent = `${DATA.coaches.length} ${chg}`;
 }
 
 // ─────────────────────────────────────────────
@@ -2587,7 +2602,7 @@ function openTeamView(teamName, pushHistory = true) {
     ${tvCard(t('roster_salidas_trade'), tradeOut.length,
         tradeOut.length ? tradeOut.map(r => tvRow(esc(r.item), `→ ${esc(r.to)}`)).join('') : tvEmpty())}
     ${tvCard(t('roster_fa_pending'), faPending.length,
-        faPending.length ? faPending.map(d => { const {name,badge} = faStatus(d.name); return tvRow(esc(name) + badge); }).join('') : tvEmpty())}
+        faPending.length ? faPending.map(d => { const {name,badge} = faStatus(d.player); return tvRow(esc(name) + badge); }).join('') : tvEmpty())}
   </div>`;
 
   // ── SIGUEN ────────────────────────────────────
@@ -2604,9 +2619,9 @@ function openTeamView(teamName, pushHistory = true) {
       if (!group) return [];
       const label = pos === '?' ? '—' : pos;
       const names = group.map(p => esc(p.name)).join(', ');
-      return [`<div class="tv-row">
-        <span class="pos-text" style="min-width:32px;display:inline-block;flex-shrink:0">${label}</span>
-        <span class="tv-row-name">${names}</span>
+      return [`<div class="tv-row" style="align-items:baseline;gap:10px">
+        <span class="pos-text" style="min-width:30px;flex-shrink:0">${label}</span>
+        <span style="font-size:13px;color:var(--text)">${names}</span>
       </div>`];
     }).join('');
     html += `<div class="tv-section-title">${t('roster_stays')}</div>
