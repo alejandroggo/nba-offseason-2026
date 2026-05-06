@@ -1269,7 +1269,7 @@
   <div class="section" id="section-fa">
     <div class="section-header">
       <div class="section-title" data-i18n="fa_title">Agencia Libre</div>
-      <div class="section-subtitle" data-i18n="fa_subtitle">Free Agents — Movimientos confirmados y pendientes<span id="fa-event-date" style="display:none;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-left:10px">· <span id="fa-event-date-val"></span></span></div>
+      <div class="section-subtitle" data-i18n="fa_subtitle">Free Agents — Movimientos confirmados y pendientes<span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-left:10px">· <span id="fa-event-date-val">30 JUN 2026</span></span></div>
     </div>
     <div class="fa-subsection-title" data-i18n="fa_signed_title">Firmados</div>
     <div class="filters">
@@ -1359,7 +1359,7 @@
   <div class="section" id="section-draft">
     <div class="section-header">
       <div class="section-title" data-i18n="draft_title">Draft 2026</div>
-      <div class="section-subtitle" data-i18n="draft_subtitle">Picks seleccionados — Rondas 1 y 2<span id="draft-event-date" style="display:none;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-left:10px">· <span id="draft-event-date-val"></span></span></div>
+      <div class="section-subtitle" data-i18n="draft_subtitle">Picks seleccionados — Rondas 1 y 2<span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-left:10px">· <span id="draft-event-date-val">23 Y 24 JUN 2026</span></span></div>
     </div>
     <div class="filters">
       <div class="filter-group">
@@ -1714,40 +1714,57 @@ let loadedAt = null;
 // ─────────────────────────────────────────────
 // FETCH ALL
 // ─────────────────────────────────────────────
+const CACHE_KEY = 'nba2026_cache';
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutos
+
+function applyRawData(raw, ts) {
+  processFA(parseCSV(raw.fa));
+  processDraft(parseCSV(raw.draft));
+  window._rawTradeRows = parseCSV(raw.trades);
+  processTrades(window._rawTradeRows);
+  processRosters(parseCSV(raw.rosters1), parseCSV(raw.rosters2));
+  processCoaches(parseCSV(raw.coaches));
+
+  loadedAt = new Date(ts).toLocaleString(lang === 'es' ? 'es-ES' : 'en-US', {
+    day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+  });
+  document.getElementById('lastUpdate').textContent = `${t('last_update')}: ${loadedAt}`;
+  document.getElementById('footer-updated').textContent = `${t('last_update')}: ${loadedAt}`;
+  rerenderAll();
+  updateHomeCounts();
+}
+
 async function fetchAll() {
+  // Cargar caché al instante si existe
+  try {
+    const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+    if (cached) applyRawData(cached.raw, cached.ts);
+  } catch(e) { /* caché corrupta, ignorar */ }
+
+  // Refrescar desde el Sheet en background
   try {
     const [faR, draftR, tradesR, r1, r2, coachR] = await Promise.all([
       fetch(URLS.fa), fetch(URLS.draft), fetch(URLS.trades),
       fetch(URLS.rosters1), fetch(URLS.rosters2), fetch(URLS.coaches)
     ]);
-
-    const [faTxt, draftTxt, tradesTxt, r1Txt, r2Txt, coachTxt] = await Promise.all([
+    const [fa, draft, trades, rosters1, rosters2, coaches] = await Promise.all([
       faR.text(), draftR.text(), tradesR.text(),
       r1.text(), r2.text(), coachR.text()
     ]);
 
-    processFA(parseCSV(faTxt));
-    processDraft(parseCSV(draftTxt));
-    window._rawTradeRows = parseCSV(tradesTxt);
-    processTrades(window._rawTradeRows);
-    processRosters(parseCSV(r1Txt), parseCSV(r2Txt));
-    processCoaches(parseCSV(coachTxt));
+    const raw = { fa, draft, trades, rosters1, rosters2, coaches };
+    const ts  = Date.now();
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ raw, ts })); } catch(e) {}
 
-    loadedAt = new Date().toLocaleString(lang === 'es' ? 'es-ES' : 'en-US', {
-      day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
-    });
-
-    document.getElementById('lastUpdate').textContent = `${t('last_update')}: ${loadedAt}`;
-    document.getElementById('footer-updated').textContent = `${t('last_update')}: ${loadedAt}`;
-
-    rerenderAll();
-    updateHomeCounts();
+    applyRawData(raw, ts);
   } catch(e) {
     console.error(e);
-    ['fa-tbody','draft-tbody','coaches-tbody'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.innerHTML = `<tr><td colspan="8"><div class="state-empty">Error al cargar datos. Verifica las URLs del Sheet.</div></td></tr>`;
-    });
+    if (!localStorage.getItem(CACHE_KEY)) {
+      ['fa-tbody','draft-tbody','coaches-tbody'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = `<tr><td colspan="8"><div class="state-empty">Error al cargar datos. Verifica las URLs del Sheet.</div></td></tr>`;
+      });
+    }
   }
 }
 
@@ -2325,15 +2342,6 @@ function populateSelect(id, values) {
   if (cur) sel.value = cur;
 }
 
-function setEventDate(elId, valId, dateStr) {
-  const el  = document.getElementById(elId);
-  const valEl = document.getElementById(valId);
-  if (el && valEl && dateStr) {
-    valEl.textContent = dateStr;
-    el.style.display = 'inline';
-  }
-}
-
 function rerenderAll() {
   filterFA();
   filterFAPending();
@@ -2342,8 +2350,6 @@ function rerenderAll() {
   filterCoaches();
   updateHomeCounts();
   applyTranslations();
-  setEventDate('fa-event-date',    'fa-event-date-val',    FA_OPEN_DATE);
-  setEventDate('draft-event-date', 'draft-event-date-val', DRAFT_DATE);
 }
 
 function updateHomeCounts() {
@@ -2728,8 +2734,6 @@ window._debugTrades = () => {
   console.log('Trades parseados:', JSON.parse(JSON.stringify(DATA.trades)));
   console.groupEnd();
 };
-setEventDate('fa-event-date',    'fa-event-date-val',    FA_OPEN_DATE);
-setEventDate('draft-event-date', 'draft-event-date-val', DRAFT_DATE);
 fetchAll();
 </script>
 <!-- PLAYER DRAWER -->
