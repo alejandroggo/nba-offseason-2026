@@ -2098,17 +2098,19 @@ function processRosters(rows1, rows2) {
         teams.push(current);
       }
       if (!current) return;
-      // B,C=siguen | D,E=llegadas | F,G=salidas | H,I=fa pendientes
+      // B,C=siguen | D,E=llegadas | F,G=salidas
       const pair = (n, p) => n ? { name: n, pos: p || '' } : null;
       const s = pair(cell(r,1), cell(r,2)); if (s) current.siguen.push(s);
       const l = pair(cell(r,3), cell(r,4)); if (l) current.llegadas.push(l);
       const x = pair(cell(r,5), cell(r,6)); if (x) current.salidas.push(x);
-      const f = pair(cell(r,7), cell(r,8)); if (f) current.fa.push(f);
     });
     return teams;
   };
 
   DATA.rosters = [...parse(rows1), ...parse(rows2)].sort((a,b) => a.team.localeCompare(b.team));
+  DATA.rosters.forEach(team => {
+    team.fa = DATA.fa.filter(d => d.team25 === team.team && !d.dest).map(d => ({ name: d.player, pos: d.pos || '' }));
+  });
   DATA.faPending = DATA.fa.filter(d => !d.dest).map(d => ({ player: d.player, pos: d.pos, team25: d.team25 }));
   FILTERED.faPending = [...DATA.faPending];
   populateSelect('fa-pending-team', [...new Set(DATA.faPending.map(d => d.team25).filter(Boolean))].sort());
