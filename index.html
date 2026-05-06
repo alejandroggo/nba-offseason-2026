@@ -339,9 +339,18 @@
   }
 
   .td-player { font-weight: 600; font-size: 14px; }
-  .td-money { font-family: 'DM Mono', monospace; color: var(--accent); font-size: 12px; }
+  .fa-subsection-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    padding: 0 32px 12px;
+  }
+
+  .td-money { font-family: 'DM Mono', monospace; color: var(--accent); font-size: 11px; text-align: center; width: 70px; white-space: nowrap; }
+  .td-num   { text-align: center; font-size: 11px; color: var(--text-muted); font-family: 'DM Mono', monospace; width: 50px; white-space: nowrap; }
   .td-muted { color: var(--text-muted); font-size: 12px; }
-  .td-notes { max-width: 260px; white-space: normal; font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+  .td-notes { white-space: normal; font-size: 12px; color: var(--text-muted); line-height: 1.5; }
 
   /* BADGES */
   .badge {
@@ -355,12 +364,15 @@
     text-transform: uppercase;
   }
 
-  .badge-pos { background: rgba(29,66,138,0.3); color: #7aadff; border: 1px solid rgba(29,66,138,0.5); }
+  .pos-text { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.5px; }
   .badge-check { background: rgba(200,255,0,0.12); color: var(--accent); border: 1px solid rgba(200,255,0,0.25); }
   .badge-pending-c { background: rgba(255,159,0,0.12); color: var(--pending); border: 1px solid rgba(255,159,0,0.25); }
   .badge-role-hc { background: rgba(200,255,0,0.08); color: var(--accent); border: 1px solid rgba(200,255,0,0.2); }
   .badge-role-gm { background: rgba(255,107,53,0.08); color: var(--accent2); border: 1px solid rgba(255,107,53,0.2); }
   .badge-team { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .badge-rfa  { background: rgba(255,165,0,0.12); color: #ffaa33; border: 1px solid rgba(255,165,0,0.3); }
+  .badge-to   { background: rgba(29,66,138,0.2); color: #7aadff; border: 1px solid rgba(29,66,138,0.4); }
+  .badge-po   { background: rgba(160,100,255,0.12); color: #b580ff; border: 1px solid rgba(160,100,255,0.3); }
 
   /* PICK NUMBER */
   .pick-num {
@@ -420,28 +432,30 @@
   .trade-side:last-child { border-right: none; }
 
   .trade-team-label {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 15px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
     letter-spacing: 1px;
     color: var(--text-muted);
-    margin-bottom: 4px;
+    margin-bottom: 8px;
   }
 
   .trade-receives-label {
     font-family: 'DM Mono', monospace;
-    font-size: 9px;
+    font-size: 10px;
     text-transform: uppercase;
     letter-spacing: 1px;
     color: var(--accent);
     margin-bottom: 6px;
   }
 
-  .trade-item { font-size: 13px; color: var(--text); padding: 2px 0; }
+  .trade-item { font-size: 14px; font-weight: 600; color: var(--text); padding: 3px 0; cursor: pointer; }
+  .trade-item:hover { color: var(--accent); }
 
   /* PLANTILLAS */
   .plantillas-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
     gap: 16px;
   }
 
@@ -457,21 +471,17 @@
 
   .team-card-header {
     background: var(--surface2);
-    padding: 12px 16px;
+    padding: 10px 16px;
     border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
 
   .team-name {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 18px;
     letter-spacing: 1px;
-  }
-
-  .team-card-body {
-    padding: 14px 16px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
   }
 
   .roster-block { }
@@ -484,21 +494,81 @@
     margin-bottom: 6px;
   }
 
-  .roster-label.siguen { color: var(--text-muted); }
+  .roster-label.siguen   { color: var(--text-muted); }
   .roster-label.llegadas { color: var(--signed); }
-  .roster-label.salidas { color: var(--gone); }
-  .roster-label.fa { color: var(--pending); }
+  .roster-label.salidas  { color: var(--gone); }
+  .roster-label.fa       { color: var(--pending); }
+
+  .roster-section {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .roster-section:last-child { border-bottom: none; }
+
+  .roster-section-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+  }
+  .roster-section-title.llegadas { color: var(--signed); }
+  .roster-section-title.salidas  { color: var(--gone); }
+  .roster-section-title.siguen   { color: var(--text-muted); }
+  .roster-section-title.trades   { color: var(--accent2); }
+  .roster-section-title.coaches  { color: var(--accent); }
+
+  .roster-3col {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+  }
+
+  .roster-subcol-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+    padding-bottom: 3px;
+    border-bottom: 1px solid var(--border);
+  }
 
   .roster-player {
     font-size: 12px;
-    padding: 3px 0;
-    border-bottom: 1px solid var(--border);
-    line-height: 1.4;
+    padding: 2px 0;
+    line-height: 1.5;
+    color: var(--text);
   }
 
-  .roster-player:last-child { border-bottom: none; }
+  .roster-siguen {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
 
-  .roster-block.full { grid-column: span 2; }
+  .roster-pill {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 3px 9px;
+    font-size: 14px;
+  }
+
+  .roster-trade-item {
+    font-size: 11px;
+    color: var(--text-muted);
+    padding: 2px 0;
+  }
+
+  .roster-coach-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    padding: 2px 0;
+  }
 
   /* STATES */
   .state-loading {
@@ -655,8 +725,44 @@
   .drawer-empty { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-dim); text-align: center; padding: 16px 0; text-transform: uppercase; }
 
   /* TEAM VIEW */
-  #section-team { display: none; animation: fadeIn 0.3s ease; }
-  #section-team.active { display: block; }
+  #section-team  { display: none; animation: fadeIn 0.3s ease; }
+  #section-team.active  { display: block; }
+  #section-teams { display: none; animation: fadeIn 0.3s ease; }
+  #section-teams.active { display: block; }
+
+  .teams-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+    padding: 24px 32px;
+  }
+
+  .teams-grid-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    text-align: center;
+  }
+
+  .teams-grid-card:hover {
+    border-color: rgba(200,255,0,0.4);
+    background: var(--surface2);
+  }
+
+  .teams-grid-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+    line-height: 1.2;
+    color: var(--text);
+  }
 
   .team-view-back {
     display: inline-flex; align-items: center; gap: 8px;
@@ -710,9 +816,9 @@
   .tv-row-money { font-size: 12px; color: var(--accent); font-family: 'DM Mono', monospace; }
   .tv-empty { padding: 16px; font-size: 12px; color: var(--text-dim); font-family: 'DM Mono', monospace; }
   .tv-section-title {
-    font-family: 'DM Mono', monospace; font-size: 10px;
+    font-family: 'DM Mono', monospace; font-size: 13px;
     text-transform: uppercase; letter-spacing: 2px;
-    color: var(--text-muted); margin-bottom: 12px;
+    color: var(--text-muted); margin-bottom: 14px; margin-top: 8px;
     display: flex; align-items: center; gap: 10px;
   }
   .tv-section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
@@ -884,6 +990,7 @@
     font-size: 24px;
     line-height: 1;
     margin-bottom: 4px;
+    color: var(--accent);
   }
 
   .home-card-title {
@@ -930,6 +1037,60 @@
   /* Botón volver al home en el logo */
   .logo { cursor: pointer; }
 
+  /* MOBILE BOTTOM NAV */
+  .mobile-nav { display: none; }
+
+  @media (max-width: 640px) {
+    nav { display: none; }
+
+    body.on-home .mobile-nav { display: none !important; }
+
+    .mobile-nav {
+      display: flex;
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      height: 58px;
+      z-index: 200;
+      padding-bottom: env(safe-area-inset-bottom, 0);
+    }
+
+    .mobile-tab {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: color 0.2s;
+      padding: 0;
+      position: relative;
+    }
+
+    .mobile-tab.active { color: var(--accent); }
+
+    .mobile-tab-icon {
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+      width: 24px; height: 24px;
+    }
+
+    .mobile-tab-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 8px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      line-height: 1;
+    }
+
+  }
+
   @media (max-width: 1100px) {
     .home-cards { grid-template-columns: repeat(3, 1fr); }
     .home-card { border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
@@ -944,8 +1105,7 @@
 
   @media (max-width: 640px) {
     header { padding: 0 16px; }
-    nav { padding: 0 16px; }
-    main { padding: 20px 16px; }
+    main { padding: 20px 16px 78px; }
     .section-title { font-size: 28px; }
     .trade-body { grid-template-columns: 1fr; }
     .trade-side { border-right: none; border-bottom: 1px solid var(--border); }
@@ -954,6 +1114,16 @@
     .home-cards { grid-template-columns: 1fr; }
     .home-card { border-right: none; }
     .home-hero { padding: 48px 20px 32px; }
+
+    /* Responsive tables */
+    .table-wrap { -webkit-overflow-scrolling: touch; }
+    table { min-width: 540px; }
+    th, td { white-space: nowrap; }
+    td.td-notes { white-space: normal; min-width: 120px; }
+    .filters { flex-wrap: wrap; gap: 8px; }
+    .filter-group { flex: 1 1 140px; }
+    .filter-input, .filter-select { width: 100%; }
+    .section-header { margin-bottom: 16px; }
   }
 </style>
 </head>
@@ -999,13 +1169,46 @@
     <span data-i18n="tab_trades">Trades</span>
     <span class="tab-count" id="count-trades">—</span>
   </button>
-  <button class="tab" onclick="showTab('plantillas')" id="tab-plantillas">
-    <span data-i18n="tab_rosters">Plantillas</span>
-    <span class="tab-count" id="count-plantillas">—</span>
-  </button>
   <button class="tab" onclick="showTab('coaches')" id="tab-coaches">
     <span data-i18n="tab_coaches">HC / GMs</span>
     <span class="tab-count" id="count-coaches">—</span>
+  </button>
+  <button class="tab" onclick="showTab('teams')" id="tab-teams">
+    <span data-i18n="tab_teams">Equipos</span>
+  </button>
+</nav>
+
+<!-- MOBILE BOTTOM NAV -->
+<nav class="mobile-nav">
+  <button class="mobile-tab" onclick="showTab('fa')" id="mtab-fa">
+    <span class="mobile-tab-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+    </span>
+    <span class="mobile-tab-label" data-i18n="tab_fa_short">AG. LIBRE</span>
+  </button>
+  <button class="mobile-tab" onclick="showTab('draft')" id="mtab-draft">
+    <span class="mobile-tab-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+    </span>
+    <span class="mobile-tab-label" data-i18n="tab_draft">DRAFT</span>
+  </button>
+  <button class="mobile-tab" onclick="showTab('trades')" id="mtab-trades">
+    <span class="mobile-tab-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+    </span>
+    <span class="mobile-tab-label" data-i18n="tab_trades">TRADES</span>
+  </button>
+  <button class="mobile-tab" onclick="showTab('coaches')" id="mtab-coaches">
+    <span class="mobile-tab-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+    </span>
+    <span class="mobile-tab-label" data-i18n="tab_coaches_short">HC / GMs</span>
+  </button>
+  <button class="mobile-tab" onclick="showTab('teams')" id="mtab-teams">
+    <span class="mobile-tab-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    </span>
+    <span class="mobile-tab-label" data-i18n="tab_teams">EQUIPOS</span>
   </button>
 </nav>
 
@@ -1021,38 +1224,38 @@
     <div class="home-cards">
       <button class="home-card" onclick="showTab('fa')">
         <span class="home-card-arrow">↗</span>
-        <div class="home-card-icon">🏀</div>
+        <div class="home-card-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
         <div class="home-card-title" data-i18n="tab_fa">Agencia Libre</div>
         <div class="home-card-desc" data-i18n="home_fa_desc">Fichajes confirmados y mercado pendiente</div>
         <div class="home-card-count" id="home-count-fa">— registros</div>
       </button>
       <button class="home-card" onclick="showTab('draft')">
         <span class="home-card-arrow">↗</span>
-        <div class="home-card-icon">🎓</div>
+        <div class="home-card-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M4.93 4.93c4.04 4.04 10.1 4.04 14.14 0"/><path d="M4.93 19.07c4.04-4.04 10.1-4.04 14.14 0"/><line x1="12" y1="2" x2="12" y2="22"/></svg></div>
         <div class="home-card-title" data-i18n="tab_draft">Draft</div>
         <div class="home-card-desc" data-i18n="home_draft_desc">Picks seleccionados en rondas 1 y 2</div>
         <div class="home-card-count" id="home-count-draft">— registros</div>
       </button>
       <button class="home-card" onclick="showTab('trades')">
         <span class="home-card-arrow">↗</span>
-        <div class="home-card-icon">🔄</div>
+        <div class="home-card-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></div>
         <div class="home-card-title" data-i18n="tab_trades">Trades</div>
         <div class="home-card-desc" data-i18n="home_trades_desc">Traspasos confirmados entre franquicias</div>
         <div class="home-card-count" id="home-count-trades">— registros</div>
       </button>
-      <button class="home-card" onclick="showTab('plantillas')">
-        <span class="home-card-arrow">↗</span>
-        <div class="home-card-icon">📋</div>
-        <div class="home-card-title" data-i18n="tab_rosters">Plantillas</div>
-        <div class="home-card-desc" data-i18n="home_rosters_desc">Los 30 equipos con altas, bajas y continuidades</div>
-        <div class="home-card-count" id="home-count-plantillas">— equipos</div>
-      </button>
       <button class="home-card" onclick="showTab('coaches')">
         <span class="home-card-arrow">↗</span>
-        <div class="home-card-icon">🎽</div>
+        <div class="home-card-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
         <div class="home-card-title" data-i18n="tab_coaches">HC / GMs</div>
         <div class="home-card-desc" data-i18n="home_coaches_desc">Cambios en banquillos y gerencias</div>
         <div class="home-card-count" id="home-count-coaches">— cambios</div>
+      </button>
+      <button class="home-card" onclick="showTab('teams')">
+        <span class="home-card-arrow">↗</span>
+        <div class="home-card-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <div class="home-card-title" data-i18n="tab_teams">Equipos</div>
+        <div class="home-card-desc" data-i18n="home_teams_desc">Las 30 franquicias — movimientos y plantilla</div>
+        <div class="home-card-count">30 equipos</div>
       </button>
     </div>
   </div>
@@ -1063,38 +1266,88 @@
       <div class="section-title" data-i18n="fa_title">Agencia Libre</div>
       <div class="section-subtitle" data-i18n="fa_subtitle">Free Agents — Movimientos confirmados y pendientes</div>
     </div>
+    <div class="fa-subsection-title" data-i18n="fa_signed_title">Firmados</div>
+    <div id="fa-event-date" style="display:none;align-items:center;gap:0;margin-bottom:12px;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px">
+      <span id="fa-event-date-val"></span>
+    </div>
     <div class="filters">
       <div class="filter-group">
         <span class="filter-label" data-i18n="filter_search">Buscar</span>
         <input type="text" class="filter-input" id="fa-search" oninput="filterFA()" data-i18n-ph="fa_search_ph">
       </div>
       <div class="filter-group">
-        <span class="filter-label" data-i18n="fa_col_team25">Equipo 2025</span>
+        <span class="filter-label" data-i18n="fa_col_team25">Equipo 2026</span>
         <select class="filter-select" id="fa-team25" onchange="filterFA()"><option value="">—</option></select>
       </div>
       <div class="filter-group">
         <span class="filter-label" data-i18n="fa_col_dest">Destino</span>
         <select class="filter-select" id="fa-dest" onchange="filterFA()"><option value="">—</option></select>
       </div>
+      <div class="filter-group">
+        <span class="filter-label" data-i18n="draft_col_pos">Posición</span>
+        <select class="filter-select" id="fa-pos" onchange="filterFA()"><option value="">—</option></select>
+      </div>
       <button class="btn-reset" onclick="resetFA()" data-i18n="btn_reset">Limpiar</button>
       <span class="results-count" id="fa-count"></span>
+    </div>
+    <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
+      <span class="badge badge-rfa">RFA</span><span style="font-size:11px;color:var(--text-muted)">Agente libre restringido</span>
+      <span class="badge badge-to">TO</span><span style="font-size:11px;color:var(--text-muted)">Opción del equipo</span>
+      <span class="badge badge-po">PO</span><span style="font-size:11px;color:var(--text-muted)">Opción del jugador</span>
     </div>
     <div class="table-wrap">
       <table>
         <thead>
           <tr>
             <th onclick="sortSection('fa',0)"><span data-i18n="fa_col_player">Jugador</span> <span class="sort-icon">↕</span></th>
-            <th onclick="sortSection('fa',1)"><span data-i18n="fa_col_team25">Equipo 2025</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('fa',1)"><span data-i18n="draft_col_pos">Pos</span> <span class="sort-icon">↕</span></th>
             <th onclick="sortSection('fa',2)"><span data-i18n="fa_col_dest">Destino</span> <span class="sort-icon">↕</span></th>
-            <th onclick="sortSection('fa',3)"><span data-i18n="fa_col_m">Millones</span> <span class="sort-icon">↕</span></th>
-            <th onclick="sortSection('fa',4)"><span data-i18n="fa_col_yr">Años</span> <span class="sort-icon">↕</span></th>
-            <th onclick="sortSection('fa',5)"><span data-i18n="fa_col_aav">AAV</span> <span class="sort-icon">↕</span></th>
-            <th onclick="sortSection('fa',6)"><span data-i18n="col_source">Fuente</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('fa',3)"><span data-i18n="fa_col_team25">Equipo 2026</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('fa',4)" style="text-align:center"><span data-i18n="fa_col_m">Millones</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('fa',5)" style="text-align:center"><span data-i18n="fa_col_yr">Años</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('fa',6)" style="text-align:center"><span data-i18n="fa_col_aav">AAV</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('fa',7)"><span data-i18n="col_source">Fuente</span> <span class="sort-icon">↕</span></th>
             <th><span data-i18n="col_notes">Notas</span></th>
           </tr>
         </thead>
         <tbody id="fa-tbody">
-          <tr><td colspan="8"><div class="state-loading" data-i18n="loading">Cargando datos...</div></td></tr>
+          <tr><td colspan="9"><div class="state-loading" data-i18n="loading">Cargando datos...</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="fa-subsection-title" data-i18n="fa_pending_title" style="margin-top:32px; border-top:1px solid var(--border); padding-top:24px">Pendientes de firmar</div>
+    <div class="filters" style="margin-bottom:16px">
+      <div class="filter-group">
+        <span class="filter-label" data-i18n="col_team">Equipo</span>
+        <select class="filter-select" id="fa-pending-team" onchange="filterFAPending()"><option value="">—</option></select>
+      </div>
+      <div class="filter-group">
+        <span class="filter-label" data-i18n="draft_col_pos">Posición</span>
+        <select class="filter-select" id="fa-pending-pos" onchange="filterFAPending()"><option value="">—</option></select>
+      </div>
+      <div class="filter-group">
+        <span class="filter-label">Tipo</span>
+        <div style="display:flex;gap:4px">
+          <button class="badge badge-rfa" id="filter-btn-rfa" onclick="togglePendingType('RFA')" style="cursor:pointer;opacity:0.4;border:none;padding:3px 8px">RFA</button>
+          <button class="badge badge-to"  id="filter-btn-to"  onclick="togglePendingType('TO')"  style="cursor:pointer;opacity:0.4;border:none;padding:3px 8px">TO</button>
+          <button class="badge badge-po"  id="filter-btn-po"  onclick="togglePendingType('PO')"  style="cursor:pointer;opacity:0.4;border:none;padding:3px 8px">PO</button>
+        </div>
+      </div>
+      <button class="btn-reset" onclick="resetFAPending()" data-i18n="btn_reset">Limpiar</button>
+      <span class="results-count" id="fa-pending-count"></span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:200px"><span data-i18n="fa_col_player">Jugador</span></th>
+            <th style="width:48px;text-align:center"><span data-i18n="draft_col_pos">Pos</span></th>
+            <th style="width:160px"><span data-i18n="fa_col_team25">Equipo</span></th>
+            <th><span data-i18n="col_notes">Notas</span></th>
+          </tr>
+        </thead>
+        <tbody id="fa-pending-tbody">
+          <tr><td colspan="4"><div class="state-loading" data-i18n="loading">Cargando datos...</div></td></tr>
         </tbody>
       </table>
     </div>
@@ -1105,6 +1358,9 @@
     <div class="section-header">
       <div class="section-title" data-i18n="draft_title">Draft 2026</div>
       <div class="section-subtitle" data-i18n="draft_subtitle">Picks seleccionados — Rondas 1 y 2</div>
+    </div>
+    <div id="draft-event-date" style="display:none;align-items:center;gap:0;margin-bottom:16px;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px">
+      <span id="draft-event-date-val"></span>
     </div>
     <div class="filters">
       <div class="filter-group">
@@ -1127,8 +1383,9 @@
         <thead>
           <tr>
             <th onclick="sortSection('draft',0)"><span data-i18n="draft_col_pick">Pick</span> <span class="sort-icon">↕</span></th>
-            <th onclick="sortSection('draft',1)"><span data-i18n="col_team">Equipo</span> <span class="sort-icon">↕</span></th>
-            <th onclick="sortSection('draft',2)"><span data-i18n="draft_col_player">Jugador</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('draft',1)"><span data-i18n="draft_col_player">Jugador</span> <span class="sort-icon">↕</span></th>
+            <th style="width:32px;text-align:center"></th>
+            <th onclick="sortSection('draft',2)"><span data-i18n="col_team">Equipo</span> <span class="sort-icon">↕</span></th>
             <th onclick="sortSection('draft',3)"><span data-i18n="draft_col_pos">Pos</span> <span class="sort-icon">↕</span></th>
             <th onclick="sortSection('draft',4)"><span data-i18n="draft_col_from">Procedencia</span> <span class="sort-icon">↕</span></th>
             <th>✓</th>
@@ -1137,7 +1394,7 @@
           </tr>
         </thead>
         <tbody id="draft-tbody">
-          <tr><td colspan="8"><div class="state-loading" data-i18n="loading">Cargando datos...</div></td></tr>
+          <tr><td colspan="9"><div class="state-loading" data-i18n="loading">Cargando datos...</div></td></tr>
         </tbody>
       </table>
     </div>
@@ -1188,25 +1445,6 @@
     </div>
   </div>
 
-  <!-- PLANTILLAS -->
-  <div class="section" id="section-plantillas">
-    <div class="section-header">
-      <div class="section-title" data-i18n="rosters_title">Plantillas</div>
-      <div class="section-subtitle" data-i18n="rosters_subtitle">Los 30 equipos — temporada 2025-26</div>
-    </div>
-    <div class="filters">
-      <div class="filter-group">
-        <span class="filter-label" data-i18n="filter_search">Buscar</span>
-        <input type="text" class="filter-input" id="rosters-search" oninput="filterRosters()" data-i18n-ph="rosters_search_ph">
-      </div>
-      <button class="btn-reset" onclick="resetRosters()" data-i18n="btn_reset">Limpiar</button>
-      <span class="results-count" id="rosters-count"></span>
-    </div>
-    <div class="plantillas-grid" id="rosters-container">
-      <div class="state-loading" data-i18n="loading">Cargando datos...</div>
-    </div>
-  </div>
-
   <!-- HC/GMs -->
   <div class="section" id="section-coaches">
     <div class="section-header">
@@ -1233,8 +1471,8 @@
       <table>
         <thead>
           <tr>
-            <th onclick="sortSection('coaches',0)"><span data-i18n="col_team">Equipo</span> <span class="sort-icon">↕</span></th>
-            <th onclick="sortSection('coaches',1)"><span data-i18n="coaches_col_new">Nuevo</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('coaches',0)"><span data-i18n="coaches_col_new">Nombre</span> <span class="sort-icon">↕</span></th>
+            <th onclick="sortSection('coaches',1)"><span data-i18n="col_team">Equipo</span> <span class="sort-icon">↕</span></th>
             <th onclick="sortSection('coaches',2)"><span data-i18n="coaches_col_role">Rol</span> <span class="sort-icon">↕</span></th>
             <th onclick="sortSection('coaches',3)"><span data-i18n="coaches_col_date_hired">Contratado</span> <span class="sort-icon">↕</span></th>
             <th onclick="sortSection('coaches',4)"><span data-i18n="coaches_col_prev">Anterior</span> <span class="sort-icon">↕</span></th>
@@ -1249,16 +1487,24 @@
     </div>
   </div>
 
+  <!-- TEAMS -->
+  <div class="section" id="section-teams">
+    <div class="section-header">
+      <div class="section-title" data-i18n="teams_title">Equipos</div>
+      <div class="section-subtitle" data-i18n="teams_subtitle">Las 30 franquicias de la NBA</div>
+    </div>
+    <div id="teams-grid" class="teams-grid"></div>
+  </div>
+
   <!-- TEAM VIEW -->
   <div class="section" id="section-team">
     <button class="team-view-back" id="team-back-btn" onclick="goBack()">Volver</button>
     <div class="team-view-header">
+      <div id="tv-team-logo" style="height:64px;display:flex;align-items:center"></div>
       <div class="team-view-name" id="tv-team-name">—</div>
       <div class="team-view-meta" id="tv-team-meta"></div>
     </div>
-    <div class="team-view-grid" id="tv-grid"></div>
-    <div id="tv-trades-section"></div>
-    <div id="tv-coaches-section"></div>
+    <div id="tv-content"></div>
 
   </div>
 
@@ -1278,6 +1524,10 @@
 // URLS — reemplaza con las de tu Sheet 2026
 // ─────────────────────────────────────────────
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZAb1-oLDkidOmC6LrplPJ_468sZ10eESYSrPLg8Pp9DsCg6KNI3YMezhYokdhyCA/exec';
+
+// ── Fechas de evento (actualizar según calendario) ──────────────────────────
+const FA_OPEN_DATE = '30 jun 2026';
+const DRAFT_DATE   = '23 y 24 jun 2026';
 
 const URLS = {
   fa:       `${SCRIPT_URL}?tab=fa`,
@@ -1300,17 +1550,21 @@ const i18n = {
     home_trades_desc: 'Traspasos confirmados entre franquicias',
     home_rosters_desc: 'Los 30 equipos con altas, bajas y continuidades',
     home_coaches_desc: 'Cambios en banquillos y gerencias',
+    home_teams_desc: 'Las 30 franquicias — movimientos y plantilla',
+    fa_event_date_label: 'Apertura agencia libre',
+    draft_event_date_label: 'Fecha del draft',
     home_records: 'registros',
     home_teams: 'equipos',
     home_changes: 'cambios',
     theme_light: 'Modo día',
     theme_dark: 'Modo noche',
-    tab_fa: 'Agencia Libre', tab_draft: 'Draft', tab_trades: 'Trades',
-    tab_rosters: 'Plantillas', tab_coaches: 'Entrenadores y GMs',
+    tab_fa: 'Agencia Libre', tab_fa_short: 'AG. LIBRE', tab_draft: 'Draft', tab_trades: 'Trades',
+    tab_rosters: 'Plantillas', tab_coaches: 'Entrenadores y GMs', tab_coaches_short: 'HC / GMs', tab_teams: 'Equipos',
     fa_title: 'Agencia Libre', fa_subtitle: 'Free Agents — Movimientos confirmados y pendientes',
+    fa_signed_title: 'Firmados', fa_pending_title: 'Pendientes de firmar',
     fa_search_ph: 'Jugador, equipo…',
-    fa_col_player: 'Jugador', fa_col_team25: 'Equipo 2025', fa_col_dest: 'Destino',
-    fa_col_m: 'Millones', fa_col_yr: 'Años', fa_col_aav: 'AAV',
+    fa_col_player: 'Jugador', fa_col_team25: 'Equipo 2026', fa_col_dest: 'Destino',
+    fa_col_m: 'Millones', fa_col_yr: 'Años', fa_col_aav: 'AAV', col_date: 'Fecha',
     draft_title: 'Draft 2026', draft_subtitle: 'Picks seleccionados — Rondas 1 y 2',
     draft_search_ph: 'Jugador, equipo, universidad…',
     draft_col_pick: 'Pick', draft_col_player: 'Jugador', draft_col_pos: 'Posición',
@@ -1321,8 +1575,10 @@ const i18n = {
     trades_search_ph: 'Equipo, jugador, pick…',
     rosters_title: 'Plantillas', rosters_subtitle: 'Los 30 equipos — temporada 2025-26',
     rosters_search_ph: 'Buscar equipo o jugador…',
-    roster_stays: 'Siguen', roster_arrivals: 'Llegadas',
-    roster_departures: 'Salidas', roster_fa: 'FA pendientes',
+    roster_stays: 'Siguen', roster_arrivals: 'Llegadas', roster_departures: 'Salidas',
+    roster_fa: 'FA', roster_draft: 'Draft', roster_trade: 'Vía Trade',
+    roster_salidas_fa: 'FA', roster_salidas_trade: 'Vía Trade', roster_fa_pending: 'FA Pendientes',
+    roster_section_trades: 'Traspasos', roster_section_coaches: 'Cuerpo técnico y dirección',
     coaches_title: 'Entrenadores y General Managers', coaches_subtitle: 'Cambios en banquillos y gerencias',
     coaches_search_ph: 'Equipo, nombre…',
     coaches_col_new: 'Nuevo', coaches_col_role: 'Rol',
@@ -1334,6 +1590,8 @@ const i18n = {
     footer_data: 'Datos', footer_src: 'Fuente',
     last_update: 'Actualizado',
     trade_label: 'Traspaso',
+    teams_title: 'Equipos', teams_subtitle: 'Las 30 franquicias de la NBA',
+    drawer_view_team: 'Nuevo equipo', drawer_view_old_team: 'Ver equipo anterior',
   },
   en: {
     home_eyebrow: 'Off-Season',
@@ -1343,17 +1601,21 @@ const i18n = {
     home_trades_desc: 'Confirmed trades between franchises',
     home_rosters_desc: 'All 30 teams — arrivals, departures, returning',
     home_coaches_desc: 'Coaching and front office changes',
+    home_teams_desc: 'All 30 franchises — moves and roster',
+    fa_event_date_label: 'Free agency opens',
+    draft_event_date_label: 'Draft date',
     home_records: 'records',
     home_teams: 'teams',
     home_changes: 'changes',
     theme_light: 'Light mode',
     theme_dark: 'Dark mode',
-    tab_fa: 'Free Agency', tab_draft: 'Draft', tab_trades: 'Trades',
-    tab_rosters: 'Rosters', tab_coaches: 'Coaches & GMs',
+    tab_fa: 'Free Agency', tab_fa_short: 'FREE AG.', tab_draft: 'Draft', tab_trades: 'Trades',
+    tab_rosters: 'Rosters', tab_coaches: 'Coaches & GMs', tab_coaches_short: 'HC / GMs', tab_teams: 'Teams',
     fa_title: 'Free Agency', fa_subtitle: 'Free Agents — Confirmed and pending moves',
+    fa_signed_title: 'Signed', fa_pending_title: 'Pending free agents',
     fa_search_ph: 'Player, team…',
-    fa_col_player: 'Player', fa_col_team25: '2025 Team', fa_col_dest: 'Destination',
-    fa_col_m: 'Total ($M)', fa_col_yr: 'Years', fa_col_aav: 'AAV',
+    fa_col_player: 'Player', fa_col_team25: '2026 Team', fa_col_dest: 'Destination',
+    fa_col_m: 'Total ($M)', fa_col_yr: 'Years', fa_col_aav: 'AAV', col_date: 'Date',
     draft_title: 'Draft 2026', draft_subtitle: 'Selected picks — Rounds 1 & 2',
     draft_search_ph: 'Player, team, college…',
     draft_col_pick: 'Pick', draft_col_player: 'Player', draft_col_pos: 'Position',
@@ -1364,8 +1626,10 @@ const i18n = {
     trades_search_ph: 'Team, player, pick…',
     rosters_title: 'Rosters', rosters_subtitle: 'All 30 teams — 2025-26 season',
     rosters_search_ph: 'Search team or player…',
-    roster_stays: 'Returning', roster_arrivals: 'Arrivals',
-    roster_departures: 'Departures', roster_fa: 'Pending FA',
+    roster_stays: 'Returning', roster_arrivals: 'Arrivals', roster_departures: 'Departures',
+    roster_fa: 'FA', roster_draft: 'Draft', roster_trade: 'Via Trade',
+    roster_salidas_fa: 'FA', roster_salidas_trade: 'Via Trade', roster_fa_pending: 'Pending FA',
+    roster_section_trades: 'Trades', roster_section_coaches: 'Coaching staff & front office',
     coaches_title: 'Head Coaches & General Managers', coaches_subtitle: 'Coaching and front office changes',
     coaches_search_ph: 'Team, name…',
     coaches_col_new: 'New', coaches_col_role: 'Role',
@@ -1377,6 +1641,8 @@ const i18n = {
     footer_data: 'Data', footer_src: 'Source',
     last_update: 'Updated',
     trade_label: 'Trade',
+    teams_title: 'Teams', teams_subtitle: 'All 30 NBA franchises',
+    drawer_view_team: 'New team', drawer_view_old_team: 'View previous team',
   }
 };
 
@@ -1429,7 +1695,9 @@ function parseCSV(text) {
       cur += c;
     }
     row.push(cur.trim());
-    if (row.some(c => c)) rows.push(row);
+    // Incluir filas con comas (separadores vacíos de trades) aunque todas las celdas estén vacías;
+    // descartar solo líneas completamente en blanco (sin comas ni contenido)
+    if (lines[i].includes(',') || row.some(c => c)) rows.push(row);
   }
   return rows;
 }
@@ -1440,7 +1708,7 @@ function cell(row, i) { return (row[i] || '').trim(); }
 // DATA STORE
 // ─────────────────────────────────────────────
 const DATA = { fa: [], draft: [], undrafted: [], trades: [], rosters: [], coaches: [] };
-const FILTERED = { fa: [], draft: [], trades: [], coaches: [], rosters: [] };
+const FILTERED = { fa: [], draft: [], trades: [], coaches: [], rosters: [], faPending: [] };
 const SORT = { fa: {col:-1,asc:true}, draft: {col:-1,asc:true}, coaches: {col:-1,asc:true} };
 let loadedAt = null;
 
@@ -1461,7 +1729,8 @@ async function fetchAll() {
 
     processFA(parseCSV(faTxt));
     processDraft(parseCSV(draftTxt));
-    processTrades(parseCSV(tradesTxt));
+    window._rawTradeRows = parseCSV(tradesTxt);
+    processTrades(window._rawTradeRows);
     processRosters(parseCSV(r1Txt), parseCSV(r2Txt));
     processCoaches(parseCSV(coachTxt));
 
@@ -1488,46 +1757,113 @@ async function fetchAll() {
 // Columnas: JUGADOR | 2025 | 2024 | MILLONES | AÑOS | AAV | FUENTE | NOTAS
 // ─────────────────────────────────────────────
 function processFA(rows) {
+  // Columnas: JUGADOR | POS | 2026(origen) | 2027(destino) | MILLONES | AÑOS | AAV | FUENTE | NOTAS
   DATA.fa = rows.slice(1).filter(r => cell(r,0)).map(r => ({
     player: cell(r,0),
-    team25: cell(r,1),
-    dest:   cell(r,2),
-    money:  cell(r,3),
-    years:  cell(r,4),
-    aav:    cell(r,5),
-    source: cell(r,6),
-    notes:  cell(r,7),
+    pos:    cell(r,1),
+    team25: cell(r,2),
+    dest:   cell(r,3) === '—' ? '' : cell(r,3),
+    money:  cell(r,4),
+    years:  cell(r,5),
+    aav:    cell(r,6),
+    source: cell(r,7),
+    notes:  cell(r,8),
+    date:   cell(r,9),
   }));
-  document.getElementById('count-fa').textContent = DATA.fa.length;
+  document.getElementById('count-fa').textContent = DATA.fa.filter(d => d.dest).length;
   populateSelect('fa-team25', [...new Set(DATA.fa.map(d=>d.team25).filter(Boolean))].sort());
   populateSelect('fa-dest',   [...new Set(DATA.fa.map(d=>d.dest).filter(Boolean))].sort());
+  populateSelect('fa-pos',    [...new Set(DATA.fa.map(d=>d.pos).filter(Boolean))].sort());
 }
 
 function renderFA(data) {
+  const signed  = data.filter(d => d.dest);
+  const pending = data.filter(d => !d.dest);
+
   const tbody = document.getElementById('fa-tbody');
-  if (!data.length) { tbody.innerHTML = `<tr><td colspan="8"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
-  tbody.innerHTML = data.map(d => `
-    <tr>
-      <td class="td-player clickable-player" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</td>
-      <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team25)}')">${esc(d.team25)}</span></td>
-      <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.dest)}')">${esc(d.dest)}</span></td>
-      <td class="td-money">${d.money ? '$'+esc(d.money)+'M' : '—'}</td>
-      <td class="td-muted">${esc(d.years) || '—'}</td>
-      <td class="td-money">${d.aav ? '$'+esc(d.aav)+'M' : '—'}</td>
-      <td class="td-muted">${esc(d.source)}</td>
-      <td class="td-notes">${esc(d.notes)}</td>
-    </tr>`).join('');
-  document.getElementById('fa-count').innerHTML = `<span>${data.length}</span>&nbsp;${t('results')}`;
+  tbody.innerHTML = signed.length
+    ? signed.map(d => {
+        const {name, badge} = faStatus(d.player);
+        return `
+      <tr>
+        <td class="td-player clickable-player" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(name)}${badge}</td>
+        <td style="text-align:center"><span class="pos-text">${esc(d.pos) || '—'}</span></td>
+        <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.dest)}')">${esc(d.dest)}</span></td>
+        <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team25)}')">${esc(d.team25)}</span></td>
+        <td class="td-money">${d.money ? '$'+esc(d.money)+'M' : '—'}</td>
+        <td class="td-num">${esc(d.years) || '—'}</td>
+        <td class="td-money">${d.aav ? '$'+esc(d.aav)+'M' : '—'}</td>
+        <td class="td-muted">${esc(d.source)}</td>
+        <td class="td-notes">${esc(d.notes)}</td>
+      </tr>`;}).join('')
+    : `<tr><td colspan="9"><div class="state-empty">${t('no_data')}</div></td></tr>`;
+
+  document.getElementById('fa-count').innerHTML = `<span>${signed.length}</span>&nbsp;${t('results')}`;
+}
+
+function renderFAPending(data) {
+  const pendingTbody = document.getElementById('fa-pending-tbody');
+  pendingTbody.innerHTML = data.length
+    ? data.map(d => {
+        const {name, badge} = faStatus(d.player);
+        return `
+      <tr>
+        <td class="td-player clickable-player" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(name)}${badge}</td>
+        <td style="text-align:center"><span class="pos-text">${esc(d.pos) || '—'}</span></td>
+        <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team25)}')">${esc(d.team25)}</span></td>
+        <td class="td-notes">${esc(d.notes)}</td>
+      </tr>`;}).join('')
+    : `<tr><td colspan="4"><div class="state-empty">${t('no_data')}</div></td></tr>`;
+  document.getElementById('fa-pending-count').innerHTML = `<span>${data.length}</span>&nbsp;${t('results')}`;
+}
+
+let _pendingTypeFilter = null;
+
+function togglePendingType(type) {
+  _pendingTypeFilter = _pendingTypeFilter === type ? null : type;
+  ['RFA','TO','PO'].forEach(t => {
+    const btn = document.getElementById(`filter-btn-${t.toLowerCase()}`);
+    if (btn) btn.style.opacity = (_pendingTypeFilter === t) ? '1' : '0.4';
+  });
+  filterFAPending();
+}
+
+function filterFAPending() {
+  const team = document.getElementById('fa-pending-team').value;
+  const pos  = document.getElementById('fa-pending-pos').value;
+  FILTERED.faPending = (DATA.faPending || []).filter(d => {
+    if (team && d.team25 !== team) return false;
+    if (pos  && d.pos !== pos)    return false;
+    if (_pendingTypeFilter) {
+      const m = (d.player || '').match(/\((RFA|TO|PO)\)\s*$/i);
+      if (!m || m[1].toUpperCase() !== _pendingTypeFilter) return false;
+    }
+    return true;
+  });
+  renderFAPending(FILTERED.faPending);
+}
+
+function resetFAPending() {
+  document.getElementById('fa-pending-team').value = '';
+  document.getElementById('fa-pending-pos').value = '';
+  _pendingTypeFilter = null;
+  ['RFA','TO','PO'].forEach(t => {
+    const btn = document.getElementById(`filter-btn-${t.toLowerCase()}`);
+    if (btn) btn.style.opacity = '0.4';
+  });
+  filterFAPending();
 }
 
 function filterFA() {
   const q = document.getElementById('fa-search').value.toLowerCase();
   const t25 = document.getElementById('fa-team25').value;
   const dest = document.getElementById('fa-dest').value;
+  const pos = document.getElementById('fa-pos').value;
   FILTERED.fa = DATA.fa.filter(d =>
     (!q || `${d.player} ${d.team25} ${d.dest} ${d.notes}`.toLowerCase().includes(q)) &&
     (!t25 || d.team25 === t25) &&
-    (!dest || d.dest === dest)
+    (!dest || d.dest === dest) &&
+    (!pos || d.pos === pos)
   );
   renderFA(FILTERED.fa);
 }
@@ -1536,6 +1872,7 @@ function resetFA() {
   document.getElementById('fa-search').value = '';
   document.getElementById('fa-team25').value = '';
   document.getElementById('fa-dest').value = '';
+  document.getElementById('fa-pos').value = '';
   filterFA();
 }
 
@@ -1545,22 +1882,25 @@ function resetFA() {
 // Undrafted: filas sin número de pick (col0 vacía o no numérico) pero con jugador
 // ─────────────────────────────────────────────
 function processDraft(rows) {
-  const all = rows.slice(1).filter(r => cell(r,2)); // tiene nombre de jugador
-  DATA.draft = all.filter(r => cell(r,0) && !isNaN(parseInt(cell(r,0)))).map(r => ({
+  const data = rows.slice(1).filter(r => cell(r,0) || cell(r,2));
+  DATA.draft = data.filter(r => cell(r,0) && !isNaN(parseInt(cell(r,0)))).map(r => ({
     pick:     cell(r,0),
     team:     cell(r,1),
     player:   cell(r,2),
+    country:  cell(r,3),
     pos:      cell(r,4),
     from:     cell(r,5),
     check:    cell(r,6),
     contract: cell(r,7),
     notes:    cell(r,8),
+    date:     cell(r,9),
   }));
-  DATA.undrafted = all.filter(r => !cell(r,0) || isNaN(parseInt(cell(r,0)))).map(r => ({
-    player: cell(r,2),
-    pos:    cell(r,4),
-    from:   cell(r,5),
-    notes:  cell(r,8),
+  DATA.undrafted = data.filter(r => cell(r,2) && (!cell(r,0) || isNaN(parseInt(cell(r,0))))).map(r => ({
+    player:  cell(r,2),
+    country: cell(r,3),
+    pos:     cell(r,4),
+    from:    cell(r,5),
+    notes:   cell(r,8),
   }));
   document.getElementById('count-draft').textContent = DATA.draft.length;
   populateSelect('draft-pos',  [...new Set(DATA.draft.map(d=>d.pos).filter(Boolean))].sort());
@@ -1569,33 +1909,44 @@ function processDraft(rows) {
 
 function renderDraft(data) {
   const tbody = document.getElementById('draft-tbody');
-  if (!data.length) { tbody.innerHTML = `<tr><td colspan="8"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
-  tbody.innerHTML = data.map(d => {
+  if (!data.length) { tbody.innerHTML = `<tr><td colspan="9"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
+  const rows = [];
+  data.forEach((d, i) => {
     const n = parseInt(d.pick);
     const cls = n <= 5 ? 'top5' : n <= 30 ? 'r1' : '';
     const chk = d.check ? `<span class="badge badge-check">${esc(d.check)}</span>` : '—';
-    return `<tr>
+    const playerCell = d.player
+      ? `<td class="td-player clickable-player" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</td>`
+      : `<td class="td-muted">—</td>`;
+    const prev = i > 0 ? parseInt(data[i-1].pick) : null;
+    if (prev === 14 || prev === 30) {
+      const label = prev === 14 ? (lang === 'es' ? 'FIN DE LA LOTERÍA' : 'END OF LOTTERY') : (lang === 'es' ? 'FIN DE LA PRIMERA RONDA' : 'END OF ROUND 1');
+      rows.push(`<tr><td colspan="9" style="padding:8px 12px;border:none;background:var(--surface2);text-align:center"><span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted)">${label}</span></td></tr>`);
+    }
+    rows.push(`<tr>
       <td><span class="pick-num ${cls}">${esc(d.pick)}</span></td>
+      ${playerCell}
+      <td style="text-align:center" title="${esc(d.country)}">${flag(d.country)}</td>
       <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team)}')">${esc(d.team)}</span></td>
-      <td class="td-player clickable-player" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</td>
-      <td><span class="badge badge-pos">${esc(d.pos)}</span></td>
+      <td><span class="pos-text">${esc(d.pos)}</span></td>
       <td class="td-muted">${esc(d.from)}</td>
       <td>${chk}</td>
       <td class="td-muted">${esc(d.contract)}</td>
       <td class="td-notes">${esc(d.notes)}</td>
-    </tr>`;
-  }).join('');
+    </tr>`);
+  });
+  tbody.innerHTML = rows.join('');
   document.getElementById('draft-count').innerHTML = `<span>${data.length}</span>&nbsp;${t('results')}`;
 }
 
 function renderUndrafted(data) {
   const tbody = document.getElementById('undrafted-tbody');
-  if (!data.length) { tbody.innerHTML = `<tr><td colspan="4"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
+  if (!data.length) { tbody.innerHTML = `<tr><td colspan="5"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
   tbody.innerHTML = data.map(d => `
     <tr>
       <td class="td-player clickable-player" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</td>
       <td style="font-size:18px;text-align:center" title="${esc(d.country)}">${flag(d.country)}</td>
-      <td><span class="badge badge-pos">${esc(d.pos) || '—'}</span></td>
+      <td><span class="pos-text">${esc(d.pos) || '—'}</span></td>
       <td class="td-muted">${esc(d.from) || '—'}</td>
       <td class="td-notes">${esc(d.notes)}</td>
     </tr>`).join('');
@@ -1629,45 +1980,63 @@ function resetDraft() {
 // Columnas: RECIBE | (jugadores/picks) | ... | RECIBE | ...
 // Estructura: cada fila es una parte del trade, agrupadas por número
 // ─────────────────────────────────────────────
+// Columnas: # | Activo | De | A | Fecha | Fuente
+// Una fila por activo movido entre equipos. Misma # = mismo traspaso.
 function processTrades(rows) {
-  // Agrupa filas: cuando col0 tiene texto = nueva parte del trade
-  // Asumimos estructura: col0=equipo, col1..col2=lo que recibe, col3=equipo2, col4..col5=lo que recibe
-  const trades = [];
-  let current = null;
+  const tradeMap = new Map();
+  const trades   = [];
+  let lastId     = null;
 
-  rows.slice(1).forEach((r, i) => {
-    const team1 = cell(r, 0);
-    const team2 = cell(r, 3);
+  rows.slice(1).forEach(r => {
+    const id    = cell(r,0);
+    const asset = cell(r,1);
+    const from  = cell(r,2);
+    const to    = cell(r,3);
+    const date  = cell(r,4);
+    const src   = cell(r,5);
 
-    if (team1 && team2) {
-      // nueva fila de trade con dos equipos
-      current = {
-        id: trades.length + 1,
-        sides: [
-          { team: team1, receives: [cell(r,1), cell(r,2)].filter(Boolean) },
-          { team: team2, receives: [cell(r,4), cell(r,5)].filter(Boolean) },
-        ]
-      };
-      trades.push(current);
-    } else if (current) {
-      // continuación: más jugadores/picks para el trade anterior
-      if (team1) {
-        const side = current.sides.find(s => s.team === team1);
-        if (side) { [cell(r,1), cell(r,2)].filter(Boolean).forEach(v => side.receives.push(v)); }
-        else current.sides[0].receives.push(...[cell(r,0), cell(r,1), cell(r,2)].filter(Boolean));
-      }
-      if (cell(r,3)) {
-        const side = current.sides.find(s => s.team === cell(r,3));
-        if (side) { [cell(r,4), cell(r,5)].filter(Boolean).forEach(v => side.receives.push(v)); }
-      }
+    if (!id && !asset && !from && !to) return;
+
+    const tradeId = id || lastId;
+    if (!tradeId) return;
+    if (id) lastId = id;
+
+    if (!tradeMap.has(tradeId)) {
+      const trade = { id: tradeId, date: '', source: '', sides: [] };
+      tradeMap.set(tradeId, trade);
+      trades.push(trade);
+    }
+    const trade = tradeMap.get(tradeId);
+    if (date) trade.date   = date;
+    if (src)  trade.source = src;
+
+    if (asset && to) {
+      let side = trade.sides.find(s => s.team === to);
+      if (!side) { side = { team: to, receives: [] }; trade.sides.push(side); }
+      side.receives.push({ item: asset, from });
     }
   });
 
   DATA.trades = trades;
   document.getElementById('count-trades').textContent = DATA.trades.length;
 
-  const allTeams = [...new Set(DATA.trades.flatMap(trade => trade.sides.map(s => s.team)).filter(Boolean))].sort();
+  const allTeams = [...new Set(DATA.trades.flatMap(tr => tr.sides.map(s => s.team)).filter(Boolean))].sort();
   populateSelect('trades-team', allTeams);
+}
+
+function tradeReceivesHTML(receives) {
+  if (!receives.length) return '<div class="trade-item td-muted">—</div>';
+  // Agrupar activos por equipo de origen
+  const byFrom = [];
+  receives.forEach(r => {
+    const grp = byFrom.find(g => g.from === r.from);
+    if (grp) grp.items.push(r.item);
+    else byFrom.push({ from: r.from, items: [r.item] });
+  });
+  return byFrom.map((grp, i) => `
+    <div class="trade-receives-label" style="${i > 0 ? 'margin-top:14px' : ''}">← ${lang === 'es' ? 'De' : 'From'}: <strong class="clickable-team" onclick="openTeamView('${esc(grp.from)}')" style="cursor:pointer">${esc(grp.from)}</strong></div>
+    ${grp.items.map(item => `<div class="trade-item" onclick="openPlayerDrawer('${esc(item)}')">${esc(item)}</div>`).join('')}
+  `).join('');
 }
 
 function renderTrades(data) {
@@ -1676,26 +2045,28 @@ function renderTrades(data) {
   container.innerHTML = data.map(trade => `
     <div class="trade-card">
       <div class="trade-header">
-        <span class="trade-idx">${t('trade_label')} #${trade.id}</span>
+        <span class="td-muted" style="font-size:11px;font-family:'DM Mono',monospace">
+          ${trade.date ? fmtDate(trade.date) : ''}${trade.date && trade.source ? ' · ' : ''}${trade.source ? esc(trade.source) : ''}
+        </span>
       </div>
-      <div class="trade-body">
+      <div class="trade-body" style="grid-template-columns:repeat(${trade.sides.length},1fr)">
         ${trade.sides.map(side => `
           <div class="trade-side">
-            <div class="trade-team-label">${esc(side.team)}</div>
-            <div class="trade-receives-label">← ${t('receives')}</div>
-            ${side.receives.map(item => `<div class="trade-item">${esc(item)}</div>`).join('') || '<div class="trade-item td-muted">—</div>'}
-          </div>
-        `).join('')}
+            <div class="trade-team-label" style="display:flex;align-items:center;gap:8px">
+              ${teamLogo(side.team, 24)}<span class="clickable-team" onclick="openTeamView('${esc(side.team)}')">${esc(side.team)}</span>
+            </div>
+            ${tradeReceivesHTML(side.receives)}
+          </div>`).join('')}
       </div>
     </div>`).join('');
   document.getElementById('trades-count').innerHTML = `<span>${data.length}</span>&nbsp;${t('results')}`;
 }
 
 function filterTrades() {
-  const q = document.getElementById('trades-search').value.toLowerCase();
+  const q    = document.getElementById('trades-search').value.toLowerCase();
   const team = document.getElementById('trades-team').value;
   FILTERED.trades = DATA.trades.filter(trade => {
-    const text = trade.sides.flatMap(s => [s.team, ...s.receives]).join(' ').toLowerCase();
+    const text = trade.sides.flatMap(s => [s.team, ...s.receives.flatMap(r => [r.item, r.from])]).join(' ').toLowerCase();
     return (!q || text.includes(q)) && (!team || trade.sides.some(s => s.team === team));
   });
   renderTrades(FILTERED.trades);
@@ -1712,20 +2083,32 @@ function resetTrades() {
 // Columnas: EQUIPO | SIGUEN | ... | LLEGADAS | ... | SALIDAS | ... | FA PENDIENTES | ...
 // ─────────────────────────────────────────────
 function processRosters(rows1, rows2) {
-  const parse = rows => rows.slice(1).filter(r => cell(r,0)).map(r => ({
-    team:       cell(r,0),
-    siguen:     collectCol(r, 1, 2),
-    llegadas:   collectCol(r, 3, 4),
-    salidas:    collectCol(r, 5, 6),
-    fa:         collectCol(r, 7, 8),
-  }));
+  const parse = rows => {
+    const teams = [];
+    let current = null;
+    rows.slice(1).forEach(r => {
+      const a = cell(r,0);
+      if (a) {
+        current = { team: a, siguen: [], llegadas: [], salidas: [], fa: [] };
+        teams.push(current);
+      }
+      if (!current) return;
+      // B,C=siguen | D,E=llegadas | F,G=salidas | H,I=fa pendientes
+      const pair = (n, p) => n ? { name: n, pos: p || '' } : null;
+      const s = pair(cell(r,1), cell(r,2)); if (s) current.siguen.push(s);
+      const l = pair(cell(r,3), cell(r,4)); if (l) current.llegadas.push(l);
+      const x = pair(cell(r,5), cell(r,6)); if (x) current.salidas.push(x);
+      const f = pair(cell(r,7), cell(r,8)); if (f) current.fa.push(f);
+    });
+    return teams;
+  };
 
   DATA.rosters = [...parse(rows1), ...parse(rows2)].sort((a,b) => a.team.localeCompare(b.team));
-  document.getElementById('count-plantillas').textContent = DATA.rosters.length;
-}
-
-function collectCol(row, ...indices) {
-  return indices.map(i => cell(row, i)).filter(Boolean);
+  DATA.faPending = DATA.rosters.flatMap(r => r.fa.map(p => ({ player: p.name, pos: p.pos, team25: r.team })));
+  FILTERED.faPending = [...DATA.faPending];
+  populateSelect('fa-pending-team', [...new Set(DATA.faPending.map(d => d.team25).filter(Boolean))].sort());
+  populateSelect('fa-pending-pos',  [...new Set(DATA.faPending.map(d => d.pos).filter(Boolean))].sort());
+  renderFAPending(FILTERED.faPending);
 }
 
 function renderRosters(data) {
@@ -1734,9 +2117,10 @@ function renderRosters(data) {
   container.innerHTML = data.map(team => `
     <div class="team-card">
       <div class="team-card-header">
+        ${teamLogo(team.team, 28)}
         <span class="team-name clickable-team" onclick="openTeamView('${esc(team.team)}')" style="cursor:pointer">${esc(team.team)}</span>
       </div>
-      <div class="team-card-body">
+      <div class="team-card-body" style="padding:12px 16px">
         ${rosterBlock(team.siguen, 'siguen', t('roster_stays'))}
         ${rosterBlock(team.llegadas, 'llegadas', t('roster_arrivals'))}
         ${rosterBlock(team.salidas, 'salidas', t('roster_departures'))}
@@ -1751,14 +2135,14 @@ function rosterBlock(players, cls, label) {
   return `
     <div class="roster-block">
       <div class="roster-label ${cls}">${label}</div>
-      ${players.map(p => `<div class="roster-player">${esc(p)}</div>`).join('')}
+      ${players.map(p => `<div class="roster-player">${esc(typeof p === 'object' ? p.name : p)}</div>`).join('')}
     </div>`;
 }
 
 function filterRosters() {
   const q = document.getElementById('rosters-search').value.toLowerCase();
   FILTERED.rosters = DATA.rosters.filter(d =>
-    !q || `${d.team} ${[...d.siguen,...d.llegadas,...d.salidas,...d.fa].join(' ')}`.toLowerCase().includes(q)
+    !q || `${d.team} ${[...d.siguen,...d.llegadas,...d.salidas,...d.fa].map(p => typeof p === 'object' ? p.name : p).join(' ')}`.toLowerCase().includes(q)
   );
   renderRosters(FILTERED.rosters);
 }
@@ -1770,17 +2154,17 @@ function resetRosters() {
 
 // ─────────────────────────────────────────────
 // PROCESS COACHES
-// Columnas: EQUIPO | (vacía) | NUEVO | ROL | ANTIGUO | FECHA | FUENTE
+// Columnas: EQUIPO | NUEVO | ROL | FECHA(fichaje) | ANTIGUO | FECHA(despido) | FUENTE
 // ─────────────────────────────────────────────
 function processCoaches(rows) {
   DATA.coaches = rows.slice(1).filter(r => cell(r,0)).map(r => ({
     team:       cell(r,0),
-    new:        cell(r,2),
-    role:       cell(r,3),
-    dateHired:  cell(r,4),
-    prev:       cell(r,5),
-    dateFired:  cell(r,6),
-    source:     cell(r,7),
+    new:        cell(r,1),
+    role:       cell(r,2),
+    dateHired:  cell(r,3),
+    prev:       cell(r,4),
+    dateFired:  cell(r,5),
+    source:     cell(r,6),
   }));
   document.getElementById('count-coaches').textContent = DATA.coaches.length;
   populateSelect('coaches-role', [...new Set(DATA.coaches.map(d=>d.role).filter(Boolean))].sort());
@@ -1789,17 +2173,17 @@ function processCoaches(rows) {
 
 function renderCoaches(data) {
   const tbody = document.getElementById('coaches-tbody');
-  if (!data.length) { tbody.innerHTML = `<tr><td colspan="6"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
+  if (!data.length) { tbody.innerHTML = `<tr><td colspan="7"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
   tbody.innerHTML = data.map(d => {
-    const roleCls = d.role.toUpperCase().includes('HC') || d.role.toUpperCase().includes('HEAD') ? 'badge-role-hc' : 'badge-role-gm';
+    const roleCls = (d.role || '').toUpperCase().includes('HC') || (d.role || '').toUpperCase().includes('HEAD') ? 'badge-role-hc' : 'badge-role-gm';
     return `<tr>
-      <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team)}')">${esc(d.team)}</span></td>
       <td class="td-player">${esc(d.new)}</td>
-      <td><span class="badge ${roleCls}">${esc(d.role)}</span></td>
-      <td class="td-muted">${esc(d.dateHired) || '—'}</td>
+      <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team)}')">${esc(d.team)}</span></td>
+      <td>${d.role ? `<span class="badge ${roleCls}">${esc(d.role)}</span>` : '—'}</td>
+      <td class="td-muted">${fmtDate(d.dateHired)}</td>
       <td class="td-muted">${esc(d.prev) || '—'}</td>
-      <td class="td-muted">${esc(d.dateFired) || '—'}</td>
-      <td class="td-muted">${esc(d.source)}</td>
+      <td class="td-muted">${fmtDate(d.dateFired)}</td>
+      <td class="td-muted">${esc(d.source) || '—'}</td>
     </tr>`;
   }).join('');
   document.getElementById('coaches-count').innerHTML = `<span>${data.length}</span>&nbsp;${t('results')}`;
@@ -1828,9 +2212,9 @@ function resetCoaches() {
 // SORT
 // ─────────────────────────────────────────────
 const GETTERS = {
-  fa:     d => [d.player, d.team25, d.dest, d.money, d.years, d.aav, d.source, d.notes],
-  draft:  d => [d.pick, d.team, d.player, d.pos, d.from, d.check, d.contract, d.notes],
-  coaches:d => [d.team, d.new, d.role, d.dateHired, d.prev, d.dateFired, d.source],
+  fa:     d => [d.player, d.pos, d.dest, d.team25, d.money, d.years, d.aav, d.source, d.notes],
+  draft:  d => [d.pick, d.player, d.team, d.pos, d.from, d.check, d.contract, d.notes],
+  coaches:d => [d.new, d.team, d.role, d.dateHired, d.prev, d.dateFired, d.source],
 };
 
 function sortSection(section, col) {
@@ -1840,7 +2224,8 @@ function sortSection(section, col) {
   else { s.col = col; s.asc = true; }
 
   const getter = GETTERS[section];
-  const src = FILTERED[section].length ? FILTERED[section] : DATA[section];
+  const src = FILTERED[section].length ? FILTERED[section] : [...(DATA[section] || [])];
+  if (!FILTERED[section].length) FILTERED[section] = src;
 
   src.sort((a, b) => {
     let av = getter(a)[col] || '';
@@ -1862,26 +2247,69 @@ function sortSection(section, col) {
 // ─────────────────────────────────────────────
 // TABS
 // ─────────────────────────────────────────────
-function showTab(name) {
+function showTab(name, pushHistory = true) {
+  if (!document.getElementById(`section-${name}`)) { showTab('home', pushHistory); return; }
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+  document.querySelectorAll('.mobile-tab').forEach(tab => tab.classList.remove('active'));
   document.getElementById(`section-${name}`).classList.add('active');
   if (name !== 'home') {
     document.getElementById(`tab-${name}`).classList.add('active');
+    const mobileTab = document.getElementById(`mtab-${name}`);
+    if (mobileTab) mobileTab.classList.add('active');
     document.body.classList.remove('on-home');
+    if (pushHistory) pushURL({ tab: name, team: null, player: null });
   } else {
     document.body.classList.add('on-home');
+    if (pushHistory) pushURL({ tab: null, team: null, player: null });
   }
 }
 
 // ─────────────────────────────────────────────
 // UTILS
 // ─────────────────────────────────────────────
+const TEAM_LOGOS = {
+  'Atlanta Hawks': 'atl', 'Boston Celtics': 'bos', 'Brooklyn Nets': 'bkn',
+  'Charlotte Hornets': 'cha', 'Chicago Bulls': 'chi', 'Cleveland Cavaliers': 'cle',
+  'Dallas Mavericks': 'dal', 'Denver Nuggets': 'den', 'Detroit Pistons': 'det',
+  'Golden State Warriors': 'gs', 'Houston Rockets': 'hou', 'Indiana Pacers': 'ind',
+  'Los Angeles Clippers': 'lac', 'Los Angeles Lakers': 'lal', 'Memphis Grizzlies': 'mem',
+  'Miami Heat': 'mia', 'Milwaukee Bucks': 'mil', 'Minnesota Timberwolves': 'min',
+  'New Orleans Pelicans': 'no', 'New York Knicks': 'ny', 'Oklahoma City Thunder': 'okc',
+  'Orlando Magic': 'orl', 'Philadelphia 76ers': 'phi', 'Phoenix Suns': 'phx',
+  'Portland Trail Blazers': 'por', 'Sacramento Kings': 'sac', 'San Antonio Spurs': 'sa',
+  'Toronto Raptors': 'tor', 'Utah Jazz': 'utah', 'Washington Wizards': 'wsh',
+};
+
+function teamLogo(name, size = 40) {
+  const abbrev = TEAM_LOGOS[name];
+  if (!abbrev) return '';
+  return `<img src="https://a.espncdn.com/i/teamlogos/nba/500/${abbrev}.png" width="${size}" height="${size}" alt="" style="object-fit:contain;vertical-align:middle" onerror="this.style.display='none'">`;
+}
+
+function fmtDate(str) {
+  if (!str) return '—';
+  const d = new Date(str);
+  if (isNaN(d.getTime())) return str;
+  const months = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  return `${String(d.getDate()).padStart(2,'0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function faStatus(player) {
+  const m = (player || '').match(/\((RFA|TO|PO)\)\s*$/i);
+  if (!m) return { name: player || '', badge: '' };
+  const tag = m[1].toUpperCase();
+  const cls = tag === 'RFA' ? 'badge-rfa' : tag === 'TO' ? 'badge-to' : 'badge-po';
+  return {
+    name: player.replace(/\s*\([^)]+\)\s*$/, '').trim(),
+    badge: `&nbsp;<span class="badge ${cls}">${tag}</span>`
+  };
+}
+
 function flag(code) {
-  if (!code || code.trim().length !== 2) return code || '';
-  return code.trim().toUpperCase().replace(/./g, c =>
-    String.fromCodePoint(c.charCodeAt(0) + 127397)
-  );
+  if (!code || code.trim().length !== 2) return '';
+  const c = code.trim().toLowerCase();
+  return `<img src="https://flagpedia.net/data/flags/w40/${c}.png" width="24" height="16" alt="${c.toUpperCase()}" style="vertical-align:middle;border-radius:2px;object-fit:cover" onerror="this.style.display='none'">`;
 }
 
 function esc(s) {
@@ -1896,22 +2324,34 @@ function populateSelect(id, values) {
   if (cur) sel.value = cur;
 }
 
+function setEventDate(elId, valId, dateStr) {
+  const el  = document.getElementById(elId);
+  const valEl = document.getElementById(valId);
+  if (el && valEl && dateStr) {
+    valEl.textContent = dateStr;
+    el.style.display = 'flex';
+  }
+}
+
 function rerenderAll() {
   filterFA();
+  filterFAPending();
   filterDraft();
   filterTrades();
-  filterRosters();
   filterCoaches();
   updateHomeCounts();
   applyTranslations();
+  setEventDate('fa-event-date',    'fa-event-date-val',    FA_OPEN_DATE);
+  setEventDate('draft-event-date', 'draft-event-date-val', DRAFT_DATE);
 }
 
 function updateHomeCounts() {
-  const fa = DATA.fa.length;
-  const draft = DATA.draft.length;
-  const trades = DATA.trades.length;
-  const rosters = DATA.rosters.length;
-  const coaches = DATA.coaches.length;
+  const rec = lang === 'es' ? 'registros' : 'records';
+  const chg = lang === 'es' ? 'cambios'   : 'changes';
+  document.getElementById('home-count-fa').textContent      = `${DATA.fa.filter(d=>d.dest).length} ${rec}`;
+  document.getElementById('home-count-draft').textContent   = `${DATA.draft.length} ${rec}`;
+  document.getElementById('home-count-trades').textContent  = `${DATA.trades.length} ${rec}`;
+  document.getElementById('home-count-coaches').textContent = `${DATA.coaches.length} ${chg}`;
 }
 
 // ─────────────────────────────────────────────
@@ -1981,7 +2421,7 @@ function openPlayerDrawer(playerName, pushHistory = true) {
   const faData    = DATA.fa.filter(d => d.player === playerName);
   const draftData = DATA.draft.filter(d => d.player === playerName);
   const undData   = DATA.undrafted ? DATA.undrafted.filter(d => d.player === playerName) : [];
-  const tradeData = DATA.trades.filter(tr => tr.sides.some(s => s.receives.some(r => r.includes(playerName))));
+  const tradeData = DATA.trades.filter(tr => tr.sides.some(s => s.receives.some(r => r.item.includes(playerName))));
 
   document.getElementById('drawer-player-name').textContent = playerName;
 
@@ -1992,8 +2432,8 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     html += `<div class="drawer-section">
       <div class="drawer-section-title">${t('tab_fa')}</div>`;
     faData.forEach(d => {
-      if (d.team25) html += drawerRow(lang === 'es' ? 'Equipo 2025' : '2025 Team', `<span class="badge badge-team">${esc(d.team25)}</span>`);
-      if (d.dest)   html += drawerRow(lang === 'es' ? 'Destino' : 'Destination', `<span class="badge badge-team">${esc(d.dest)}</span>`);
+      if (d.team25) html += drawerRow(lang === 'es' ? 'Antiguo equipo' : 'Old Team', `<span class="badge badge-team">${esc(d.team25)}</span>`);
+      if (d.dest)   html += drawerRow(lang === 'es' ? 'Nuevo equipo' : 'New Team', `<span class="badge badge-team">${esc(d.dest)}</span>`);
       if (d.money)  html += drawerRow(lang === 'es' ? 'Total' : 'Total', `$${esc(d.money)}M`, 'money');
       if (d.years)  html += drawerRow(lang === 'es' ? 'Años' : 'Years', esc(d.years));
       if (d.aav)    html += drawerRow('AAV', `$${esc(d.aav)}M`, 'money');
@@ -2010,7 +2450,7 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     draftData.forEach(d => {
       if (d.pick)     html += drawerRow('Pick', `<span class="pick-num ${parseInt(d.pick)<=5?'top5':parseInt(d.pick)<=30?'r1':''}">${esc(d.pick)}</span>`);
       if (d.team)     html += drawerRow(lang === 'es' ? 'Equipo' : 'Team', `<span class="badge badge-team">${esc(d.team)}</span>`);
-      if (d.pos)      html += drawerRow(lang === 'es' ? 'Posición' : 'Position', `<span class="badge badge-pos">${esc(d.pos)}</span>`);
+      if (d.pos)      html += drawerRow(lang === 'es' ? 'Posición' : 'Position', `<span class="pos-text">${esc(d.pos)}</span>`);
       if (d.from)     html += drawerRow(lang === 'es' ? 'Procedencia' : 'From', esc(d.from));
       if (d.contract) html += drawerRow(lang === 'es' ? 'Contrato' : 'Contract', esc(d.contract));
       if (d.notes)    html += drawerRow(lang === 'es' ? 'Notas' : 'Notes', esc(d.notes), 'notes');
@@ -2023,7 +2463,7 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     html += `<div class="drawer-section">
       <div class="drawer-section-title">${t('draft_undrafted_title')}</div>`;
     undData.forEach(d => {
-      if (d.pos)   html += drawerRow(lang === 'es' ? 'Posición' : 'Position', `<span class="badge badge-pos">${esc(d.pos)}</span>`);
+      if (d.pos)   html += drawerRow(lang === 'es' ? 'Posición' : 'Position', `<span class="pos-text">${esc(d.pos)}</span>`);
       if (d.from)  html += drawerRow(lang === 'es' ? 'Procedencia' : 'From', esc(d.from));
       if (d.notes) html += drawerRow(lang === 'es' ? 'Notas' : 'Notes', esc(d.notes), 'notes');
     });
@@ -2036,8 +2476,10 @@ function openPlayerDrawer(playerName, pushHistory = true) {
       <div class="drawer-section-title">${t('tab_trades')}</div>`;
     tradeData.forEach(tr => {
       tr.sides.forEach(side => {
-        if (side.receives.some(r => r.includes(playerName))) {
+        if (side.receives.some(r => r.item.includes(playerName))) {
           html += drawerRow(lang === 'es' ? 'Llega a' : 'Goes to', `<span class="badge badge-team">${esc(side.team)}</span>`);
+          const fromTeam = side.receives.find(r => r.item.includes(playerName))?.from;
+          if (fromTeam) html += drawerRow(lang === 'es' ? 'Antiguo equipo' : 'Old Team', `<span class="badge badge-team">${esc(fromTeam)}</span>`);
         }
       });
     });
@@ -2048,14 +2490,27 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     html = `<div class="drawer-empty">${t('no_data')}</div>`;
   }
 
-  // Enlace a vista de equipo destino
-  const dest = faData[0]?.dest || draftData[0]?.team;
-  if (dest) {
-    html += `<div style="margin-top:24px; padding-top:16px; border-top:1px solid var(--border)">
-      <button onclick="openTeamView('${esc(dest)}')" style="background:none;border:1px solid var(--border);color:var(--text-muted);padding:8px 14px;border-radius:4px;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
-        ${lang === 'es' ? 'Ver equipo' : 'View team'}: ${esc(dest)} →
-      </button>
-    </div>`;
+  // Botones de navegación a equipos
+  const teamLinks = [];
+  if (faData.length) {
+    if (faData[0].dest)   teamLinks.push({ label: t('drawer_view_team'),     team: faData[0].dest });
+    if (faData[0].team25) teamLinks.push({ label: t('drawer_view_old_team'), team: faData[0].team25 });
+  } else if (draftData.length) {
+    if (draftData[0].team) teamLinks.push({ label: t('drawer_view_team'), team: draftData[0].team });
+  } else if (tradeData.length) {
+    tradeData[0].sides.forEach(side => {
+      const match = side.receives.find(r => r.item.includes(playerName));
+      if (match) {
+        teamLinks.push({ label: t('drawer_view_team'), team: side.team });
+        if (match.from) teamLinks.push({ label: t('drawer_view_old_team'), team: match.from });
+      }
+    });
+  }
+  if (teamLinks.length) {
+    const btnStyle = `background:none;border:1px solid var(--border);color:var(--text-muted);padding:8px 14px;border-radius:4px;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;transition:all 0.2s`;
+    html += `<div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:8px">` +
+      teamLinks.map(lk => `<button onclick="openTeamView('${esc(lk.team)}')" style="${btnStyle}" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">${esc(lk.label)}: ${esc(lk.team)} →</button>`).join('') +
+    `</div>`;
   }
 
   document.getElementById('drawer-body').innerHTML = html;
@@ -2089,152 +2544,142 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(
 let _prevTab = 'home';
 
 function openTeamView(teamName, pushHistory = true) {
-  // FA de este equipo (sale de o llega a)
-  const faOut  = DATA.fa.filter(d => d.team25 === teamName);
-  const faIn   = DATA.fa.filter(d => d.dest   === teamName);
-  // Draft picks del equipo
-  const picks  = DATA.draft.filter(d => d.team === teamName);
-  // Trades que involucran al equipo
-  const trades = DATA.trades.filter(tr => tr.sides.some(s => s.team === teamName));
-  // Plantilla
-  const roster = DATA.rosters.find(r => r.team === teamName);
-  // Coaches
-  const coaches = DATA.coaches.filter(d => d.team === teamName);
+  const faIn      = DATA.fa.filter(d => d.dest === teamName);
+  const faOut     = DATA.fa.filter(d => d.team25 === teamName && d.dest);
+  const picks     = DATA.draft.filter(d => d.team === teamName);
+  const trades    = DATA.trades.filter(tr => tr.sides.some(s => s.team === teamName));
+  const roster    = DATA.rosters.find(r => r.team === teamName);
+  const faPending = roster?.fa || [];
+  const coaches   = DATA.coaches.filter(d => d.team === teamName);
 
   document.getElementById('tv-team-name').textContent = teamName;
+  document.getElementById('tv-team-logo').innerHTML = teamLogo(teamName, 64);
 
-  // Meta info
   let meta = '';
-  if (coaches.length) {
-    coaches.forEach(c => { meta += `${esc(c.role)}: ${esc(c.new)}<br>`; });
-  }
+  coaches.forEach(c => { meta += `<span>${esc(c.role)}: <strong>${esc(c.new)}</strong></span>  `; });
   document.getElementById('tv-team-meta').innerHTML = meta;
 
-  // Grid de cards
-  const grid = document.getElementById('tv-grid');
-  let gridHTML = '';
+  const tradeIn = [], tradeOut = [];
+  trades.forEach(tr => {
+    const mySide = tr.sides.find(s => s.team === teamName);
+    if (mySide) mySide.receives.forEach(r => tradeIn.push(r.item));
+    // Salidas: activos donde from === este equipo (cualquier número de equipos)
+    tr.sides.forEach(side => side.receives.filter(r => r.from === teamName && !/pick|cash/i.test(r.item)).forEach(r => tradeOut.push({item: r.item, to: side.team})));
+  });
 
-  // Card: Jugadores que llegan (FA)
-  gridHTML += tvCard(
-    lang === 'es' ? 'Llegadas (FA)' : 'FA Arrivals',
-    faIn.length,
-    faIn.map(d => `<div class="tv-row">
-      <span class="tv-row-name" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</span>
-      <span class="tv-row-money">${d.money ? '$'+esc(d.money)+'M / '+esc(d.years)+'y' : '—'}</span>
-    </div>`).join('') || `<div class="tv-empty">—</div>`
-  );
+  const subcol = (items, label, renderFn) => `
+    <div>
+      <div class="roster-subcol-label">${label}</div>
+      ${items.length ? items.map(renderFn).join('') : '<div class="roster-player td-muted">—</div>'}
+    </div>`;
 
-  // Card: Jugadores que salen (FA)
-  gridHTML += tvCard(
-    lang === 'es' ? 'Salidas (FA)' : 'FA Departures',
-    faOut.length,
-    faOut.map(d => `<div class="tv-row">
-      <span class="tv-row-name" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</span>
-      <span class="tv-row-detail">${esc(d.dest) || '—'}</span>
-    </div>`).join('') || `<div class="tv-empty">—</div>`
-  );
+  const tvRow = (name, detail = '', money = '') => `
+    <div class="tv-row">
+      <span class="tv-row-name">${name}</span>
+      ${money ? `<span class="tv-row-money">${money}</span>` : detail ? `<span class="tv-row-detail">${detail}</span>` : ''}
+    </div>`;
 
-  // Card: Picks del Draft
-  if (picks.length) {
-    gridHTML += tvCard(
-      t('tab_draft'),
-      picks.length,
-      picks.map(d => `<div class="tv-row">
-        <span class="tv-row-name" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</span>
-        <span class="tv-row-detail">${esc(d.pos)} · Pick ${esc(d.pick)}</span>
-      </div>`).join('')
-    );
+  const tvEmpty = () => `<div class="tv-empty">—</div>`;
+
+  let html = `<div style="padding:24px 32px">`;
+
+  // ── LLEGADAS ──────────────────────────────────
+  html += `<div class="tv-section-title" style="color:var(--signed)">${t('roster_arrivals')}</div>
+  <div class="team-view-grid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:28px">
+    ${tvCard(t('roster_fa'), faIn.length,
+        faIn.length ? faIn.map(d => tvRow(esc(d.player), '', d.money ? `$${esc(d.money)}M/${esc(d.years)}y` : '')).join('') : tvEmpty())}
+    ${tvCard(t('roster_trade'), tradeIn.length,
+        tradeIn.length ? tradeIn.map(item => tvRow(esc(item))).join('') : tvEmpty())}
+    ${tvCard(t('roster_draft'), picks.length,
+        picks.length ? picks.map(d => tvRow(esc(d.player), `#${esc(d.pick)}`)).join('') : tvEmpty())}
+  </div>`;
+
+  // ── SALIDAS ───────────────────────────────────
+  html += `<div class="tv-section-title" style="color:var(--gone)">${t('roster_departures')}</div>
+  <div class="team-view-grid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:28px">
+    ${tvCard(t('roster_salidas_fa'), faOut.length,
+        faOut.length ? faOut.map(d => tvRow(esc(d.player), d.dest ? `→ ${esc(d.dest)}` : '')).join('') : tvEmpty())}
+    ${tvCard(t('roster_salidas_trade'), tradeOut.length,
+        tradeOut.length ? tradeOut.map(r => tvRow(esc(r.item), `→ ${esc(r.to)}`)).join('') : tvEmpty())}
+    ${tvCard(t('roster_fa_pending'), faPending.length,
+        faPending.length ? faPending.map(d => { const {name,badge} = faStatus(d.player); return tvRow(esc(name) + badge); }).join('') : tvEmpty())}
+  </div>`;
+
+  // ── SIGUEN ────────────────────────────────────
+  const POS_LIST = ['PG','SG','SF','PF','C'];
+  const siguenRaw = roster?.siguen || [];
+  if (siguenRaw.length) {
+    const byPos = {};
+    siguenRaw.forEach(p => {
+      const key = POS_LIST.includes(p.pos?.toUpperCase()) ? p.pos.toUpperCase() : '?';
+      (byPos[key] = byPos[key] || []).push(p);
+    });
+    const rows = [...POS_LIST, '?'].flatMap(pos => {
+      const group = byPos[pos];
+      if (!group) return [];
+      const label = pos === '?' ? '—' : pos;
+      const names = group.map(p => esc(p.name)).join(', ');
+      return [`<div class="tv-row" style="align-items:baseline;gap:10px">
+        <span class="pos-text" style="min-width:30px;flex-shrink:0">${label}</span>
+        <span style="font-size:13px;color:var(--text)">${names}</span>
+      </div>`];
+    }).join('');
+    html += `<div class="tv-section-title">${t('roster_stays')}</div>
+    <div class="tv-card" style="margin-bottom:28px">
+      <div class="tv-card-body">${rows}</div>
+    </div>`;
   }
 
-  // Card: Plantilla
-  if (roster) {
-    if (roster.siguen.length) {
-      gridHTML += tvCard(
-        lang === 'es' ? 'Siguen' : 'Returning',
-        roster.siguen.length,
-        roster.siguen.map(p => `<div class="tv-row">
-          <span class="tv-row-name" onclick="openPlayerDrawer('${esc(p)}')">${esc(p)}</span>
-        </div>`).join('')
-      );
-    }
-    if (roster.llegadas.length) {
-      gridHTML += tvCard(
-        lang === 'es' ? 'Llegadas (plantilla)' : 'Arrivals',
-        roster.llegadas.length,
-        roster.llegadas.map(p => `<div class="tv-row">
-          <span class="tv-row-name" onclick="openPlayerDrawer('${esc(p)}')">${esc(p)}</span>
-        </div>`).join('')
-      );
-    }
-    if (roster.salidas.length) {
-      gridHTML += tvCard(
-        lang === 'es' ? 'Salidas (plantilla)' : 'Departures',
-        roster.salidas.length,
-        roster.salidas.map(p => `<div class="tv-row">
-          <span class="tv-row-name" onclick="openPlayerDrawer('${esc(p)}')">${esc(p)}</span>
-        </div>`).join('')
-      );
-    }
-    if (roster.fa.length) {
-      gridHTML += tvCard(
-        lang === 'es' ? 'FA pendientes' : 'Pending FA',
-        roster.fa.length,
-        roster.fa.map(p => `<div class="tv-row">
-          <span class="tv-row-name" onclick="openPlayerDrawer('${esc(p)}')">${esc(p)}</span>
-        </div>`).join('')
-      );
-    }
-  }
-
-  grid.innerHTML = gridHTML;
-
-  // Trades
-  const tradesEl = document.getElementById('tv-trades-section');
+  // ── TRASPASOS ─────────────────────────────────
   if (trades.length) {
-    tradesEl.innerHTML = `<div class="tv-section-title">${t('tab_trades')}</div>` +
-      trades.map(tr => `
-        <div class="trade-card" style="margin-bottom:10px">
-          <div class="trade-header"><span class="trade-idx">${t('trade_label')} #${tr.id}</span></div>
-          <div class="trade-body">
-            ${tr.sides.map(side => `
-              <div class="trade-side">
-                <div class="trade-team-label">${esc(side.team)}</div>
-                <div class="trade-receives-label">← ${t('receives')}</div>
-                ${side.receives.map(item => `<div class="trade-item">${esc(item)}</div>`).join('') || '<div class="trade-item td-muted">—</div>'}
-              </div>`).join('')}
-          </div>
-        </div>`).join('');
-  } else {
-    tradesEl.innerHTML = '';
+    html += `<div class="tv-section-title">${t('roster_section_trades')}</div>`;
+    html += trades.map(tr => `
+      <div class="trade-card" style="margin-bottom:10px">
+        <div class="trade-header">
+          <span class="td-muted" style="font-size:11px;font-family:'DM Mono',monospace">
+            ${tr.date ? fmtDate(tr.date) : ''}${tr.date && tr.source ? ' · ' : ''}${tr.source ? esc(tr.source) : ''}
+          </span>
+        </div>
+        <div class="trade-body" style="grid-template-columns:repeat(${tr.sides.length},1fr)">
+          ${tr.sides.map(side => `
+            <div class="trade-side">
+              <div class="trade-team-label">${esc(side.team)}</div>
+              ${tradeReceivesHTML(side.receives)}
+            </div>`).join('')}
+        </div>
+      </div>`).join('');
+    html += `<div style="margin-bottom:28px"></div>`;
   }
 
-  // Coaches
-  const coachesEl = document.getElementById('tv-coaches-section');
+  // ── HC/GMs ────────────────────────────────────
   if (coaches.length) {
-    coachesEl.innerHTML = `<div class="tv-section-title" style="margin-top:24px">${t('tab_coaches')}</div>` +
-      `<div class="table-wrap"><table><thead><tr>
-        <th>${t('coaches_col_new')}</th><th>${t('coaches_col_role')}</th>
-        <th>${t('coaches_col_prev')}</th><th>${t('coaches_col_date')}</th>
-      </tr></thead><tbody>` +
+    html += `<div class="tv-section-title">${t('roster_section_coaches')}</div>
+    <div class="tv-card" style="margin-bottom:28px">
+      <div class="tv-card-body">
+        <div class="table-wrap"><table><thead><tr>
+          <th>${t('coaches_col_new')}</th>
+          <th>${t('coaches_col_prev')}</th>
+          <th>${t('coaches_col_date_hired')}</th>
+        </tr></thead><tbody>` +
       coaches.map(d => {
-        const rc = d.role.toUpperCase().includes('HC') || d.role.toUpperCase().includes('HEAD') ? 'badge-role-hc' : 'badge-role-gm';
+        const rc = (d.role||'').toUpperCase().includes('HC') || (d.role||'').toUpperCase().includes('HEAD') ? 'badge-role-hc' : 'badge-role-gm';
+        const roleBadge = d.role ? ` <span class="badge ${rc}">${esc(d.role)}</span>` : '';
         return `<tr>
-          <td class="td-player">${esc(d.new)}</td>
-          <td><span class="badge ${rc}">${esc(d.role)}</span></td>
+          <td class="td-player">${esc(d.new)}${roleBadge}</td>
           <td class="td-muted">${esc(d.prev)||'—'}</td>
-          <td class="td-muted">${esc(d.date)}</td>
+          <td class="td-muted">${fmtDate(d.dateHired)}</td>
         </tr>`;
-      }).join('') + `</tbody></table></div>`;
-  } else {
-    coachesEl.innerHTML = '';
+      }).join('') + `</tbody></table></div>
+      </div>
+    </div>`;
   }
 
-  // Cap info
+  html += `</div>`;
 
-  // Actualizar título del botón back
+  document.getElementById('tv-content').innerHTML = html;
+
   document.getElementById('team-back-btn').textContent = '← ' + (lang === 'es' ? 'Volver' : 'Back');
 
-  // Navegar
   _prevTab = readURL().tab || 'home';
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
@@ -2258,7 +2703,26 @@ function goBack() {
   window.history.back();
 }
 
+function renderTeamsGrid() {
+  const teams = Object.keys(TEAM_LOGOS).sort();
+  document.getElementById('teams-grid').innerHTML = teams.map(name => `
+    <div class="teams-grid-card" onclick="openTeamView('${esc(name)}')">
+      ${teamLogo(name, 48)}
+      <div class="teams-grid-name">${esc(name)}</div>
+    </div>`).join('');
+}
+
 document.body.classList.add('on-home');
+renderTeamsGrid();
+
+// Debug: escribe _debugTrades() en la consola del navegador para ver los datos
+window._debugTrades = () => {
+  const raw = window._rawTradeRows;
+  console.group('TRADES DEBUG');
+  console.log('Filas CSV (primeras 10):', raw ? raw.slice(0,10) : 'No disponible — recarga la página');
+  console.log('Trades parseados:', JSON.parse(JSON.stringify(DATA.trades)));
+  console.groupEnd();
+};
 fetchAll();
 </script>
 <!-- PLAYER DRAWER -->
