@@ -864,172 +864,185 @@
     display: none;
     min-height: calc(100vh - 64px);
     padding: 0;
-  }
-
-  #section-home.active { display: flex; flex-direction: column; }
-
-  .home-hero {
-    flex: 1;
-    display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 80px 32px 48px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
   }
 
-  .home-hero::before {
-    content: '2026';
-    position: absolute;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(160px, 28vw, 340px);
-    color: transparent;
-    -webkit-text-stroke: 1px var(--border);
-    letter-spacing: 8px;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-    user-select: none;
-    white-space: nowrap;
-    z-index: 0;
-  }
+  #section-home.active { display: flex; }
 
-  .home-eyebrow {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 4px;
-    color: var(--text-muted);
-    margin-bottom: 20px;
-    position: relative;
-    z-index: 1;
+  /* ── HOME MASTHEAD ── */
+  .home-masthead {
     display: flex;
-    align-items: center;
-    gap: 10px;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 48px 48px 32px;
+    border-bottom: 1px solid var(--border);
+    gap: 24px;
+    flex-wrap: wrap;
   }
 
-  .home-eyebrow::before,
-  .home-eyebrow::after {
-    content: '';
-    width: 32px;
-    height: 1px;
-    background: var(--border);
+  .home-masthead-left { flex: 1; min-width: 200px; }
+
+  .home-season-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
   }
 
-  .home-title {
+  .home-masthead-title {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(52px, 9vw, 96px);
-    letter-spacing: 4px;
+    font-size: clamp(40px, 6vw, 72px);
+    letter-spacing: 3px;
     line-height: 0.95;
     color: var(--text);
-    position: relative;
-    z-index: 1;
-    margin-bottom: 8px;
   }
 
-  .home-title em {
+  .home-masthead-title em {
     color: var(--accent);
     font-style: normal;
   }
 
-  .home-subtitle {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 16px;
+  .home-masthead-right {
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .home-total-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(56px, 8vw, 96px);
+    color: var(--accent);
+    line-height: 1;
+    letter-spacing: 2px;
+    display: block;
+  }
+
+  .home-total-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
     color: var(--text-muted);
-    margin-top: 20px;
-    position: relative;
-    z-index: 1;
-    max-width: 480px;
-    line-height: 1.6;
-    font-weight: 300;
   }
 
-  /* HOME CARDS */
-  .home-cards {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
+  /* ── HOME ROWS ── */
+  .home-rows { display: flex; flex-direction: column; flex: 1; }
+
+  .home-row {
+    display: flex;
+    align-items: center;
     gap: 0;
-    border-top: 1px solid var(--border);
-  }
-
-  .home-card {
-    background: none;
     border: none;
-    border-right: 1px solid var(--border);
-    padding: 32px 28px;
+    border-bottom: 1px solid var(--border);
+    background: none;
     cursor: pointer;
     text-align: left;
-    transition: background 0.2s;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+    padding: 0 48px;
+    min-height: 100px;
     position: relative;
     overflow: hidden;
+    transition: background 0.25s ease;
+    flex: 1;
   }
 
-  .home-card:last-child { border-right: none; }
-
-  .home-card::after {
+  .home-row::before {
     content: '';
     position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 2px;
+    inset: 0;
     background: var(--accent);
     transform: scaleX(0);
     transform-origin: left;
-    transition: transform 0.3s ease;
+    transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+    z-index: 0;
   }
 
-  .home-card:hover { background: var(--surface); }
-  .home-card:hover::after { transform: scaleX(1); }
+  .home-row:hover::before { transform: scaleX(1); }
+  .home-row:last-child { border-bottom: none; }
 
-  .home-card-icon {
-    font-size: 24px;
-    line-height: 1;
-    margin-bottom: 4px;
-    color: var(--accent);
-  }
-
-  .home-card-title {
+  .home-row-ordinal {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 22px;
-    letter-spacing: 1.5px;
+    font-size: clamp(64px, 9vw, 110px);
+    color: var(--border);
+    line-height: 1;
+    letter-spacing: 2px;
+    min-width: clamp(80px, 10vw, 130px);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+    transition: color 0.25s;
+    user-select: none;
+  }
+
+  .home-row:hover .home-row-ordinal { color: rgba(0,0,0,0.12); }
+
+  .home-row-body {
+    flex: 1;
+    padding: 0 32px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .home-row-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(28px, 4vw, 44px);
+    letter-spacing: 2px;
     color: var(--text);
     line-height: 1;
+    transition: color 0.25s;
   }
 
-  .home-card-desc {
+  .home-row:hover .home-row-title { color: #0a0a0f; }
+
+  .home-row-desc {
     font-family: 'DM Sans', sans-serif;
-    font-size: 12px;
+    font-size: 13px;
     color: var(--text-muted);
-    line-height: 1.5;
     font-weight: 300;
+    margin-top: 4px;
+    transition: color 0.25s;
   }
 
-  .home-card-count {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
+  .home-row:hover .home-row-desc { color: rgba(0,0,0,0.55); }
+
+  .home-row-right {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .home-row-stat {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(28px, 4vw, 42px);
     color: var(--accent);
-    margin-top: auto;
-    padding-top: 8px;
-    border-top: 1px solid var(--border);
+    letter-spacing: 1px;
+    line-height: 1;
+    transition: color 0.25s;
+    min-width: 80px;
+    text-align: right;
   }
 
-  .home-card-arrow {
-    position: absolute;
-    top: 28px; right: 24px;
-    font-size: 16px;
+  .home-row:hover .home-row-stat { color: #0a0a0f; }
+
+  .home-row-arrow {
+    font-size: 20px;
     color: var(--text-dim);
-    transition: color 0.2s, transform 0.2s;
+    transition: color 0.25s, transform 0.25s;
   }
 
-  .home-card:hover .home-card-arrow {
-    color: var(--accent);
-    transform: translate(2px, -2px);
+  .home-row:hover .home-row-arrow {
+    color: #0a0a0f;
+    transform: translate(4px, -2px);
   }
+
+  body.light .home-row:hover .home-row-ordinal { color: rgba(255,255,255,0.2); }
+  body.light .home-row:hover .home-row-title   { color: #0a0a0f; }
+  body.light .home-row:hover .home-row-desc    { color: rgba(0,0,0,0.55); }
+  body.light .home-row:hover .home-row-stat    { color: #0a0a0f; }
+  body.light .home-row:hover .home-row-arrow   { color: #0a0a0f; }
 
   /* Ocultar nav cuando estamos en home */
   body.on-home nav { display: none; }
@@ -1089,16 +1102,12 @@
 
   }
 
-  @media (max-width: 1100px) {
-    .home-cards { grid-template-columns: repeat(3, 1fr); }
-    .home-card { border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-    .home-card:nth-child(3n) { border-right: none; }
-  }
-
   @media (max-width: 900px) {
-    .home-cards { grid-template-columns: repeat(2, 1fr); }
-    .home-card:nth-child(3n) { border-right: 1px solid var(--border); }
-    .home-card:nth-child(2n) { border-right: none; }
+    .home-masthead { padding: 32px 24px 24px; }
+    .home-row { padding: 0 24px; min-height: 80px; }
+    .home-row-ordinal { font-size: 56px; min-width: 70px; }
+    .home-row-body { padding: 0 16px; }
+    .home-row-stat { font-size: 28px; min-width: 60px; }
   }
 
   @media (max-width: 640px) {
@@ -1113,9 +1122,12 @@
     .trade-header { padding: 8px 14px; }
     .trade-card { margin-bottom: 8px; }
     .logo-title { font-size: 22px; }
-    .home-cards { grid-template-columns: 1fr; }
-    .home-card { border-right: none; }
-    .home-hero { padding: 48px 20px 32px; }
+    .home-masthead { padding: 24px 16px 20px; }
+    .home-row { padding: 0 16px; min-height: 72px; }
+    .home-row-ordinal { font-size: 44px; min-width: 56px; }
+    .home-row-body { padding: 0 12px; }
+    .home-row-stat { font-size: 24px; min-width: 48px; }
+    .home-row-arrow { display: none; }
     .teams-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 16px; }
     .teams-grid-card { padding: 10px 6px; gap: 6px; }
     .teams-grid-name { font-size: 11px; letter-spacing: 0; }
@@ -1221,46 +1233,82 @@
 
   <!-- HOME -->
   <div class="section active" id="section-home">
-    <div class="home-hero">
-      <div class="home-eyebrow">NBA · <span data-i18n="home_eyebrow">Off-Season</span></div>
-      <div class="home-title">OFF-<br><em>SEASON</em></div>
-      <p class="home-subtitle" data-i18n="home_subtitle">Todos los movimientos de la temporada 2025-26: agencia libre, draft, traspasos, plantillas y cambios en banquillos.</p>
+    <div class="home-masthead">
+      <div class="home-masthead-left">
+        <div class="home-season-tag">NBA · 2025–26 · <span data-i18n="home_eyebrow">Off-Season</span></div>
+        <div class="home-masthead-title">OFF-<em>SEASON</em><br>2026</div>
+      </div>
+      <div class="home-masthead-right">
+        <span class="home-total-num" id="home-total-moves">—</span>
+        <span class="home-total-label" data-i18n="home_total_label">movimientos</span>
+      </div>
     </div>
-    <div class="home-cards">
-      <button class="home-card" onclick="showTab('fa')">
-        <span class="home-card-arrow">↗</span>
-        <div class="home-card-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
-        <div class="home-card-title" data-i18n="tab_fa">Agencia Libre</div>
-        <div class="home-card-desc" data-i18n="home_fa_desc">Fichajes confirmados y mercado pendiente</div>
-        <div class="home-card-count" id="home-count-fa">— registros</div>
+    <div class="home-rows">
+      <button class="home-row" onclick="showTab('fa')">
+        <span class="home-row-ordinal">01</span>
+        <div class="home-row-body">
+          <div class="home-row-title" data-i18n="tab_fa">Agencia Libre</div>
+          <div class="home-row-desc" data-i18n="home_fa_desc">Fichajes confirmados y mercado pendiente</div>
+        </div>
+        <div class="home-row-right">
+          <span class="home-row-stat" id="home-count-fa">—</span>
+          <span class="home-row-arrow">↗</span>
+        </div>
       </button>
-      <button class="home-card" onclick="showTab('draft')">
-        <span class="home-card-arrow">↗</span>
-        <div class="home-card-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M4.93 4.93c4.04 4.04 10.1 4.04 14.14 0"/><path d="M4.93 19.07c4.04-4.04 10.1-4.04 14.14 0"/><line x1="12" y1="2" x2="12" y2="22"/></svg></div>
-        <div class="home-card-title" data-i18n="tab_draft">Draft</div>
-        <div class="home-card-desc" data-i18n="home_draft_desc">Picks seleccionados en rondas 1 y 2</div>
-        <div class="home-card-count" id="home-count-draft">— registros</div>
+      <button class="home-row" onclick="showTab('draft')">
+        <span class="home-row-ordinal">02</span>
+        <div class="home-row-body">
+          <div class="home-row-title" data-i18n="tab_draft">Draft</div>
+          <div class="home-row-desc" data-i18n="home_draft_desc">Picks seleccionados en rondas 1 y 2</div>
+        </div>
+        <div class="home-row-right">
+          <span class="home-row-stat" id="home-count-draft">—</span>
+          <span class="home-row-arrow">↗</span>
+        </div>
       </button>
-      <button class="home-card" onclick="showTab('trades')">
-        <span class="home-card-arrow">↗</span>
-        <div class="home-card-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></div>
-        <div class="home-card-title" data-i18n="tab_trades">Trades</div>
-        <div class="home-card-desc" data-i18n="home_trades_desc">Traspasos confirmados entre franquicias</div>
-        <div class="home-card-count" id="home-count-trades">— registros</div>
+      <button class="home-row" onclick="showTab('trades')">
+        <span class="home-row-ordinal">03</span>
+        <div class="home-row-body">
+          <div class="home-row-title" data-i18n="tab_trades">Trades</div>
+          <div class="home-row-desc" data-i18n="home_trades_desc">Traspasos confirmados entre franquicias</div>
+        </div>
+        <div class="home-row-right">
+          <span class="home-row-stat" id="home-count-trades">—</span>
+          <span class="home-row-arrow">↗</span>
+        </div>
       </button>
-      <button class="home-card" onclick="showTab('coaches')">
-        <span class="home-card-arrow">↗</span>
-        <div class="home-card-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-        <div class="home-card-title" data-i18n="tab_coaches">HC / GMs</div>
-        <div class="home-card-desc" data-i18n="home_coaches_desc">Cambios en banquillos y gerencias</div>
-        <div class="home-card-count" id="home-count-coaches">— cambios</div>
+      <button class="home-row" onclick="showTab('rosters')">
+        <span class="home-row-ordinal">04</span>
+        <div class="home-row-body">
+          <div class="home-row-title" data-i18n="tab_rosters">Plantillas</div>
+          <div class="home-row-desc" data-i18n="home_rosters_desc">Los 30 equipos con altas, bajas y continuidades</div>
+        </div>
+        <div class="home-row-right">
+          <span class="home-row-stat">30</span>
+          <span class="home-row-arrow">↗</span>
+        </div>
       </button>
-      <button class="home-card" onclick="showTab('teams')">
-        <span class="home-card-arrow">↗</span>
-        <div class="home-card-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-        <div class="home-card-title" data-i18n="tab_teams">Equipos</div>
-        <div class="home-card-desc" data-i18n="home_teams_desc">Las 30 franquicias — movimientos y plantilla</div>
-        <div class="home-card-count">30 equipos</div>
+      <button class="home-row" onclick="showTab('coaches')">
+        <span class="home-row-ordinal">05</span>
+        <div class="home-row-body">
+          <div class="home-row-title" data-i18n="tab_coaches">HC / GMs</div>
+          <div class="home-row-desc" data-i18n="home_coaches_desc">Cambios en banquillos y gerencias</div>
+        </div>
+        <div class="home-row-right">
+          <span class="home-row-stat" id="home-count-coaches">—</span>
+          <span class="home-row-arrow">↗</span>
+        </div>
+      </button>
+      <button class="home-row" onclick="showTab('teams')">
+        <span class="home-row-ordinal">06</span>
+        <div class="home-row-body">
+          <div class="home-row-title" data-i18n="tab_teams">Equipos</div>
+          <div class="home-row-desc" data-i18n="home_teams_desc">Las 30 franquicias — movimientos y plantilla</div>
+        </div>
+        <div class="home-row-right">
+          <span class="home-row-stat">30</span>
+          <span class="home-row-arrow">↗</span>
+        </div>
       </button>
     </div>
   </div>
@@ -1272,9 +1320,6 @@
       <div class="section-subtitle" data-i18n="fa_subtitle">Free Agents — Movimientos confirmados y pendientes</div>
     </div>
     <div class="fa-subsection-title" data-i18n="fa_signed_title">Firmados</div>
-    <div id="fa-event-date" style="display:none;align-items:center;gap:0;margin-bottom:12px;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px">
-      <span id="fa-event-date-val"></span>
-    </div>
     <div class="filters">
       <div class="filter-group">
         <span class="filter-label" data-i18n="filter_search">Buscar</span>
@@ -1363,9 +1408,6 @@
     <div class="section-header">
       <div class="section-title" data-i18n="draft_title">Draft 2026</div>
       <div class="section-subtitle" data-i18n="draft_subtitle">Picks seleccionados — Rondas 1 y 2</div>
-    </div>
-    <div id="draft-event-date" style="display:none;align-items:center;gap:0;margin-bottom:16px;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px">
-      <span id="draft-event-date-val"></span>
     </div>
     <div class="filters">
       <div class="filter-group">
@@ -1531,8 +1573,6 @@
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZAb1-oLDkidOmC6LrplPJ_468sZ10eESYSrPLg8Pp9DsCg6KNI3YMezhYokdhyCA/exec';
 
 // ── Fechas de evento (actualizar según calendario) ──────────────────────────
-const FA_OPEN_DATE = '30 jun 2026';
-const DRAFT_DATE   = '23 y 24 jun 2026';
 
 const URLS = {
   fa:       `${SCRIPT_URL}?tab=fa`,
@@ -1549,6 +1589,7 @@ const URLS = {
 const i18n = {
   es: {
     home_eyebrow: 'Off-Season',
+    home_total_label: 'movimientos',
     home_subtitle: 'Todos los movimientos de la temporada 2025-26: agencia libre, draft, traspasos, plantillas y cambios en banquillos.',
     home_fa_desc: 'Fichajes confirmados y mercado pendiente',
     home_draft_desc: 'Picks seleccionados en rondas 1 y 2',
@@ -1600,6 +1641,7 @@ const i18n = {
   },
   en: {
     home_eyebrow: 'Off-Season',
+    home_total_label: 'moves',
     home_subtitle: 'Every move of the 2025-26 offseason: free agency, draft, trades, rosters, and coaching changes.',
     home_fa_desc: 'Confirmed signings and pending market',
     home_draft_desc: 'Selected picks in rounds 1 and 2',
@@ -1720,40 +1762,57 @@ let loadedAt = null;
 // ─────────────────────────────────────────────
 // FETCH ALL
 // ─────────────────────────────────────────────
+const CACHE_KEY = 'nba2026_cache';
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutos
+
+function applyRawData(raw, ts) {
+  processFA(parseCSV(raw.fa));
+  processDraft(parseCSV(raw.draft));
+  window._rawTradeRows = parseCSV(raw.trades);
+  processTrades(window._rawTradeRows);
+  processRosters(parseCSV(raw.rosters1), parseCSV(raw.rosters2));
+  processCoaches(parseCSV(raw.coaches));
+
+  loadedAt = new Date(ts).toLocaleString(lang === 'es' ? 'es-ES' : 'en-US', {
+    day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+  });
+  document.getElementById('lastUpdate').textContent = `${t('last_update')}: ${loadedAt}`;
+  document.getElementById('footer-updated').textContent = `${t('last_update')}: ${loadedAt}`;
+  rerenderAll();
+  updateHomeCounts();
+}
+
 async function fetchAll() {
+  // Cargar caché al instante si existe
+  try {
+    const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+    if (cached) applyRawData(cached.raw, cached.ts);
+  } catch(e) { /* caché corrupta, ignorar */ }
+
+  // Refrescar desde el Sheet en background
   try {
     const [faR, draftR, tradesR, r1, r2, coachR] = await Promise.all([
       fetch(URLS.fa), fetch(URLS.draft), fetch(URLS.trades),
       fetch(URLS.rosters1), fetch(URLS.rosters2), fetch(URLS.coaches)
     ]);
-
-    const [faTxt, draftTxt, tradesTxt, r1Txt, r2Txt, coachTxt] = await Promise.all([
+    const [fa, draft, trades, rosters1, rosters2, coaches] = await Promise.all([
       faR.text(), draftR.text(), tradesR.text(),
       r1.text(), r2.text(), coachR.text()
     ]);
 
-    processFA(parseCSV(faTxt));
-    processDraft(parseCSV(draftTxt));
-    window._rawTradeRows = parseCSV(tradesTxt);
-    processTrades(window._rawTradeRows);
-    processRosters(parseCSV(r1Txt), parseCSV(r2Txt));
-    processCoaches(parseCSV(coachTxt));
+    const raw = { fa, draft, trades, rosters1, rosters2, coaches };
+    const ts  = Date.now();
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ raw, ts })); } catch(e) {}
 
-    loadedAt = new Date().toLocaleString(lang === 'es' ? 'es-ES' : 'en-US', {
-      day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
-    });
-
-    document.getElementById('lastUpdate').textContent = `${t('last_update')}: ${loadedAt}`;
-    document.getElementById('footer-updated').textContent = `${t('last_update')}: ${loadedAt}`;
-
-    rerenderAll();
-    updateHomeCounts();
+    applyRawData(raw, ts);
   } catch(e) {
     console.error(e);
-    ['fa-tbody','draft-tbody','coaches-tbody'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.innerHTML = `<tr><td colspan="8"><div class="state-empty">Error al cargar datos. Verifica las URLs del Sheet.</div></td></tr>`;
-    });
+    if (!localStorage.getItem(CACHE_KEY)) {
+      ['fa-tbody','draft-tbody','coaches-tbody'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = `<tr><td colspan="8"><div class="state-empty">Error al cargar datos. Verifica las URLs del Sheet.</div></td></tr>`;
+      });
+    }
   }
 }
 
@@ -2098,17 +2157,19 @@ function processRosters(rows1, rows2) {
         teams.push(current);
       }
       if (!current) return;
-      // B,C=siguen | D,E=llegadas | F,G=salidas | H,I=fa pendientes
+      // B,C=siguen | D,E=llegadas | F,G=salidas
       const pair = (n, p) => n ? { name: n, pos: p || '' } : null;
       const s = pair(cell(r,1), cell(r,2)); if (s) current.siguen.push(s);
       const l = pair(cell(r,3), cell(r,4)); if (l) current.llegadas.push(l);
       const x = pair(cell(r,5), cell(r,6)); if (x) current.salidas.push(x);
-      const f = pair(cell(r,7), cell(r,8)); if (f) current.fa.push(f);
     });
     return teams;
   };
 
   DATA.rosters = [...parse(rows1), ...parse(rows2)].sort((a,b) => a.team.localeCompare(b.team));
+  DATA.rosters.forEach(team => {
+    team.fa = DATA.fa.filter(d => d.team25 === team.team && !d.dest).map(d => ({ name: d.player, pos: d.pos || '' }));
+  });
   DATA.faPending = DATA.fa.filter(d => !d.dest).map(d => ({ player: d.player, pos: d.pos, team25: d.team25 }));
   FILTERED.faPending = [...DATA.faPending];
   populateSelect('fa-pending-team', [...new Set(DATA.faPending.map(d => d.team25).filter(Boolean))].sort());
@@ -2329,15 +2390,6 @@ function populateSelect(id, values) {
   if (cur) sel.value = cur;
 }
 
-function setEventDate(elId, valId, dateStr) {
-  const el  = document.getElementById(elId);
-  const valEl = document.getElementById(valId);
-  if (el && valEl && dateStr) {
-    valEl.textContent = dateStr;
-    el.style.display = 'flex';
-  }
-}
-
 function rerenderAll() {
   filterFA();
   filterFAPending();
@@ -2346,17 +2398,20 @@ function rerenderAll() {
   filterCoaches();
   updateHomeCounts();
   applyTranslations();
-  setEventDate('fa-event-date',    'fa-event-date-val',    FA_OPEN_DATE);
-  setEventDate('draft-event-date', 'draft-event-date-val', DRAFT_DATE);
 }
 
 function updateHomeCounts() {
-  const rec = lang === 'es' ? 'registros' : 'records';
-  const chg = lang === 'es' ? 'cambios'   : 'changes';
-  document.getElementById('home-count-fa').textContent      = `${DATA.fa.filter(d=>d.dest).length} ${rec}`;
-  document.getElementById('home-count-draft').textContent   = `${DATA.draft.length} ${rec}`;
-  document.getElementById('home-count-trades').textContent  = `${DATA.trades.length} ${rec}`;
-  document.getElementById('home-count-coaches').textContent = `${DATA.coaches.length} ${chg}`;
+  const faCount      = DATA.fa.filter(d=>d.dest).length;
+  const draftCount   = DATA.draft.length;
+  const tradesCount  = DATA.trades.length;
+  const coachCount   = DATA.coaches.length;
+  const total = faCount + draftCount + tradesCount + coachCount;
+
+  document.getElementById('home-count-fa').textContent      = faCount     || '—';
+  document.getElementById('home-count-draft').textContent   = draftCount  || '—';
+  document.getElementById('home-count-trades').textContent  = tradesCount || '—';
+  document.getElementById('home-count-coaches').textContent = coachCount  || '—';
+  document.getElementById('home-total-moves').textContent   = total       || '—';
 }
 
 // ─────────────────────────────────────────────
