@@ -1277,19 +1277,8 @@
           <span class="home-row-arrow">↗</span>
         </div>
       </button>
-      <button class="home-row" onclick="showTab('rosters')">
-        <span class="home-row-ordinal">04</span>
-        <div class="home-row-body">
-          <div class="home-row-title" data-i18n="tab_rosters">Plantillas</div>
-          <div class="home-row-desc" data-i18n="home_rosters_desc">Los 30 equipos con altas, bajas y continuidades</div>
-        </div>
-        <div class="home-row-right">
-          <span class="home-row-stat">30</span>
-          <span class="home-row-arrow">↗</span>
-        </div>
-      </button>
       <button class="home-row" onclick="showTab('coaches')">
-        <span class="home-row-ordinal">05</span>
+        <span class="home-row-ordinal">04</span>
         <div class="home-row-body">
           <div class="home-row-title" data-i18n="tab_coaches">HC / GMs</div>
           <div class="home-row-desc" data-i18n="home_coaches_desc">Cambios en banquillos y gerencias</div>
@@ -1300,7 +1289,7 @@
         </div>
       </button>
       <button class="home-row" onclick="showTab('teams')">
-        <span class="home-row-ordinal">06</span>
+        <span class="home-row-ordinal">05</span>
         <div class="home-row-body">
           <div class="home-row-title" data-i18n="tab_teams">Equipos</div>
           <div class="home-row-desc" data-i18n="home_teams_desc">Las 30 franquicias — movimientos y plantilla</div>
@@ -2168,7 +2157,8 @@ function processRosters(rows1, rows2) {
 
   DATA.rosters = [...parse(rows1), ...parse(rows2)].sort((a,b) => a.team.localeCompare(b.team));
   DATA.rosters.forEach(team => {
-    team.fa = DATA.fa.filter(d => d.team25 === team.team && !d.dest).map(d => ({ name: d.player, pos: d.pos || '' }));
+    const key = team.team.trim().toLowerCase();
+    team.fa = DATA.fa.filter(d => d.team25.trim().toLowerCase() === key && !d.dest).map(d => ({ name: d.player, pos: d.pos || '' }));
   });
   DATA.faPending = DATA.fa.filter(d => !d.dest).map(d => ({ player: d.player, pos: d.pos, team25: d.team25 }));
   FILTERED.faPending = [...DATA.faPending];
