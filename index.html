@@ -1458,9 +1458,10 @@
         <thead>
           <tr>
             <th><span data-i18n="draft_col_player">Jugador</span></th>
-            <th></th>
+            <th><span data-i18n="col_country">País</span></th>
             <th><span data-i18n="draft_col_pos">Pos</span></th>
             <th><span data-i18n="draft_col_from">Procedencia</span></th>
+            <th><span data-i18n="draft_col_contract">Contrato</span></th>
             <th><span data-i18n="col_notes">Notas</span></th>
           </tr>
         </thead>
@@ -1631,7 +1632,7 @@ const i18n = {
     coaches_search_ph: 'Equipo, nombre…',
     coaches_col_new: 'Nuevo', coaches_col_role: 'Rol',
     coaches_col_prev: 'Anterior', coaches_col_date_hired: 'Contratado', coaches_col_date_fired: 'Despedido',
-    col_team: 'Equipo', col_source: 'Fuente', col_notes: 'Notas',
+    col_team: 'Equipo', col_source: 'Fuente', col_notes: 'Notas', col_country: 'País',
     filter_search: 'Buscar', btn_reset: 'Limpiar',
     loading: 'Cargando datos…', no_data: 'Sin resultados',
     results: 'resultados', receives: 'Recibe',
@@ -1683,7 +1684,7 @@ const i18n = {
     coaches_search_ph: 'Team, name…',
     coaches_col_new: 'New', coaches_col_role: 'Role',
     coaches_col_prev: 'Previous', coaches_col_date_hired: 'Hired', coaches_col_date_fired: 'Fired',
-    col_team: 'Team', col_source: 'Source', col_notes: 'Notes',
+    col_team: 'Team', col_source: 'Source', col_notes: 'Notes', col_country: 'Country',
     filter_search: 'Search', btn_reset: 'Reset',
     loading: 'Loading data…', no_data: 'No results',
     results: 'results', receives: 'Receives',
@@ -1962,11 +1963,12 @@ function processDraft(rows) {
     date:     cell(r,9),
   }));
   DATA.undrafted = data.filter(r => cell(r,2) && (!cell(r,0) || isNaN(parseInt(cell(r,0))))).map(r => ({
-    player:  cell(r,2),
-    country: cell(r,3),
-    pos:     cell(r,4),
-    from:    cell(r,5),
-    notes:   cell(r,8),
+    player:   cell(r,2),
+    country:  cell(r,3),
+    pos:      cell(r,4),
+    from:     cell(r,5),
+    contract: cell(r,6),
+    notes:    cell(r,8),
   }));
   document.getElementById('count-draft').textContent = DATA.draft.length;
   populateSelect('draft-pos',  [...new Set(DATA.draft.map(d=>d.pos).filter(Boolean))].sort());
@@ -2007,13 +2009,14 @@ function renderDraft(data) {
 
 function renderUndrafted(data) {
   const tbody = document.getElementById('undrafted-tbody');
-  if (!data.length) { tbody.innerHTML = `<tr><td colspan="5"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
+  if (!data.length) { tbody.innerHTML = `<tr><td colspan="6"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
   tbody.innerHTML = data.map(d => `
     <tr>
       <td class="td-player clickable-player" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</td>
       <td style="font-size:18px;text-align:center" title="${esc(d.country)}">${flag(d.country)}</td>
       <td><span class="pos-text">${esc(d.pos) || '—'}</span></td>
       <td class="td-muted">${esc(d.from) || '—'}</td>
+      <td class="td-muted">${esc(d.contract) || '—'}</td>
       <td class="td-notes">${esc(d.notes)}</td>
     </tr>`).join('');
 }
