@@ -26,12 +26,12 @@
     --surface: #ffffff;
     --surface2: #e8e8e2;
     --border: #d0d0c8;
-    --accent: #2a7a00;
+    --accent: #1f5d00;
     --accent2: #c84b00;
     --text: #111118;
-    --text-muted: #606068;
-    --text-dim: #bbbbbb;
-    --signed: #2a7a00;
+    --text-muted: #4a4a55;
+    --text-dim: #888894;
+    --signed: #1f5d00;
     --pending: #8a4e00;
     --gone: #cc1122;
   }
@@ -257,6 +257,15 @@
     outline: none;
     transition: border-color 0.2s;
     height: 36px;
+  }
+
+  /* Foco visible para navegación por teclado */
+  .filter-input:focus-visible, .filter-select:focus-visible,
+  .btn-reset:focus-visible, .tab:focus-visible, .mobile-tab:focus-visible,
+  .lang-btn:focus-visible, .theme-toggle:focus-visible,
+  button:focus-visible, [role="button"]:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
   }
 
   .filter-input { min-width: 220px; }
@@ -1334,10 +1343,10 @@
     <div class="section-header">
       <div class="section-title" data-i18n="fa_title">Agencia Libre</div>
       <div class="section-subtitle" data-i18n="fa_subtitle">Free Agents — Movimientos confirmados y pendientes</div>
-      <div style="display:flex;gap:12px;margin-top:10px;flex-wrap:wrap;align-items:center">
-        <span class="badge badge-rfa">RFA</span><span style="font-size:11px;color:var(--text-muted)" data-i18n="legend_rfa">Agente libre restringido</span>
-        <span class="badge badge-to">TO</span><span style="font-size:11px;color:var(--text-muted)" data-i18n="legend_to">Opción del equipo</span>
-        <span class="badge badge-po">PO</span><span style="font-size:11px;color:var(--text-muted)" data-i18n="legend_po">Opción del jugador</span>
+      <div style="display:flex;gap:20px;margin-top:10px;flex-wrap:wrap;align-items:center">
+        <span style="display:inline-flex;align-items:center;gap:6px"><span class="badge badge-rfa">RFA</span><span style="font-size:11px;color:var(--text-muted)" data-i18n="legend_rfa">Agente libre restringido</span></span>
+        <span style="display:inline-flex;align-items:center;gap:6px"><span class="badge badge-to">TO</span><span style="font-size:11px;color:var(--text-muted)" data-i18n="legend_to">Opción del equipo</span></span>
+        <span style="display:inline-flex;align-items:center;gap:6px"><span class="badge badge-po">PO</span><span style="font-size:11px;color:var(--text-muted)" data-i18n="legend_po">Opción del jugador</span></span>
       </div>
     </div>
     <div class="fa-subsection-title" data-i18n="fa_signed_title">Firmados</div>
@@ -1473,6 +1482,7 @@
           <tr>
             <th><span data-i18n="draft_col_player">Jugador</span></th>
             <th><span data-i18n="col_country">País</span></th>
+            <th><span data-i18n="col_team">Equipo</span></th>
             <th><span data-i18n="draft_col_pos">Pos</span></th>
             <th><span data-i18n="draft_col_from">Procedencia</span></th>
             <th><span data-i18n="draft_col_signed">Firmado</span></th>
@@ -1481,7 +1491,7 @@
           </tr>
         </thead>
         <tbody id="undrafted-tbody">
-          <tr><td colspan="5"><div class="state-loading" data-i18n="loading">Cargando datos...</div></td></tr>
+          <tr><td colspan="8"><div class="state-loading" data-i18n="loading">Cargando datos...</div></td></tr>
         </tbody>
       </table>
     </div>
@@ -1656,6 +1666,12 @@ const i18n = {
     trade_label: 'Traspaso',
     teams_title: 'Equipos', teams_subtitle: 'Las 30 franquicias de la NBA',
     drawer_view_team: 'Nuevo equipo', drawer_view_old_team: 'Ver equipo anterior',
+    legend_rfa: 'Agente libre restringido', legend_to: 'Opción del equipo', legend_po: 'Opción del jugador',
+    back_btn: 'Volver', end_of_lottery: 'FIN DE LA LOTERÍA', end_of_round1: 'FIN DE LA PRIMERA RONDA',
+    drawer_old_team: 'Antiguo equipo', drawer_new_team: 'Nuevo equipo',
+    drawer_total: 'Total', drawer_years: 'Años',
+    load_error: 'Error al cargar datos. Verifica las URLs del Sheet.',
+    trade_from: 'De',
   },
   en: {
     home_eyebrow: 'Off-Season',
@@ -1708,15 +1724,22 @@ const i18n = {
     trade_label: 'Trade',
     teams_title: 'Teams', teams_subtitle: 'All 30 NBA franchises',
     drawer_view_team: 'New team', drawer_view_old_team: 'View previous team',
+    legend_rfa: 'Restricted free agent', legend_to: 'Team option', legend_po: 'Player option',
+    back_btn: 'Back', end_of_lottery: 'END OF LOTTERY', end_of_round1: 'END OF ROUND 1',
+    drawer_old_team: 'Old team', drawer_new_team: 'New team',
+    drawer_total: 'Total', drawer_years: 'Years',
+    load_error: 'Failed to load data. Check the Sheet URLs.',
+    trade_from: 'From',
   }
 };
 
-let lang = 'es';
+let lang = (() => { try { return localStorage.getItem('nba2026_lang') || 'es'; } catch(e) { return 'es'; } })();
 
 function t(key) { return i18n[lang][key] || key; }
 
 function setLang(l) {
   lang = l;
+  try { localStorage.setItem('nba2026_lang', l); } catch(e) {}
   document.getElementById('btn-es').classList.toggle('active', l === 'es');
   document.getElementById('btn-en').classList.toggle('active', l === 'en');
   document.documentElement.lang = l;
@@ -1790,6 +1813,7 @@ function applyRawData(raw, ts) {
   processTrades(window._rawTradeRows);
   processRosters(parseCSV(raw.rosters1), parseCSV(raw.rosters2));
   processCoaches(parseCSV(raw.coaches));
+  DATA._stamp = ts;
 
   loadedAt = new Date(ts).toLocaleString(lang === 'es' ? 'es-ES' : 'en-US', {
     day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
@@ -1828,7 +1852,7 @@ async function fetchAll() {
     if (!localStorage.getItem(CACHE_KEY)) {
       ['fa-tbody','draft-tbody','coaches-tbody'].forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.innerHTML = `<tr><td colspan="8"><div class="state-empty">Error al cargar datos. Verifica las URLs del Sheet.</div></td></tr>`;
+        if (el) el.innerHTML = `<tr><td colspan="8"><div class="state-empty">${t('load_error')}</div></td></tr>`;
       });
     }
   }
@@ -2005,7 +2029,7 @@ function renderDraft(data) {
       : `<td class="td-muted">—</td>`;
     const prev = i > 0 ? parseInt(data[i-1].pick) : null;
     if (prev === 14 || prev === 30) {
-      const label = prev === 14 ? (lang === 'es' ? 'FIN DE LA LOTERÍA' : 'END OF LOTTERY') : (lang === 'es' ? 'FIN DE LA PRIMERA RONDA' : 'END OF ROUND 1');
+      const label = prev === 14 ? t('end_of_lottery') : t('end_of_round1');
       rows.push(`<tr><td colspan="9" style="padding:8px 12px;border:none;background:var(--surface2);text-align:center"><span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted)">${label}</span></td></tr>`);
     }
     rows.push(`<tr>
@@ -2026,11 +2050,12 @@ function renderDraft(data) {
 
 function renderUndrafted(data) {
   const tbody = document.getElementById('undrafted-tbody');
-  if (!data.length) { tbody.innerHTML = `<tr><td colspan="7"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
+  if (!data.length) { tbody.innerHTML = `<tr><td colspan="8"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
   tbody.innerHTML = data.map(d => `
     <tr>
       <td class="td-player clickable-player" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</td>
       <td style="font-size:18px;text-align:center" title="${esc(d.country)}">${flag(d.country)}</td>
+      <td>${d.team ? `<span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team)}')">${esc(d.team)}</span>` : '<span class="td-muted">—</span>'}</td>
       <td><span class="pos-text">${esc(d.pos) || '—'}</span></td>
       <td class="td-muted">${esc(d.from) || '—'}</td>
       <td style="text-align:center">${d.check ? `<span class="badge badge-check">${esc(d.check)}</span>` : '—'}</td>
@@ -2121,7 +2146,7 @@ function tradeReceivesHTML(receives) {
     else byFrom.push({ from: r.from, items: [r.item] });
   });
   return byFrom.map((grp, i) => `
-    <div class="trade-receives-label" style="${i > 0 ? 'margin-top:14px' : ''}">← ${lang === 'es' ? 'De' : 'From'}: <strong class="clickable-team" onclick="openTeamView('${esc(grp.from)}')" style="cursor:pointer">${esc(grp.from)}</strong></div>
+    <div class="trade-receives-label" style="${i > 0 ? 'margin-top:14px' : ''}">← ${t('trade_from')}: <strong class="clickable-team" onclick="openTeamView('${esc(grp.from)}')" style="cursor:pointer">${esc(grp.from)}</strong></div>
     ${grp.items.map(item => `<div class="trade-item" onclick="openPlayerDrawer('${esc(item)}')">${esc(item)}</div>`).join('')}
   `).join('');
 }
@@ -2176,25 +2201,39 @@ function processRosters(rows1, rows2) {
     rows.slice(1).forEach(r => {
       const a = cell(r,0);
       if (a) {
-        current = { team: a, siguen: [], llegadas: [], salidas: [], fa: [] };
+        current = { team: a, siguen: [], llegadas: [], salidas: [], fa: [], faSheet: [] };
         teams.push(current);
       }
       if (!current) return;
-      // B,C=siguen | D,E=llegadas | F,G=salidas
+      // B,C=siguen | D,E=llegadas | F,G=salidas | H,I=fa pendientes
       const pair = (n, p) => n ? { name: n, pos: p || '' } : null;
       const s = pair(cell(r,1), cell(r,2)); if (s) current.siguen.push(s);
       const l = pair(cell(r,3), cell(r,4)); if (l) current.llegadas.push(l);
       const x = pair(cell(r,5), cell(r,6)); if (x) current.salidas.push(x);
+      const f = pair(cell(r,7), cell(r,8)); if (f) current.faSheet.push(f);
     });
     return teams;
   };
 
   DATA.rosters = [...parse(rows1), ...parse(rows2)].sort((a,b) => a.team.localeCompare(b.team));
+
+  // Strip trailing (RFA)/(TO)/(PO) tags for dedup purposes.
+  const stripTag = n => (n || '').replace(/\s*\((?:RFA|TO|PO)\)\s*$/i, '').trim().toLowerCase();
+
+  const pendingFromFA = [];
   DATA.rosters.forEach(team => {
     const key = team.team.trim().toLowerCase();
-    team.fa = DATA.fa.filter(d => d.team25.trim().toLowerCase() === key && !d.dest).map(d => ({ name: d.player, pos: d.pos || '' }));
+    const fromFA = DATA.fa.filter(d => d.team25.trim().toLowerCase() === key && !d.dest)
+      .map(d => ({ player: d.player, pos: d.pos || '', team25: d.team25, notes: d.notes }));
+    const seen = new Set(fromFA.map(d => stripTag(d.player)));
+    const fromSheet = (team.faSheet || [])
+      .filter(p => !seen.has(stripTag(p.name)))
+      .map(p => ({ player: p.name, pos: p.pos || '', team25: team.team, notes: '' }));
+    const merged = [...fromFA, ...fromSheet];
+    team.fa = merged.map(d => ({ name: d.player, pos: d.pos }));
+    pendingFromFA.push(...merged);
   });
-  DATA.faPending = DATA.fa.filter(d => !d.dest).map(d => ({ player: d.player, pos: d.pos, team25: d.team25 }));
+  DATA.faPending = pendingFromFA;
   FILTERED.faPending = [...DATA.faPending];
   populateSelect('fa-pending-team', [...new Set(DATA.faPending.map(d => d.team25).filter(Boolean))].sort());
   populateSelect('fa-pending-pos',  [...new Set(DATA.faPending.map(d => validPos(d.pos)).filter(Boolean))].sort());
@@ -2212,21 +2251,36 @@ function parseTW(rawName) {
 function buildPlantilla(team) {
   const norm    = s => (s || '').trim().toLowerCase();
   const key     = norm(team.team);
-  const faLookup = name => (DATA.fa||[]).find(f => f.player === name)?.pos || '';
+  const stripTag = n => (n || '').replace(/\s*\((?:RFA|TO|PO)\)\s*$/i, '').trim();
+  if (!buildPlantilla._posIdx || buildPlantilla._posIdxStamp !== DATA._stamp) {
+    const idx = new Map();
+    const put = (name, pos) => { const n = stripTag(name); if (n && pos && !idx.has(n)) idx.set(n, pos); };
+    (DATA.fa||[]).forEach(d => put(d.player, d.pos));
+    (DATA.draft||[]).forEach(d => put(d.player, d.pos));
+    (DATA.undrafted||[]).forEach(d => put(d.player, d.pos));
+    (DATA.rosters||[]).forEach(r => r.siguen.forEach(p => put(p.name, p.pos)));
+    buildPlantilla._posIdx = idx;
+    buildPlantilla._posIdxStamp = DATA._stamp;
+  }
+  const posLookup = name => buildPlantilla._posIdx.get(stripTag(name)) || '';
 
   const staying = team.siguen.map(p => {
     const { name, tw } = parseTW(p.name);
-    const pos = (p.pos || faLookup(name)).toUpperCase();
+    const pos = (p.pos || posLookup(name)).toUpperCase();
     return { name, pos, type: 'staying', tw };
   });
 
   const faIn = (DATA.fa||[])
     .filter(d => norm(d.dest) === key)
-    .map(d => { const {name,tw} = parseTW(d.player); return { name, pos: (d.pos||'').toUpperCase(), type: 'new', tw }; });
+    .map(d => { const {name,tw} = parseTW(d.player); return { name, pos: (d.pos || posLookup(name)).toUpperCase(), type: 'new', tw }; });
 
   const draftIn = (DATA.draft||[])
     .filter(d => norm(d.team) === key && d.player)
-    .map(d => { const {name,tw} = parseTW(d.player); return { name, pos: (d.pos||'').toUpperCase(), type: 'new', tw }; });
+    .map(d => { const {name,tw} = parseTW(d.player); return { name, pos: (d.pos || posLookup(name)).toUpperCase(), type: 'new', tw }; });
+
+  const undraftedIn = (DATA.undrafted||[])
+    .filter(d => norm(d.team) === key && d.player)
+    .map(d => { const {name,tw} = parseTW(d.player); return { name, pos: (d.pos || posLookup(name)).toUpperCase(), type: 'new', tw }; });
 
   const tradeIn = [];
   (DATA.trades||[])
@@ -2237,11 +2291,11 @@ function buildPlantilla(team) {
         .filter(r => !/pick|cash/i.test(r.item))
         .forEach(r => {
           const {name,tw} = parseTW(r.item);
-          tradeIn.push({ name, pos: faLookup(name).toUpperCase(), type: 'new', tw });
+          tradeIn.push({ name, pos: posLookup(name).toUpperCase(), type: 'new', tw });
         });
     });
 
-  return [...staying, ...faIn, ...draftIn, ...tradeIn].sort((a, b) => {
+  return [...staying, ...faIn, ...draftIn, ...undraftedIn, ...tradeIn].sort((a, b) => {
     const ai = POS_ORDER.indexOf(a.pos), bi = POS_ORDER.indexOf(b.pos);
     const ao = ai === -1 ? 99 : ai,   bo = bi === -1 ? 99 : bi;
     return ao !== bo ? ao - bo : a.name.localeCompare(b.name);
@@ -2400,12 +2454,16 @@ function sortSection(section, col) {
 // ─────────────────────────────────────────────
 function showTab(name, pushHistory = true) {
   if (!document.getElementById(`section-${name}`)) { showTab('home', pushHistory); return; }
+  // Cerrar drawer si está abierto al cambiar de pestaña
+  const drawer = document.getElementById('player-drawer');
+  if (drawer && drawer.classList.contains('open')) closeDrawer(false);
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
   document.querySelectorAll('.mobile-tab').forEach(tab => tab.classList.remove('active'));
   document.getElementById(`section-${name}`).classList.add('active');
   if (name !== 'home') {
-    document.getElementById(`tab-${name}`).classList.add('active');
+    const tabBtn = document.getElementById(`tab-${name}`);
+    if (tabBtn) tabBtn.classList.add('active');
     const mobileTab = document.getElementById(`mtab-${name}`);
     if (mobileTab) mobileTab.classList.add('active');
     document.body.classList.remove('on-home');
@@ -2442,7 +2500,9 @@ function fmtDate(str) {
   if (!str) return '—';
   const d = new Date(str);
   if (isNaN(d.getTime())) return str;
-  const months = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  const months = lang === 'es'
+    ? ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic']
+    : ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   return `${String(d.getDate()).padStart(2,'0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
 }
 
@@ -2508,22 +2568,31 @@ function updateHomeCounts() {
 // ─────────────────────────────────────────────
 // THEME TOGGLE
 // ─────────────────────────────────────────────
-let isLight = false;
+let isLight = (() => { try { return localStorage.getItem('nba2026_theme') === 'light'; } catch(e) { return false; } })();
 
 async function refreshData() {
   const btn = document.getElementById('refresh-btn');
   btn.classList.add('loading');
   btn.disabled = true;
-  await fetchAll();
-  btn.classList.remove('loading');
-  btn.disabled = false;
+  try { await fetchAll(); }
+  finally {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+  }
 }
 
 function toggleTheme() {
   isLight = !isLight;
+  applyTheme();
+  try { localStorage.setItem('nba2026_theme', isLight ? 'light' : 'dark'); } catch(e) {}
+}
+
+function applyTheme() {
   document.body.classList.toggle('light', isLight);
-  document.getElementById('theme-icon').textContent = isLight ? '🌙' : '☀️';
-  document.getElementById('theme-toggle').title = t(isLight ? 'theme_dark' : 'theme_light');
+  const icon = document.getElementById('theme-icon');
+  if (icon) icon.textContent = isLight ? '🌙' : '☀️';
+  const tg = document.getElementById('theme-toggle');
+  if (tg) tg.title = t(isLight ? 'theme_dark' : 'theme_light');
 }
 
 
@@ -2583,13 +2652,13 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     html += `<div class="drawer-section">
       <div class="drawer-section-title">${t('tab_fa')}</div>`;
     faData.forEach(d => {
-      if (d.team25) html += drawerRow(lang === 'es' ? 'Antiguo equipo' : 'Old Team', `<span class="badge badge-team">${esc(d.team25)}</span>`);
-      if (d.dest)   html += drawerRow(lang === 'es' ? 'Nuevo equipo' : 'New Team', `<span class="badge badge-team">${esc(d.dest)}</span>`);
-      if (d.money)  html += drawerRow(lang === 'es' ? 'Total' : 'Total', `$${esc(d.money)}M`, 'money');
-      if (d.years)  html += drawerRow(lang === 'es' ? 'Años' : 'Years', esc(d.years));
+      if (d.team25) html += drawerRow(t('drawer_old_team'), `<span class="badge badge-team">${esc(d.team25)}</span>`);
+      if (d.dest)   html += drawerRow(t('drawer_new_team'), `<span class="badge badge-team">${esc(d.dest)}</span>`);
+      if (d.money)  html += drawerRow(t('drawer_total'), `$${esc(d.money)}M`, 'money');
+      if (d.years)  html += drawerRow(t('drawer_years'), esc(d.years));
       if (d.aav)    html += drawerRow('AAV', `$${esc(d.aav)}M`, 'money');
-      if (d.source) html += drawerRow(lang === 'es' ? 'Fuente' : 'Source', esc(d.source));
-      if (d.notes)  html += drawerRow(lang === 'es' ? 'Notas' : 'Notes', esc(d.notes), 'notes');
+      if (d.source) html += drawerRow(t('footer_src'), esc(d.source));
+      if (d.notes)  html += drawerRow(t('col_notes'), esc(d.notes), 'notes');
     });
     html += `</div>`;
   }
@@ -2600,11 +2669,11 @@ function openPlayerDrawer(playerName, pushHistory = true) {
       <div class="drawer-section-title">${t('tab_draft')}</div>`;
     draftData.forEach(d => {
       if (d.pick)     html += drawerRow('Pick', `<span class="pick-num ${parseInt(d.pick)<=5?'top5':parseInt(d.pick)<=30?'r1':''}">${esc(d.pick)}</span>`);
-      if (d.team)     html += drawerRow(lang === 'es' ? 'Equipo' : 'Team', `<span class="badge badge-team">${esc(d.team)}</span>`);
-      if (d.pos)      html += drawerRow(lang === 'es' ? 'Posición' : 'Position', `<span class="pos-text">${esc(d.pos)}</span>`);
-      if (d.from)     html += drawerRow(lang === 'es' ? 'Procedencia' : 'From', esc(d.from));
-      if (d.contract) html += drawerRow(lang === 'es' ? 'Contrato' : 'Contract', esc(d.contract));
-      if (d.notes)    html += drawerRow(lang === 'es' ? 'Notas' : 'Notes', esc(d.notes), 'notes');
+      if (d.team)     html += drawerRow(t('col_team'), `<span class="badge badge-team">${esc(d.team)}</span>`);
+      if (d.pos)      html += drawerRow(t('draft_col_pos'), `<span class="pos-text">${esc(d.pos)}</span>`);
+      if (d.from)     html += drawerRow(t('draft_col_from'), esc(d.from));
+      if (d.contract) html += drawerRow(t('draft_col_contract'), esc(d.contract));
+      if (d.notes)    html += drawerRow(t('col_notes'), esc(d.notes), 'notes');
     });
     html += `</div>`;
   }
@@ -2614,9 +2683,10 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     html += `<div class="drawer-section">
       <div class="drawer-section-title">${t('draft_undrafted_title')}</div>`;
     undData.forEach(d => {
-      if (d.pos)   html += drawerRow(lang === 'es' ? 'Posición' : 'Position', `<span class="pos-text">${esc(d.pos)}</span>`);
-      if (d.from)  html += drawerRow(lang === 'es' ? 'Procedencia' : 'From', esc(d.from));
-      if (d.notes) html += drawerRow(lang === 'es' ? 'Notas' : 'Notes', esc(d.notes), 'notes');
+      if (d.team)  html += drawerRow(t('col_team'), `<span class="badge badge-team">${esc(d.team)}</span>`);
+      if (d.pos)   html += drawerRow(t('draft_col_pos'), `<span class="pos-text">${esc(d.pos)}</span>`);
+      if (d.from)  html += drawerRow(t('draft_col_from'), esc(d.from));
+      if (d.notes) html += drawerRow(t('col_notes'), esc(d.notes), 'notes');
     });
     html += `</div>`;
   }
@@ -2628,9 +2698,9 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     tradeData.forEach(tr => {
       tr.sides.forEach(side => {
         if (side.receives.some(r => r.item.includes(playerName))) {
-          html += drawerRow(lang === 'es' ? 'Llega a' : 'Goes to', `<span class="badge badge-team">${esc(side.team)}</span>`);
+          html += drawerRow(t('drawer_new_team'), `<span class="badge badge-team">${esc(side.team)}</span>`);
           const fromTeam = side.receives.find(r => r.item.includes(playerName))?.from;
-          if (fromTeam) html += drawerRow(lang === 'es' ? 'Antiguo equipo' : 'Old Team', `<span class="badge badge-team">${esc(fromTeam)}</span>`);
+          if (fromTeam) html += drawerRow(t('drawer_old_team'), `<span class="badge badge-team">${esc(fromTeam)}</span>`);
         }
       });
     });
@@ -2692,8 +2762,6 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(
 // ─────────────────────────────────────────────
 // TEAM VIEW
 // ─────────────────────────────────────────────
-let _prevTab = 'home';
-
 function openTeamView(teamName, pushHistory = true) {
   const norm2 = s => (s||'').trim().toLowerCase();
   const tKey = norm2(teamName);
@@ -2702,7 +2770,7 @@ function openTeamView(teamName, pushHistory = true) {
   const picks     = DATA.draft.filter(d => norm2(d.team) === tKey);
   const trades    = DATA.trades.filter(tr => tr.sides.some(s => norm2(s.team) === tKey));
   const roster    = DATA.rosters.find(r => norm2(r.team) === tKey);
-  const faPending = DATA.fa.filter(d => norm2(d.team25) === tKey && !d.dest);
+  const faPending = (DATA.faPending || []).filter(d => norm2(d.team25) === tKey);
   const coaches   = DATA.coaches.filter(d => norm2(d.team) === tKey);
 
   document.getElementById('tv-team-name').textContent = teamName;
@@ -2758,29 +2826,35 @@ function openTeamView(teamName, pushHistory = true) {
         faPending.length ? faPending.map(d => { const {name,badge} = faStatus(d.player); return tvRow(esc(name) + badge); }).join('') : tvEmpty())}
   </div>`;
 
-  // ── SIGUEN ────────────────────────────────────
+  // ── PLANTILLA (siguen + altas, agrupadas por posición) ────
   const POS_LIST = ['PG','SG','SF','PF','C'];
-  const siguenRaw = roster?.siguen || [];
-  if (siguenRaw.length) {
-    const byPos = {};
-    siguenRaw.forEach(p => {
-      const key = POS_LIST.includes(p.pos?.toUpperCase()) ? p.pos.toUpperCase() : '?';
-      (byPos[key] = byPos[key] || []).push(p);
-    });
-    const rows = [...POS_LIST, '?'].flatMap(pos => {
-      const group = byPos[pos];
-      if (!group) return [];
-      const label = pos === '?' ? '—' : pos;
-      const names = group.map(p => esc(p.name)).join(', ');
-      return [`<div class="tv-row" style="align-items:baseline;gap:10px;justify-content:flex-start">
-        <span class="pos-text" style="min-width:30px;flex-shrink:0">${label}</span>
-        <span style="font-size:13px;color:var(--text)">${names}</span>
-      </div>`];
-    }).join('');
-    html += `<div class="tv-section-title">${t('roster_stays')}</div>
-    <div class="tv-card" style="margin-bottom:28px">
-      <div class="tv-card-body">${rows}</div>
-    </div>`;
+  if (roster) {
+    const plantilla = buildPlantilla(roster);
+    if (plantilla.length) {
+      const byPos = {};
+      plantilla.forEach(p => {
+        const key = POS_LIST.includes(p.pos) ? p.pos : '?';
+        (byPos[key] = byPos[key] || []).push(p);
+      });
+      const rows = [...POS_LIST, '?'].flatMap(pos => {
+        const group = byPos[pos];
+        if (!group) return [];
+        const label = pos === '?' ? '—' : pos;
+        const names = group.map(p => {
+          const tw = p.tw ? ' <span class="badge-tw">TW</span>' : '';
+          const cls = p.type === 'new' ? ' style="color:var(--signed)"' : '';
+          return `<span${cls}>${esc(p.name)}${tw}</span>`;
+        }).join(', ');
+        return [`<div class="tv-row" style="align-items:baseline;gap:10px;justify-content:flex-start">
+          <span class="pos-text" style="min-width:30px;flex-shrink:0">${label}</span>
+          <span style="font-size:13px;color:var(--text)">${names}</span>
+        </div>`];
+      }).join('');
+      html += `<div class="tv-section-title">${t('roster_stays')}</div>
+      <div class="tv-card" style="margin-bottom:28px">
+        <div class="tv-card-body">${rows}</div>
+      </div>`;
+    }
   }
 
   // ── TRASPASOS ─────────────────────────────────
@@ -2831,9 +2905,11 @@ function openTeamView(teamName, pushHistory = true) {
 
   document.getElementById('tv-content').innerHTML = html;
 
-  document.getElementById('team-back-btn').textContent = '← ' + (lang === 'es' ? 'Volver' : 'Back');
+  document.getElementById('team-back-btn').textContent = '← ' + t('back_btn');
 
-  _prevTab = readURL().tab || 'home';
+  // Cerrar drawer si estuviera abierto al abrir vista de equipo
+  const drawer = document.getElementById('player-drawer');
+  if (drawer && drawer.classList.contains('open')) closeDrawer(false);
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
   document.getElementById('section-team').classList.add('active');
@@ -2865,6 +2941,10 @@ function renderTeamsGrid() {
     </div>`).join('');
 }
 
+applyTheme();
+if (lang !== 'es') setLang(lang);
+// A11y: add scope="col" a todos los th de cabecera
+document.querySelectorAll('thead th').forEach(th => { if (!th.hasAttribute('scope')) th.setAttribute('scope', 'col'); });
 if (window.innerWidth <= 640) {
   showTab('fa', false);
 } else {
