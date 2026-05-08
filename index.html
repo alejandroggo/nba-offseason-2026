@@ -787,7 +787,6 @@
     padding: 0; margin-bottom: 28px; transition: color 0.2s;
   }
   .team-view-back:hover { color: var(--accent); }
-  .team-view-back::before { content: '←'; font-size: 14px; }
 
   .team-view-header {
     margin-bottom: 36px; padding-bottom: 24px;
@@ -1321,6 +1320,11 @@
     <div class="section-header">
       <div class="section-title" data-i18n="fa_title">Agencia Libre</div>
       <div class="section-subtitle" data-i18n="fa_subtitle">Free Agents — Movimientos confirmados y pendientes</div>
+      <div style="display:flex;gap:12px;margin-top:10px;flex-wrap:wrap;align-items:center">
+        <span class="badge badge-rfa">RFA</span><span style="font-size:11px;color:var(--text-muted)" data-i18n="legend_rfa">Agente libre restringido</span>
+        <span class="badge badge-to">TO</span><span style="font-size:11px;color:var(--text-muted)" data-i18n="legend_to">Opción del equipo</span>
+        <span class="badge badge-po">PO</span><span style="font-size:11px;color:var(--text-muted)" data-i18n="legend_po">Opción del jugador</span>
+      </div>
     </div>
     <div class="fa-subsection-title" data-i18n="fa_signed_title">Firmados</div>
     <div class="filters">
@@ -1342,11 +1346,6 @@
       </div>
       <button class="btn-reset" onclick="resetFA()" data-i18n="btn_reset">Limpiar</button>
       <span class="results-count" id="fa-count"></span>
-    </div>
-    <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
-      <span class="badge badge-rfa">RFA</span><span style="font-size:11px;color:var(--text-muted)">Agente libre restringido</span>
-      <span class="badge badge-to">TO</span><span style="font-size:11px;color:var(--text-muted)">Opción del equipo</span>
-      <span class="badge badge-po">PO</span><span style="font-size:11px;color:var(--text-muted)">Opción del jugador</span>
     </div>
     <div class="table-wrap">
       <table>
@@ -1876,7 +1875,7 @@ function renderFAPending(data) {
         return `
       <tr>
         <td class="td-player clickable-player" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(name)}${badge}</td>
-        <td style="text-align:center"><span class="pos-text">${esc(d.pos) || '—'}</span></td>
+        <td style="text-align:center"><span class="pos-text">${esc(validPos(d.pos)) || '—'}</span></td>
         <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team25)}')">${esc(d.team25)}</span></td>
         <td class="td-notes">${esc(d.notes)}</td>
       </tr>`;}).join('')
@@ -1899,8 +1898,8 @@ function filterFAPending() {
   const team = document.getElementById('fa-pending-team').value;
   const pos  = document.getElementById('fa-pending-pos').value;
   FILTERED.faPending = (DATA.faPending || []).filter(d => {
-    if (team && d.team25 !== team) return false;
-    if (pos  && d.pos !== pos)    return false;
+    if (team && (d.team25||'').trim().toLowerCase() !== team.trim().toLowerCase()) return false;
+    if (pos  && validPos(d.pos) !== pos) return false;
     if (_pendingTypeFilter) {
       const m = (d.player || '').match(/\((RFA|TO|PO)\)\s*$/i);
       if (!m || m[1].toUpperCase() !== _pendingTypeFilter) return false;
@@ -2177,7 +2176,7 @@ function processRosters(rows1, rows2) {
   DATA.faPending = DATA.fa.filter(d => !d.dest).map(d => ({ player: d.player, pos: d.pos, team25: d.team25 }));
   FILTERED.faPending = [...DATA.faPending];
   populateSelect('fa-pending-team', [...new Set(DATA.faPending.map(d => d.team25).filter(Boolean))].sort());
-  populateSelect('fa-pending-pos',  [...new Set(DATA.faPending.map(d => d.pos).filter(Boolean))].sort());
+  populateSelect('fa-pending-pos',  [...new Set(DATA.faPending.map(d => validPos(d.pos)).filter(Boolean))].sort());
   renderFAPending(FILTERED.faPending);
 }
 
@@ -2415,6 +2414,12 @@ function fmtDate(str) {
   if (isNaN(d.getTime())) return str;
   const months = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
   return `${String(d.getDate()).padStart(2,'0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+const VALID_POS = new Set(['PG','SG','SF','PF','C','G','F','G/F','F/C','F/G']);
+function validPos(pos) {
+  const p = (pos || '').trim().toUpperCase();
+  return VALID_POS.has(p) ? p : '';
 }
 
 function faStatus(player) {
