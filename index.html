@@ -2184,12 +2184,14 @@ function processRosters(rows1, rows2) {
 const POS_ORDER = ['PG','SG','SF','PF','C'];
 
 function buildPlantilla(team) {
-  const norm = s => (s || '').trim().toLowerCase();
-  const key  = norm(team.team);
+  const norm    = s => (s || '').trim().toLowerCase();
+  const key     = norm(team.team);
+  const faLookup = name => (DATA.fa||[]).find(f => f.player === name)?.pos || '';
 
-  const staying = team.siguen.map(p => ({
-    name: p.name, pos: (p.pos||'').toUpperCase(), type: 'staying'
-  }));
+  const staying = team.siguen.map(p => {
+    const pos = (p.pos || faLookup(p.name)).toUpperCase();
+    return { name: p.name, pos, type: 'staying' };
+  });
 
   const faIn = (DATA.fa||[])
     .filter(d => norm(d.dest) === key)
@@ -2207,8 +2209,7 @@ function buildPlantilla(team) {
       if (side) side.receives
         .filter(r => !/pick|cash/i.test(r.item))
         .forEach(r => {
-          const ref = (DATA.fa||[]).find(f => f.player === r.item);
-          tradeIn.push({ name: r.item, pos: (ref?.pos||'').toUpperCase(), type: 'new' });
+          tradeIn.push({ name: r.item, pos: faLookup(r.item).toUpperCase(), type: 'new' });
         });
     });
 
@@ -2220,11 +2221,13 @@ function buildPlantilla(team) {
 }
 
 function plantillaBlock(players) {
-  if (!players.length) return '';
+  const posTag = pos => POS_ORDER.includes(pos) ? `<span class="roster-pos-tag">${esc(pos)}</span>` : '';
   return `
     <div class="roster-block">
       <div class="roster-label plantilla">${t('roster_stays')}</div>
-      ${players.map(p => `<div class="roster-player${p.type==='new'?' roster-player-new':''}"><span class="roster-pos-tag">${esc(p.pos)||'·'}</span>${esc(p.name)}</div>`).join('')}
+      ${players.length
+        ? players.map(p => `<div class="roster-player${p.type==='new'?' roster-player-new':''}">${posTag(p.pos)}${esc(p.name)}</div>`).join('')
+        : `<div class="roster-player" style="color:var(--text-dim)">—</div>`}
     </div>`;
 }
 
@@ -2657,13 +2660,15 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(
 let _prevTab = 'home';
 
 function openTeamView(teamName, pushHistory = true) {
-  const faIn      = DATA.fa.filter(d => d.dest === teamName);
-  const faOut     = DATA.fa.filter(d => d.team25 === teamName && d.dest);
-  const picks     = DATA.draft.filter(d => d.team === teamName);
-  const trades    = DATA.trades.filter(tr => tr.sides.some(s => s.team === teamName));
-  const roster    = DATA.rosters.find(r => r.team === teamName);
-  const faPending = DATA.fa.filter(d => d.team25 === teamName && !d.dest);
-  const coaches   = DATA.coaches.filter(d => d.team === teamName);
+  const norm2 = s => (s||'').trim().toLowerCase();
+  const tKey = norm2(teamName);
+  const faIn      = DATA.fa.filter(d => norm2(d.dest) === tKey);
+  const faOut     = DATA.fa.filter(d => norm2(d.team25) === tKey && d.dest);
+  const picks     = DATA.draft.filter(d => norm2(d.team) === tKey);
+  const trades    = DATA.trades.filter(tr => tr.sides.some(s => norm2(s.team) === tKey));
+  const roster    = DATA.rosters.find(r => norm2(r.team) === tKey);
+  const faPending = DATA.fa.filter(d => norm2(d.team25) === tKey && !d.dest);
+  const coaches   = DATA.coaches.filter(d => norm2(d.team) === tKey);
 
   document.getElementById('tv-team-name').textContent = teamName;
   document.getElementById('tv-team-logo').innerHTML = teamLogo(teamName, 64);
@@ -2674,10 +2679,10 @@ function openTeamView(teamName, pushHistory = true) {
 
   const tradeIn = [], tradeOut = [];
   trades.forEach(tr => {
-    const mySide = tr.sides.find(s => s.team === teamName);
+    const mySide = tr.sides.find(s => norm2(s.team) === tKey);
     if (mySide) mySide.receives.forEach(r => tradeIn.push(r.item));
     // Salidas: activos donde from === este equipo (cualquier número de equipos)
-    tr.sides.forEach(side => side.receives.filter(r => r.from === teamName && !/pick|cash/i.test(r.item)).forEach(r => tradeOut.push({item: r.item, to: side.team})));
+    tr.sides.forEach(side => side.receives.filter(r => norm2(r.from) === tKey && !/pick|cash/i.test(r.item)).forEach(r => tradeOut.push({item: r.item, to: side.team})));
   });
 
   const subcol = (items, label, renderFn) => `
