@@ -1461,6 +1461,7 @@
             <th><span data-i18n="col_country">País</span></th>
             <th><span data-i18n="draft_col_pos">Pos</span></th>
             <th><span data-i18n="draft_col_from">Procedencia</span></th>
+            <th style="text-align:center">√</th>
             <th><span data-i18n="draft_col_contract">Contrato</span></th>
             <th><span data-i18n="col_notes">Notas</span></th>
           </tr>
@@ -1963,11 +1964,13 @@ function processDraft(rows) {
     date:     cell(r,9),
   }));
   DATA.undrafted = data.filter(r => cell(r,2) && (!cell(r,0) || isNaN(parseInt(cell(r,0))))).map(r => ({
+    team:     cell(r,1),
     player:   cell(r,2),
     country:  cell(r,3),
     pos:      cell(r,4),
     from:     cell(r,5),
-    contract: cell(r,6),
+    check:    cell(r,6),
+    contract: cell(r,7),
     notes:    cell(r,8),
   }));
   document.getElementById('count-draft').textContent = DATA.draft.length;
@@ -2009,13 +2012,14 @@ function renderDraft(data) {
 
 function renderUndrafted(data) {
   const tbody = document.getElementById('undrafted-tbody');
-  if (!data.length) { tbody.innerHTML = `<tr><td colspan="6"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
+  if (!data.length) { tbody.innerHTML = `<tr><td colspan="7"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
   tbody.innerHTML = data.map(d => `
     <tr>
       <td class="td-player clickable-player" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</td>
       <td style="font-size:18px;text-align:center" title="${esc(d.country)}">${flag(d.country)}</td>
       <td><span class="pos-text">${esc(d.pos) || '—'}</span></td>
       <td class="td-muted">${esc(d.from) || '—'}</td>
+      <td style="text-align:center">${d.check ? `<span class="badge badge-check">${esc(d.check)}</span>` : '—'}</td>
       <td class="td-muted">${esc(d.contract) || '—'}</td>
       <td class="td-notes">${esc(d.notes)}</td>
     </tr>`).join('');
