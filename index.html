@@ -494,10 +494,24 @@
     margin-bottom: 6px;
   }
 
-  .roster-label.siguen   { color: var(--text-muted); }
-  .roster-label.llegadas { color: var(--signed); }
-  .roster-label.salidas  { color: var(--gone); }
-  .roster-label.fa       { color: var(--pending); }
+  .roster-label.plantilla { color: var(--text-muted); }
+  .roster-label.siguen    { color: var(--text-muted); }
+  .roster-label.llegadas  { color: var(--signed); }
+  .roster-label.salidas   { color: var(--gone); }
+  .roster-label.fa        { color: var(--pending); }
+
+  .roster-pos-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.5px;
+    color: var(--text-dim);
+    display: inline-block;
+    min-width: 22px;
+    margin-right: 4px;
+  }
+
+  .roster-player-new { color: var(--signed); }
+  .roster-player-new .roster-pos-tag { color: var(--signed); opacity: 0.6; }
 
   .roster-section {
     padding: 10px 16px;
@@ -1277,19 +1291,8 @@
           <span class="home-row-arrow">↗</span>
         </div>
       </button>
-      <button class="home-row" onclick="showTab('rosters')">
-        <span class="home-row-ordinal">04</span>
-        <div class="home-row-body">
-          <div class="home-row-title" data-i18n="tab_rosters">Plantillas</div>
-          <div class="home-row-desc" data-i18n="home_rosters_desc">Los 30 equipos con altas, bajas y continuidades</div>
-        </div>
-        <div class="home-row-right">
-          <span class="home-row-stat">30</span>
-          <span class="home-row-arrow">↗</span>
-        </div>
-      </button>
       <button class="home-row" onclick="showTab('coaches')">
-        <span class="home-row-ordinal">05</span>
+        <span class="home-row-ordinal">04</span>
         <div class="home-row-body">
           <div class="home-row-title" data-i18n="tab_coaches">HC / GMs</div>
           <div class="home-row-desc" data-i18n="home_coaches_desc">Cambios en banquillos y gerencias</div>
@@ -1300,7 +1303,7 @@
         </div>
       </button>
       <button class="home-row" onclick="showTab('teams')">
-        <span class="home-row-ordinal">06</span>
+        <span class="home-row-ordinal">05</span>
         <div class="home-row-body">
           <div class="home-row-title" data-i18n="tab_teams">Equipos</div>
           <div class="home-row-desc" data-i18n="home_teams_desc">Las 30 franquicias — movimientos y plantilla</div>
@@ -1621,7 +1624,7 @@ const i18n = {
     trades_search_ph: 'Equipo, jugador, pick…',
     rosters_title: 'Plantillas', rosters_subtitle: 'Los 30 equipos — temporada 2025-26',
     rosters_search_ph: 'Buscar equipo o jugador…',
-    roster_stays: 'Siguen', roster_arrivals: 'Llegadas', roster_departures: 'Salidas',
+    roster_stays: 'Plantilla', roster_arrivals: 'Llegadas', roster_departures: 'Salidas',
     roster_fa: 'FA', roster_draft: 'Draft', roster_trade: 'Vía Trade',
     roster_salidas_fa: 'FA', roster_salidas_trade: 'Vía Trade', roster_fa_pending: 'FA Pendientes',
     roster_section_trades: 'Traspasos', roster_section_coaches: 'Cuerpo técnico y dirección',
@@ -1673,7 +1676,7 @@ const i18n = {
     trades_search_ph: 'Team, player, pick…',
     rosters_title: 'Rosters', rosters_subtitle: 'All 30 teams — 2025-26 season',
     rosters_search_ph: 'Search team or player…',
-    roster_stays: 'Returning', roster_arrivals: 'Arrivals', roster_departures: 'Departures',
+    roster_stays: 'Roster', roster_arrivals: 'Arrivals', roster_departures: 'Departures',
     roster_fa: 'FA', roster_draft: 'Draft', roster_trade: 'Via Trade',
     roster_salidas_fa: 'FA', roster_salidas_trade: 'Via Trade', roster_fa_pending: 'Pending FA',
     roster_section_trades: 'Trades', roster_section_coaches: 'Coaching staff & front office',
@@ -2168,13 +2171,61 @@ function processRosters(rows1, rows2) {
 
   DATA.rosters = [...parse(rows1), ...parse(rows2)].sort((a,b) => a.team.localeCompare(b.team));
   DATA.rosters.forEach(team => {
-    team.fa = DATA.fa.filter(d => d.team25 === team.team && !d.dest).map(d => ({ name: d.player, pos: d.pos || '' }));
+    const key = team.team.trim().toLowerCase();
+    team.fa = DATA.fa.filter(d => d.team25.trim().toLowerCase() === key && !d.dest).map(d => ({ name: d.player, pos: d.pos || '' }));
   });
   DATA.faPending = DATA.fa.filter(d => !d.dest).map(d => ({ player: d.player, pos: d.pos, team25: d.team25 }));
   FILTERED.faPending = [...DATA.faPending];
   populateSelect('fa-pending-team', [...new Set(DATA.faPending.map(d => d.team25).filter(Boolean))].sort());
   populateSelect('fa-pending-pos',  [...new Set(DATA.faPending.map(d => d.pos).filter(Boolean))].sort());
   renderFAPending(FILTERED.faPending);
+}
+
+const POS_ORDER = ['PG','SG','SF','PF','C'];
+
+function buildPlantilla(team) {
+  const norm = s => (s || '').trim().toLowerCase();
+  const key  = norm(team.team);
+
+  const staying = team.siguen.map(p => ({
+    name: p.name, pos: (p.pos||'').toUpperCase(), type: 'staying'
+  }));
+
+  const faIn = (DATA.fa||[])
+    .filter(d => norm(d.dest) === key)
+    .map(d => ({ name: d.player, pos: (d.pos||'').toUpperCase(), type: 'new' }));
+
+  const draftIn = (DATA.draft||[])
+    .filter(d => norm(d.team) === key && d.player)
+    .map(d => ({ name: d.player, pos: (d.pos||'').toUpperCase(), type: 'new' }));
+
+  const tradeIn = [];
+  (DATA.trades||[])
+    .filter(tr => tr.sides.some(s => norm(s.team) === key))
+    .forEach(tr => {
+      const side = tr.sides.find(s => norm(s.team) === key);
+      if (side) side.receives
+        .filter(r => !/pick|cash/i.test(r.item))
+        .forEach(r => {
+          const ref = (DATA.fa||[]).find(f => f.player === r.item);
+          tradeIn.push({ name: r.item, pos: (ref?.pos||'').toUpperCase(), type: 'new' });
+        });
+    });
+
+  return [...staying, ...faIn, ...draftIn, ...tradeIn].sort((a, b) => {
+    const ai = POS_ORDER.indexOf(a.pos), bi = POS_ORDER.indexOf(b.pos);
+    const ao = ai === -1 ? 99 : ai,   bo = bi === -1 ? 99 : bi;
+    return ao !== bo ? ao - bo : a.name.localeCompare(b.name);
+  });
+}
+
+function plantillaBlock(players) {
+  if (!players.length) return '';
+  return `
+    <div class="roster-block">
+      <div class="roster-label plantilla">${t('roster_stays')}</div>
+      ${players.map(p => `<div class="roster-player${p.type==='new'?' roster-player-new':''}"><span class="roster-pos-tag">${esc(p.pos)||'·'}</span>${esc(p.name)}</div>`).join('')}
+    </div>`;
 }
 
 function renderRosters(data) {
@@ -2187,7 +2238,7 @@ function renderRosters(data) {
         <span class="team-name clickable-team" onclick="openTeamView('${esc(team.team)}')" style="cursor:pointer">${esc(team.team)}</span>
       </div>
       <div class="team-card-body" style="padding:12px 16px">
-        ${rosterBlock(team.siguen, 'siguen', t('roster_stays'))}
+        ${plantillaBlock(buildPlantilla(team))}
         ${rosterBlock(team.llegadas, 'llegadas', t('roster_arrivals'))}
         ${rosterBlock(team.salidas, 'salidas', t('roster_departures'))}
         ${rosterBlock(team.fa, 'fa', t('roster_fa'))}
@@ -2207,9 +2258,11 @@ function rosterBlock(players, cls, label) {
 
 function filterRosters() {
   const q = document.getElementById('rosters-search').value.toLowerCase();
-  FILTERED.rosters = DATA.rosters.filter(d =>
-    !q || `${d.team} ${[...d.siguen,...d.llegadas,...d.salidas,...d.fa].map(p => typeof p === 'object' ? p.name : p).join(' ')}`.toLowerCase().includes(q)
-  );
+  FILTERED.rosters = DATA.rosters.filter(d => {
+    if (!q) return true;
+    const plantillaNames = buildPlantilla(d).map(p => p.name).join(' ');
+    return `${d.team} ${plantillaNames} ${[...d.llegadas,...d.salidas,...d.fa].map(p => typeof p === 'object' ? p.name : p).join(' ')}`.toLowerCase().includes(q);
+  });
   renderRosters(FILTERED.rosters);
 }
 
