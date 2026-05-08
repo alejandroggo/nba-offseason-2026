@@ -26,12 +26,12 @@
     --surface: #ffffff;
     --surface2: #e8e8e2;
     --border: #d0d0c8;
-    --accent: #2a7a00;
+    --accent: #1f5d00;
     --accent2: #c84b00;
     --text: #111118;
-    --text-muted: #606068;
-    --text-dim: #bbbbbb;
-    --signed: #2a7a00;
+    --text-muted: #4a4a55;
+    --text-dim: #888894;
+    --signed: #1f5d00;
     --pending: #8a4e00;
     --gone: #cc1122;
   }
@@ -257,6 +257,15 @@
     outline: none;
     transition: border-color 0.2s;
     height: 36px;
+  }
+
+  /* Foco visible para navegación por teclado */
+  .filter-input:focus-visible, .filter-select:focus-visible,
+  .btn-reset:focus-visible, .tab:focus-visible, .mobile-tab:focus-visible,
+  .lang-btn:focus-visible, .theme-toggle:focus-visible,
+  button:focus-visible, [role="button"]:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
   }
 
   .filter-input { min-width: 220px; }
@@ -1657,6 +1666,12 @@ const i18n = {
     trade_label: 'Traspaso',
     teams_title: 'Equipos', teams_subtitle: 'Las 30 franquicias de la NBA',
     drawer_view_team: 'Nuevo equipo', drawer_view_old_team: 'Ver equipo anterior',
+    legend_rfa: 'Agente libre restringido', legend_to: 'Opción del equipo', legend_po: 'Opción del jugador',
+    back_btn: 'Volver', end_of_lottery: 'FIN DE LA LOTERÍA', end_of_round1: 'FIN DE LA PRIMERA RONDA',
+    drawer_old_team: 'Antiguo equipo', drawer_new_team: 'Nuevo equipo',
+    drawer_total: 'Total', drawer_years: 'Años',
+    load_error: 'Error al cargar datos. Verifica las URLs del Sheet.',
+    trade_from: 'De',
   },
   en: {
     home_eyebrow: 'Off-Season',
@@ -1709,15 +1724,22 @@ const i18n = {
     trade_label: 'Trade',
     teams_title: 'Teams', teams_subtitle: 'All 30 NBA franchises',
     drawer_view_team: 'New team', drawer_view_old_team: 'View previous team',
+    legend_rfa: 'Restricted free agent', legend_to: 'Team option', legend_po: 'Player option',
+    back_btn: 'Back', end_of_lottery: 'END OF LOTTERY', end_of_round1: 'END OF ROUND 1',
+    drawer_old_team: 'Old team', drawer_new_team: 'New team',
+    drawer_total: 'Total', drawer_years: 'Years',
+    load_error: 'Failed to load data. Check the Sheet URLs.',
+    trade_from: 'From',
   }
 };
 
-let lang = 'es';
+let lang = (() => { try { return localStorage.getItem('nba2026_lang') || 'es'; } catch(e) { return 'es'; } })();
 
 function t(key) { return i18n[lang][key] || key; }
 
 function setLang(l) {
   lang = l;
+  try { localStorage.setItem('nba2026_lang', l); } catch(e) {}
   document.getElementById('btn-es').classList.toggle('active', l === 'es');
   document.getElementById('btn-en').classList.toggle('active', l === 'en');
   document.documentElement.lang = l;
@@ -1791,6 +1813,7 @@ function applyRawData(raw, ts) {
   processTrades(window._rawTradeRows);
   processRosters(parseCSV(raw.rosters1), parseCSV(raw.rosters2));
   processCoaches(parseCSV(raw.coaches));
+  DATA._stamp = ts;
 
   loadedAt = new Date(ts).toLocaleString(lang === 'es' ? 'es-ES' : 'en-US', {
     day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
@@ -1829,7 +1852,7 @@ async function fetchAll() {
     if (!localStorage.getItem(CACHE_KEY)) {
       ['fa-tbody','draft-tbody','coaches-tbody'].forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.innerHTML = `<tr><td colspan="8"><div class="state-empty">Error al cargar datos. Verifica las URLs del Sheet.</div></td></tr>`;
+        if (el) el.innerHTML = `<tr><td colspan="8"><div class="state-empty">${t('load_error')}</div></td></tr>`;
       });
     }
   }
@@ -2006,7 +2029,7 @@ function renderDraft(data) {
       : `<td class="td-muted">—</td>`;
     const prev = i > 0 ? parseInt(data[i-1].pick) : null;
     if (prev === 14 || prev === 30) {
-      const label = prev === 14 ? (lang === 'es' ? 'FIN DE LA LOTERÍA' : 'END OF LOTTERY') : (lang === 'es' ? 'FIN DE LA PRIMERA RONDA' : 'END OF ROUND 1');
+      const label = prev === 14 ? t('end_of_lottery') : t('end_of_round1');
       rows.push(`<tr><td colspan="9" style="padding:8px 12px;border:none;background:var(--surface2);text-align:center"><span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted)">${label}</span></td></tr>`);
     }
     rows.push(`<tr>
@@ -2123,7 +2146,7 @@ function tradeReceivesHTML(receives) {
     else byFrom.push({ from: r.from, items: [r.item] });
   });
   return byFrom.map((grp, i) => `
-    <div class="trade-receives-label" style="${i > 0 ? 'margin-top:14px' : ''}">← ${lang === 'es' ? 'De' : 'From'}: <strong class="clickable-team" onclick="openTeamView('${esc(grp.from)}')" style="cursor:pointer">${esc(grp.from)}</strong></div>
+    <div class="trade-receives-label" style="${i > 0 ? 'margin-top:14px' : ''}">← ${t('trade_from')}: <strong class="clickable-team" onclick="openTeamView('${esc(grp.from)}')" style="cursor:pointer">${esc(grp.from)}</strong></div>
     ${grp.items.map(item => `<div class="trade-item" onclick="openPlayerDrawer('${esc(item)}')">${esc(item)}</div>`).join('')}
   `).join('');
 }
@@ -2229,20 +2252,17 @@ function buildPlantilla(team) {
   const norm    = s => (s || '').trim().toLowerCase();
   const key     = norm(team.team);
   const stripTag = n => (n || '').replace(/\s*\((?:RFA|TO|PO)\)\s*$/i, '').trim();
-  const posLookup = name => {
-    const n = stripTag(name);
-    const fromFa    = (DATA.fa||[]).find(f => stripTag(f.player) === n)?.pos;
-    if (fromFa) return fromFa;
-    const fromDraft = (DATA.draft||[]).find(d => stripTag(d.player) === n)?.pos;
-    if (fromDraft) return fromDraft;
-    const fromUndr  = (DATA.undrafted||[]).find(d => stripTag(d.player) === n)?.pos;
-    if (fromUndr) return fromUndr;
-    for (const r of (DATA.rosters||[])) {
-      const hit = r.siguen.find(p => stripTag(p.name) === n);
-      if (hit?.pos) return hit.pos;
-    }
-    return '';
-  };
+  if (!buildPlantilla._posIdx || buildPlantilla._posIdxStamp !== DATA._stamp) {
+    const idx = new Map();
+    const put = (name, pos) => { const n = stripTag(name); if (n && pos && !idx.has(n)) idx.set(n, pos); };
+    (DATA.fa||[]).forEach(d => put(d.player, d.pos));
+    (DATA.draft||[]).forEach(d => put(d.player, d.pos));
+    (DATA.undrafted||[]).forEach(d => put(d.player, d.pos));
+    (DATA.rosters||[]).forEach(r => r.siguen.forEach(p => put(p.name, p.pos)));
+    buildPlantilla._posIdx = idx;
+    buildPlantilla._posIdxStamp = DATA._stamp;
+  }
+  const posLookup = name => buildPlantilla._posIdx.get(stripTag(name)) || '';
 
   const staying = team.siguen.map(p => {
     const { name, tw } = parseTW(p.name);
@@ -2434,12 +2454,16 @@ function sortSection(section, col) {
 // ─────────────────────────────────────────────
 function showTab(name, pushHistory = true) {
   if (!document.getElementById(`section-${name}`)) { showTab('home', pushHistory); return; }
+  // Cerrar drawer si está abierto al cambiar de pestaña
+  const drawer = document.getElementById('player-drawer');
+  if (drawer && drawer.classList.contains('open')) closeDrawer(false);
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
   document.querySelectorAll('.mobile-tab').forEach(tab => tab.classList.remove('active'));
   document.getElementById(`section-${name}`).classList.add('active');
   if (name !== 'home') {
-    document.getElementById(`tab-${name}`).classList.add('active');
+    const tabBtn = document.getElementById(`tab-${name}`);
+    if (tabBtn) tabBtn.classList.add('active');
     const mobileTab = document.getElementById(`mtab-${name}`);
     if (mobileTab) mobileTab.classList.add('active');
     document.body.classList.remove('on-home');
@@ -2476,7 +2500,9 @@ function fmtDate(str) {
   if (!str) return '—';
   const d = new Date(str);
   if (isNaN(d.getTime())) return str;
-  const months = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  const months = lang === 'es'
+    ? ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic']
+    : ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   return `${String(d.getDate()).padStart(2,'0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
 }
 
@@ -2542,22 +2568,31 @@ function updateHomeCounts() {
 // ─────────────────────────────────────────────
 // THEME TOGGLE
 // ─────────────────────────────────────────────
-let isLight = false;
+let isLight = (() => { try { return localStorage.getItem('nba2026_theme') === 'light'; } catch(e) { return false; } })();
 
 async function refreshData() {
   const btn = document.getElementById('refresh-btn');
   btn.classList.add('loading');
   btn.disabled = true;
-  await fetchAll();
-  btn.classList.remove('loading');
-  btn.disabled = false;
+  try { await fetchAll(); }
+  finally {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+  }
 }
 
 function toggleTheme() {
   isLight = !isLight;
+  applyTheme();
+  try { localStorage.setItem('nba2026_theme', isLight ? 'light' : 'dark'); } catch(e) {}
+}
+
+function applyTheme() {
   document.body.classList.toggle('light', isLight);
-  document.getElementById('theme-icon').textContent = isLight ? '🌙' : '☀️';
-  document.getElementById('theme-toggle').title = t(isLight ? 'theme_dark' : 'theme_light');
+  const icon = document.getElementById('theme-icon');
+  if (icon) icon.textContent = isLight ? '🌙' : '☀️';
+  const tg = document.getElementById('theme-toggle');
+  if (tg) tg.title = t(isLight ? 'theme_dark' : 'theme_light');
 }
 
 
@@ -2617,13 +2652,13 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     html += `<div class="drawer-section">
       <div class="drawer-section-title">${t('tab_fa')}</div>`;
     faData.forEach(d => {
-      if (d.team25) html += drawerRow(lang === 'es' ? 'Antiguo equipo' : 'Old Team', `<span class="badge badge-team">${esc(d.team25)}</span>`);
-      if (d.dest)   html += drawerRow(lang === 'es' ? 'Nuevo equipo' : 'New Team', `<span class="badge badge-team">${esc(d.dest)}</span>`);
-      if (d.money)  html += drawerRow(lang === 'es' ? 'Total' : 'Total', `$${esc(d.money)}M`, 'money');
-      if (d.years)  html += drawerRow(lang === 'es' ? 'Años' : 'Years', esc(d.years));
+      if (d.team25) html += drawerRow(t('drawer_old_team'), `<span class="badge badge-team">${esc(d.team25)}</span>`);
+      if (d.dest)   html += drawerRow(t('drawer_new_team'), `<span class="badge badge-team">${esc(d.dest)}</span>`);
+      if (d.money)  html += drawerRow(t('drawer_total'), `$${esc(d.money)}M`, 'money');
+      if (d.years)  html += drawerRow(t('drawer_years'), esc(d.years));
       if (d.aav)    html += drawerRow('AAV', `$${esc(d.aav)}M`, 'money');
-      if (d.source) html += drawerRow(lang === 'es' ? 'Fuente' : 'Source', esc(d.source));
-      if (d.notes)  html += drawerRow(lang === 'es' ? 'Notas' : 'Notes', esc(d.notes), 'notes');
+      if (d.source) html += drawerRow(t('footer_src'), esc(d.source));
+      if (d.notes)  html += drawerRow(t('col_notes'), esc(d.notes), 'notes');
     });
     html += `</div>`;
   }
@@ -2634,11 +2669,11 @@ function openPlayerDrawer(playerName, pushHistory = true) {
       <div class="drawer-section-title">${t('tab_draft')}</div>`;
     draftData.forEach(d => {
       if (d.pick)     html += drawerRow('Pick', `<span class="pick-num ${parseInt(d.pick)<=5?'top5':parseInt(d.pick)<=30?'r1':''}">${esc(d.pick)}</span>`);
-      if (d.team)     html += drawerRow(lang === 'es' ? 'Equipo' : 'Team', `<span class="badge badge-team">${esc(d.team)}</span>`);
-      if (d.pos)      html += drawerRow(lang === 'es' ? 'Posición' : 'Position', `<span class="pos-text">${esc(d.pos)}</span>`);
-      if (d.from)     html += drawerRow(lang === 'es' ? 'Procedencia' : 'From', esc(d.from));
-      if (d.contract) html += drawerRow(lang === 'es' ? 'Contrato' : 'Contract', esc(d.contract));
-      if (d.notes)    html += drawerRow(lang === 'es' ? 'Notas' : 'Notes', esc(d.notes), 'notes');
+      if (d.team)     html += drawerRow(t('col_team'), `<span class="badge badge-team">${esc(d.team)}</span>`);
+      if (d.pos)      html += drawerRow(t('draft_col_pos'), `<span class="pos-text">${esc(d.pos)}</span>`);
+      if (d.from)     html += drawerRow(t('draft_col_from'), esc(d.from));
+      if (d.contract) html += drawerRow(t('draft_col_contract'), esc(d.contract));
+      if (d.notes)    html += drawerRow(t('col_notes'), esc(d.notes), 'notes');
     });
     html += `</div>`;
   }
@@ -2648,9 +2683,10 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     html += `<div class="drawer-section">
       <div class="drawer-section-title">${t('draft_undrafted_title')}</div>`;
     undData.forEach(d => {
-      if (d.pos)   html += drawerRow(lang === 'es' ? 'Posición' : 'Position', `<span class="pos-text">${esc(d.pos)}</span>`);
-      if (d.from)  html += drawerRow(lang === 'es' ? 'Procedencia' : 'From', esc(d.from));
-      if (d.notes) html += drawerRow(lang === 'es' ? 'Notas' : 'Notes', esc(d.notes), 'notes');
+      if (d.team)  html += drawerRow(t('col_team'), `<span class="badge badge-team">${esc(d.team)}</span>`);
+      if (d.pos)   html += drawerRow(t('draft_col_pos'), `<span class="pos-text">${esc(d.pos)}</span>`);
+      if (d.from)  html += drawerRow(t('draft_col_from'), esc(d.from));
+      if (d.notes) html += drawerRow(t('col_notes'), esc(d.notes), 'notes');
     });
     html += `</div>`;
   }
@@ -2662,9 +2698,9 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     tradeData.forEach(tr => {
       tr.sides.forEach(side => {
         if (side.receives.some(r => r.item.includes(playerName))) {
-          html += drawerRow(lang === 'es' ? 'Llega a' : 'Goes to', `<span class="badge badge-team">${esc(side.team)}</span>`);
+          html += drawerRow(t('drawer_new_team'), `<span class="badge badge-team">${esc(side.team)}</span>`);
           const fromTeam = side.receives.find(r => r.item.includes(playerName))?.from;
-          if (fromTeam) html += drawerRow(lang === 'es' ? 'Antiguo equipo' : 'Old Team', `<span class="badge badge-team">${esc(fromTeam)}</span>`);
+          if (fromTeam) html += drawerRow(t('drawer_old_team'), `<span class="badge badge-team">${esc(fromTeam)}</span>`);
         }
       });
     });
@@ -2726,8 +2762,6 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(
 // ─────────────────────────────────────────────
 // TEAM VIEW
 // ─────────────────────────────────────────────
-let _prevTab = 'home';
-
 function openTeamView(teamName, pushHistory = true) {
   const norm2 = s => (s||'').trim().toLowerCase();
   const tKey = norm2(teamName);
@@ -2871,9 +2905,11 @@ function openTeamView(teamName, pushHistory = true) {
 
   document.getElementById('tv-content').innerHTML = html;
 
-  document.getElementById('team-back-btn').textContent = '← ' + (lang === 'es' ? 'Volver' : 'Back');
+  document.getElementById('team-back-btn').textContent = '← ' + t('back_btn');
 
-  _prevTab = readURL().tab || 'home';
+  // Cerrar drawer si estuviera abierto al abrir vista de equipo
+  const drawer = document.getElementById('player-drawer');
+  if (drawer && drawer.classList.contains('open')) closeDrawer(false);
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
   document.getElementById('section-team').classList.add('active');
@@ -2905,6 +2941,10 @@ function renderTeamsGrid() {
     </div>`).join('');
 }
 
+applyTheme();
+if (lang !== 'es') setLang(lang);
+// A11y: add scope="col" a todos los th de cabecera
+document.querySelectorAll('thead th').forEach(th => { if (!th.hasAttribute('scope')) th.setAttribute('scope', 'col'); });
 if (window.innerWidth <= 640) {
   showTab('fa', false);
 } else {
