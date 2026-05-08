@@ -513,6 +513,20 @@
   .roster-player-new { color: var(--signed); }
   .roster-player-new .roster-pos-tag { color: var(--signed); opacity: 0.6; }
 
+  .badge-tw {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--accent2);
+    border: 1px solid rgba(255,107,53,0.4);
+    background: rgba(255,107,53,0.1);
+    border-radius: 3px;
+    padding: 1px 5px;
+    margin-left: 5px;
+    vertical-align: middle;
+  }
+
   .roster-section {
     padding: 10px 16px;
     border-bottom: 1px solid var(--border);
@@ -2189,23 +2203,30 @@ function processRosters(rows1, rows2) {
 
 const POS_ORDER = ['PG','SG','SF','PF','C'];
 
+function parseTW(rawName) {
+  const tw = /two[\s-]?way|\(tw\)/i.test(rawName);
+  const name = rawName.replace(/\s*two[\s-]?way\s*/i, '').replace(/\s*\(tw\)\s*/i, '').trim();
+  return { name, tw };
+}
+
 function buildPlantilla(team) {
   const norm    = s => (s || '').trim().toLowerCase();
   const key     = norm(team.team);
   const faLookup = name => (DATA.fa||[]).find(f => f.player === name)?.pos || '';
 
   const staying = team.siguen.map(p => {
-    const pos = (p.pos || faLookup(p.name)).toUpperCase();
-    return { name: p.name, pos, type: 'staying' };
+    const { name, tw } = parseTW(p.name);
+    const pos = (p.pos || faLookup(name)).toUpperCase();
+    return { name, pos, type: 'staying', tw };
   });
 
   const faIn = (DATA.fa||[])
     .filter(d => norm(d.dest) === key)
-    .map(d => ({ name: d.player, pos: (d.pos||'').toUpperCase(), type: 'new' }));
+    .map(d => { const {name,tw} = parseTW(d.player); return { name, pos: (d.pos||'').toUpperCase(), type: 'new', tw }; });
 
   const draftIn = (DATA.draft||[])
     .filter(d => norm(d.team) === key && d.player)
-    .map(d => ({ name: d.player, pos: (d.pos||'').toUpperCase(), type: 'new' }));
+    .map(d => { const {name,tw} = parseTW(d.player); return { name, pos: (d.pos||'').toUpperCase(), type: 'new', tw }; });
 
   const tradeIn = [];
   (DATA.trades||[])
@@ -2215,7 +2236,8 @@ function buildPlantilla(team) {
       if (side) side.receives
         .filter(r => !/pick|cash/i.test(r.item))
         .forEach(r => {
-          tradeIn.push({ name: r.item, pos: faLookup(r.item).toUpperCase(), type: 'new' });
+          const {name,tw} = parseTW(r.item);
+          tradeIn.push({ name, pos: faLookup(name).toUpperCase(), type: 'new', tw });
         });
     });
 
@@ -2228,11 +2250,12 @@ function buildPlantilla(team) {
 
 function plantillaBlock(players) {
   const posTag = pos => POS_ORDER.includes(pos) ? `<span class="roster-pos-tag">${esc(pos)}</span>` : '';
+  const twTag  = tw  => tw ? `<span class="badge-tw">TW</span>` : '';
   return `
     <div class="roster-block">
       <div class="roster-label plantilla">${t('roster_stays')}</div>
       ${players.length
-        ? players.map(p => `<div class="roster-player${p.type==='new'?' roster-player-new':''}">${posTag(p.pos)}${esc(p.name)}</div>`).join('')
+        ? players.map(p => `<div class="roster-player${p.type==='new'?' roster-player-new':''}">${posTag(p.pos)}${esc(p.name)}${twTag(p.tw)}</div>`).join('')
         : `<div class="roster-player" style="color:var(--text-dim)">—</div>`}
     </div>`;
 }
