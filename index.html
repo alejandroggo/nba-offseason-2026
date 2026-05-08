@@ -1334,10 +1334,10 @@
     <div class="section-header">
       <div class="section-title" data-i18n="fa_title">Agencia Libre</div>
       <div class="section-subtitle" data-i18n="fa_subtitle">Free Agents — Movimientos confirmados y pendientes</div>
-      <div style="display:flex;gap:12px;margin-top:10px;flex-wrap:wrap;align-items:center">
-        <span class="badge badge-rfa">RFA</span><span style="font-size:11px;color:var(--text-muted)" data-i18n="legend_rfa">Agente libre restringido</span>
-        <span class="badge badge-to">TO</span><span style="font-size:11px;color:var(--text-muted)" data-i18n="legend_to">Opción del equipo</span>
-        <span class="badge badge-po">PO</span><span style="font-size:11px;color:var(--text-muted)" data-i18n="legend_po">Opción del jugador</span>
+      <div style="display:flex;gap:20px;margin-top:10px;flex-wrap:wrap;align-items:center">
+        <span style="display:inline-flex;align-items:center;gap:6px"><span class="badge badge-rfa">RFA</span><span style="font-size:11px;color:var(--text-muted)" data-i18n="legend_rfa">Agente libre restringido</span></span>
+        <span style="display:inline-flex;align-items:center;gap:6px"><span class="badge badge-to">TO</span><span style="font-size:11px;color:var(--text-muted)" data-i18n="legend_to">Opción del equipo</span></span>
+        <span style="display:inline-flex;align-items:center;gap:6px"><span class="badge badge-po">PO</span><span style="font-size:11px;color:var(--text-muted)" data-i18n="legend_po">Opción del jugador</span></span>
       </div>
     </div>
     <div class="fa-subsection-title" data-i18n="fa_signed_title">Firmados</div>
@@ -1473,6 +1473,7 @@
           <tr>
             <th><span data-i18n="draft_col_player">Jugador</span></th>
             <th><span data-i18n="col_country">País</span></th>
+            <th><span data-i18n="col_team">Equipo</span></th>
             <th><span data-i18n="draft_col_pos">Pos</span></th>
             <th><span data-i18n="draft_col_from">Procedencia</span></th>
             <th><span data-i18n="draft_col_signed">Firmado</span></th>
@@ -1481,7 +1482,7 @@
           </tr>
         </thead>
         <tbody id="undrafted-tbody">
-          <tr><td colspan="5"><div class="state-loading" data-i18n="loading">Cargando datos...</div></td></tr>
+          <tr><td colspan="8"><div class="state-loading" data-i18n="loading">Cargando datos...</div></td></tr>
         </tbody>
       </table>
     </div>
@@ -2026,11 +2027,12 @@ function renderDraft(data) {
 
 function renderUndrafted(data) {
   const tbody = document.getElementById('undrafted-tbody');
-  if (!data.length) { tbody.innerHTML = `<tr><td colspan="7"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
+  if (!data.length) { tbody.innerHTML = `<tr><td colspan="8"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
   tbody.innerHTML = data.map(d => `
     <tr>
       <td class="td-player clickable-player" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</td>
       <td style="font-size:18px;text-align:center" title="${esc(d.country)}">${flag(d.country)}</td>
+      <td>${d.team ? `<span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team)}')">${esc(d.team)}</span>` : '<span class="td-muted">—</span>'}</td>
       <td><span class="pos-text">${esc(d.pos) || '—'}</span></td>
       <td class="td-muted">${esc(d.from) || '—'}</td>
       <td style="text-align:center">${d.check ? `<span class="badge badge-check">${esc(d.check)}</span>` : '—'}</td>
@@ -2226,21 +2228,39 @@ function parseTW(rawName) {
 function buildPlantilla(team) {
   const norm    = s => (s || '').trim().toLowerCase();
   const key     = norm(team.team);
-  const faLookup = name => (DATA.fa||[]).find(f => f.player === name)?.pos || '';
+  const stripTag = n => (n || '').replace(/\s*\((?:RFA|TO|PO)\)\s*$/i, '').trim();
+  const posLookup = name => {
+    const n = stripTag(name);
+    const fromFa    = (DATA.fa||[]).find(f => stripTag(f.player) === n)?.pos;
+    if (fromFa) return fromFa;
+    const fromDraft = (DATA.draft||[]).find(d => stripTag(d.player) === n)?.pos;
+    if (fromDraft) return fromDraft;
+    const fromUndr  = (DATA.undrafted||[]).find(d => stripTag(d.player) === n)?.pos;
+    if (fromUndr) return fromUndr;
+    for (const r of (DATA.rosters||[])) {
+      const hit = r.siguen.find(p => stripTag(p.name) === n);
+      if (hit?.pos) return hit.pos;
+    }
+    return '';
+  };
 
   const staying = team.siguen.map(p => {
     const { name, tw } = parseTW(p.name);
-    const pos = (p.pos || faLookup(name)).toUpperCase();
+    const pos = (p.pos || posLookup(name)).toUpperCase();
     return { name, pos, type: 'staying', tw };
   });
 
   const faIn = (DATA.fa||[])
     .filter(d => norm(d.dest) === key)
-    .map(d => { const {name,tw} = parseTW(d.player); return { name, pos: (d.pos||'').toUpperCase(), type: 'new', tw }; });
+    .map(d => { const {name,tw} = parseTW(d.player); return { name, pos: (d.pos || posLookup(name)).toUpperCase(), type: 'new', tw }; });
 
   const draftIn = (DATA.draft||[])
     .filter(d => norm(d.team) === key && d.player)
-    .map(d => { const {name,tw} = parseTW(d.player); return { name, pos: (d.pos||'').toUpperCase(), type: 'new', tw }; });
+    .map(d => { const {name,tw} = parseTW(d.player); return { name, pos: (d.pos || posLookup(name)).toUpperCase(), type: 'new', tw }; });
+
+  const undraftedIn = (DATA.undrafted||[])
+    .filter(d => norm(d.team) === key && d.player)
+    .map(d => { const {name,tw} = parseTW(d.player); return { name, pos: (d.pos || posLookup(name)).toUpperCase(), type: 'new', tw }; });
 
   const tradeIn = [];
   (DATA.trades||[])
@@ -2251,11 +2271,11 @@ function buildPlantilla(team) {
         .filter(r => !/pick|cash/i.test(r.item))
         .forEach(r => {
           const {name,tw} = parseTW(r.item);
-          tradeIn.push({ name, pos: faLookup(name).toUpperCase(), type: 'new', tw });
+          tradeIn.push({ name, pos: posLookup(name).toUpperCase(), type: 'new', tw });
         });
     });
 
-  return [...staying, ...faIn, ...draftIn, ...tradeIn].sort((a, b) => {
+  return [...staying, ...faIn, ...draftIn, ...undraftedIn, ...tradeIn].sort((a, b) => {
     const ai = POS_ORDER.indexOf(a.pos), bi = POS_ORDER.indexOf(b.pos);
     const ao = ai === -1 ? 99 : ai,   bo = bi === -1 ? 99 : bi;
     return ao !== bo ? ao - bo : a.name.localeCompare(b.name);
@@ -2772,29 +2792,35 @@ function openTeamView(teamName, pushHistory = true) {
         faPending.length ? faPending.map(d => { const {name,badge} = faStatus(d.player); return tvRow(esc(name) + badge); }).join('') : tvEmpty())}
   </div>`;
 
-  // ── SIGUEN ────────────────────────────────────
+  // ── PLANTILLA (siguen + altas, agrupadas por posición) ────
   const POS_LIST = ['PG','SG','SF','PF','C'];
-  const siguenRaw = roster?.siguen || [];
-  if (siguenRaw.length) {
-    const byPos = {};
-    siguenRaw.forEach(p => {
-      const key = POS_LIST.includes(p.pos?.toUpperCase()) ? p.pos.toUpperCase() : '?';
-      (byPos[key] = byPos[key] || []).push(p);
-    });
-    const rows = [...POS_LIST, '?'].flatMap(pos => {
-      const group = byPos[pos];
-      if (!group) return [];
-      const label = pos === '?' ? '—' : pos;
-      const names = group.map(p => esc(p.name)).join(', ');
-      return [`<div class="tv-row" style="align-items:baseline;gap:10px;justify-content:flex-start">
-        <span class="pos-text" style="min-width:30px;flex-shrink:0">${label}</span>
-        <span style="font-size:13px;color:var(--text)">${names}</span>
-      </div>`];
-    }).join('');
-    html += `<div class="tv-section-title">${t('roster_stays')}</div>
-    <div class="tv-card" style="margin-bottom:28px">
-      <div class="tv-card-body">${rows}</div>
-    </div>`;
+  if (roster) {
+    const plantilla = buildPlantilla(roster);
+    if (plantilla.length) {
+      const byPos = {};
+      plantilla.forEach(p => {
+        const key = POS_LIST.includes(p.pos) ? p.pos : '?';
+        (byPos[key] = byPos[key] || []).push(p);
+      });
+      const rows = [...POS_LIST, '?'].flatMap(pos => {
+        const group = byPos[pos];
+        if (!group) return [];
+        const label = pos === '?' ? '—' : pos;
+        const names = group.map(p => {
+          const tw = p.tw ? ' <span class="badge-tw">TW</span>' : '';
+          const cls = p.type === 'new' ? ' style="color:var(--signed)"' : '';
+          return `<span${cls}>${esc(p.name)}${tw}</span>`;
+        }).join(', ');
+        return [`<div class="tv-row" style="align-items:baseline;gap:10px;justify-content:flex-start">
+          <span class="pos-text" style="min-width:30px;flex-shrink:0">${label}</span>
+          <span style="font-size:13px;color:var(--text)">${names}</span>
+        </div>`];
+      }).join('');
+      html += `<div class="tv-section-title">${t('roster_stays')}</div>
+      <div class="tv-card" style="margin-bottom:28px">
+        <div class="tv-card-body">${rows}</div>
+      </div>`;
+    }
   }
 
   // ── TRASPASOS ─────────────────────────────────
