@@ -359,7 +359,32 @@
   .td-money { font-family: 'DM Mono', monospace; color: var(--accent); font-size: 11px; text-align: center; width: 70px; white-space: nowrap; }
   .td-num   { text-align: center; font-size: 11px; color: var(--text-muted); font-family: 'DM Mono', monospace; width: 50px; white-space: nowrap; }
   .td-muted { color: var(--text-muted); font-size: 12px; }
-  .td-notes { white-space: normal; font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+  .td-notes { white-space: normal; font-size: 12px; color: var(--text-muted); line-height: 1.5; max-width: 360px; word-break: break-word; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translate(-50%, 20px);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.18s, transform 0.18s;
+    z-index: 1000;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.25);
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+  .toast[data-kind="ok"]  { border-color: var(--accent);  color: var(--accent); }
+  .toast[data-kind="err"] { border-color: var(--gone);    color: var(--gone); }
 
   /* BADGES */
   .badge {
@@ -1672,6 +1697,7 @@ const i18n = {
     drawer_total: 'Total', drawer_years: 'Años',
     load_error: 'Error al cargar datos. Verifica las URLs del Sheet.',
     trade_from: 'De',
+    toast_updated: 'Datos actualizados', toast_error: 'Error al actualizar',
   },
   en: {
     home_eyebrow: 'Off-Season',
@@ -1730,6 +1756,7 @@ const i18n = {
     drawer_total: 'Total', drawer_years: 'Years',
     load_error: 'Failed to load data. Check the Sheet URLs.',
     trade_from: 'From',
+    toast_updated: 'Data updated', toast_error: 'Update failed',
   }
 };
 
@@ -1771,21 +1798,28 @@ function applyTranslations() {
 // CSV PARSER
 // ─────────────────────────────────────────────
 function parseCSV(text) {
+  // Strip BOM (Google Sheets a veces lo añade)
+  if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
   const rows = [];
   const lines = text.split('\n');
   for (let i = 0; i < lines.length; i++) {
     const row = [];
+    const line = lines[i];
     let cur = '', inQ = false;
-    for (let j = 0; j < lines[i].length; j++) {
-      const c = lines[i][j];
-      if (c === '"') { inQ = !inQ; continue; }
+    for (let j = 0; j < line.length; j++) {
+      const c = line[j];
+      if (c === '"') {
+        // Comilla escapada: dos comillas consecutivas dentro de un campo entrecomillado
+        if (inQ && line[j+1] === '"') { cur += '"'; j++; continue; }
+        inQ = !inQ; continue;
+      }
       if (c === ',' && !inQ) { row.push(cur.trim()); cur = ''; continue; }
       cur += c;
     }
     row.push(cur.trim());
     // Incluir filas con comas (separadores vacíos de trades) aunque todas las celdas estén vacías;
     // descartar solo líneas completamente en blanco (sin comas ni contenido)
-    if (lines[i].includes(',') || row.some(c => c)) rows.push(row);
+    if (line.includes(',') || row.some(c => c)) rows.push(row);
   }
   return rows;
 }
@@ -1826,23 +1860,37 @@ function applyRawData(raw, ts) {
 
 async function fetchAll() {
   // Cargar caché al instante si existe
+  let hadCache = false;
   try {
     const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
-    if (cached) applyRawData(cached.raw, cached.ts);
+    if (cached) { applyRawData(cached.raw, cached.ts); hadCache = true; }
   } catch(e) { /* caché corrupta, ignorar */ }
 
-  // Refrescar desde el Sheet en background
+  // Refrescar desde el Sheet en background — usar allSettled para tolerar
+  // que alguna fuente falle sin tirar el resto.
   try {
-    const [faR, draftR, tradesR, r1, r2, coachR] = await Promise.all([
-      fetch(URLS.fa), fetch(URLS.draft), fetch(URLS.trades),
-      fetch(URLS.rosters1), fetch(URLS.rosters2), fetch(URLS.coaches)
-    ]);
-    const [fa, draft, trades, rosters1, rosters2, coaches] = await Promise.all([
-      faR.text(), draftR.text(), tradesR.text(),
-      r1.text(), r2.text(), coachR.text()
-    ]);
+    const keys = ['fa', 'draft', 'trades', 'rosters1', 'rosters2', 'coaches'];
+    const settled = await Promise.allSettled(keys.map(k => fetch(URLS[k]).then(r => r.text())));
+    const failed = [];
+    const raw = {};
+    keys.forEach((k, idx) => {
+      const s = settled[idx];
+      if (s.status === 'fulfilled') raw[k] = s.value;
+      else failed.push(k);
+    });
 
-    const raw = { fa, draft, trades, rosters1, rosters2, coaches };
+    if (failed.length === keys.length) throw new Error('all-failed');
+
+    // Para fuentes que fallaron, reutilizamos lo que hubiera en caché
+    if (failed.length && hadCache) {
+      try {
+        const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+        if (cached?.raw) failed.forEach(k => { if (cached.raw[k] != null) raw[k] = cached.raw[k]; });
+      } catch(e) {}
+    }
+    // Asegurar que todas las claves existen para evitar undefined en parseCSV
+    keys.forEach(k => { if (raw[k] == null) raw[k] = ''; });
+
     const ts  = Date.now();
     try { localStorage.setItem(CACHE_KEY, JSON.stringify({ raw, ts })); } catch(e) {}
 
@@ -1893,7 +1941,7 @@ function renderFA(data) {
         return `
       <tr>
         <td class="td-player clickable-player" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(name)}${badge}</td>
-        <td style="text-align:center"><span class="pos-text">${esc(d.pos) || '—'}</span></td>
+        <td style="text-align:center"><span class="pos-text">${esc(validPos(d.pos)) || '—'}</span></td>
         <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.dest)}')">${esc(d.dest)}</span></td>
         <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team25)}')">${esc(d.team25)}</span></td>
         <td class="td-money">${d.money ? '$'+esc(d.money)+'M' : '—'}</td>
@@ -2248,6 +2296,17 @@ function parseTW(rawName) {
   return { name, tw };
 }
 
+// Normaliza el item recibido en un trade (puede traer "(TW)", "Two-way" o sufijos)
+// y lo compara exactamente con el nombre del jugador para evitar falsos positivos
+// del estilo "John" matcheando "Johnson".
+function tradeItemMatchesPlayer(item, playerName) {
+  if (!item || !playerName) return false;
+  if (/^(pick|cash)/i.test(item.trim())) return false;
+  const a = parseTW(item).name.trim().toLowerCase();
+  const b = playerName.trim().toLowerCase();
+  return a === b;
+}
+
 function buildPlantilla(team) {
   const norm    = s => (s || '').trim().toLowerCase();
   const key     = norm(team.team);
@@ -2574,11 +2633,32 @@ async function refreshData() {
   const btn = document.getElementById('refresh-btn');
   btn.classList.add('loading');
   btn.disabled = true;
+  let ok = true;
   try { await fetchAll(); }
+  catch(e) { ok = false; }
   finally {
     btn.classList.remove('loading');
     btn.disabled = false;
+    showToast(ok ? t('toast_updated') : t('toast_error'), ok ? 'ok' : 'err');
   }
+}
+
+let _toastTimer = null;
+function showToast(msg, kind = 'ok') {
+  let el = document.getElementById('toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'toast';
+    el.className = 'toast';
+    el.setAttribute('role', 'status');
+    el.setAttribute('aria-live', 'polite');
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.dataset.kind = kind;
+  el.classList.add('show');
+  if (_toastTimer) clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
 }
 
 function toggleTheme() {
@@ -2641,7 +2721,7 @@ function openPlayerDrawer(playerName, pushHistory = true) {
   const faData    = DATA.fa.filter(d => d.player === playerName);
   const draftData = DATA.draft.filter(d => d.player === playerName);
   const undData   = DATA.undrafted ? DATA.undrafted.filter(d => d.player === playerName) : [];
-  const tradeData = DATA.trades.filter(tr => tr.sides.some(s => s.receives.some(r => r.item.includes(playerName))));
+  const tradeData = DATA.trades.filter(tr => tr.sides.some(s => s.receives.some(r => tradeItemMatchesPlayer(r.item, playerName))));
 
   document.getElementById('drawer-player-name').textContent = playerName;
 
@@ -2697,9 +2777,9 @@ function openPlayerDrawer(playerName, pushHistory = true) {
       <div class="drawer-section-title">${t('tab_trades')}</div>`;
     tradeData.forEach(tr => {
       tr.sides.forEach(side => {
-        if (side.receives.some(r => r.item.includes(playerName))) {
+        if (side.receives.some(r => tradeItemMatchesPlayer(r.item, playerName))) {
           html += drawerRow(t('drawer_new_team'), `<span class="badge badge-team">${esc(side.team)}</span>`);
-          const fromTeam = side.receives.find(r => r.item.includes(playerName))?.from;
+          const fromTeam = side.receives.find(r => tradeItemMatchesPlayer(r.item, playerName))?.from;
           if (fromTeam) html += drawerRow(t('drawer_old_team'), `<span class="badge badge-team">${esc(fromTeam)}</span>`);
         }
       });
@@ -2720,7 +2800,7 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     if (draftData[0].team) teamLinks.push({ label: t('drawer_view_team'), team: draftData[0].team });
   } else if (tradeData.length) {
     tradeData[0].sides.forEach(side => {
-      const match = side.receives.find(r => r.item.includes(playerName));
+      const match = side.receives.find(r => tradeItemMatchesPlayer(r.item, playerName));
       if (match) {
         teamLinks.push({ label: t('drawer_view_team'), team: side.team });
         if (match.from) teamLinks.push({ label: t('drawer_view_old_team'), team: match.from });
@@ -2735,8 +2815,12 @@ function openPlayerDrawer(playerName, pushHistory = true) {
   }
 
   document.getElementById('drawer-body').innerHTML = html;
-  document.getElementById('drawer-overlay').classList.add('open');
-  document.getElementById('player-drawer').classList.add('open');
+  const overlay = document.getElementById('drawer-overlay');
+  const drawerEl = document.getElementById('player-drawer');
+  overlay.classList.add('open');
+  drawerEl.classList.add('open');
+  drawerEl.setAttribute('aria-hidden', 'false');
+  overlay.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
 
   if (pushHistory) pushURL({ player: playerName, team: null });
@@ -2750,8 +2834,12 @@ function drawerRow(label, value, cls = '') {
 }
 
 function closeDrawer(pushHistory = true) {
-  document.getElementById('drawer-overlay').classList.remove('open');
-  document.getElementById('player-drawer').classList.remove('open');
+  const overlay = document.getElementById('drawer-overlay');
+  const drawerEl = document.getElementById('player-drawer');
+  overlay.classList.remove('open');
+  drawerEl.classList.remove('open');
+  drawerEl.setAttribute('aria-hidden', 'true');
+  overlay.setAttribute('aria-hidden', 'true');
   document.body.style.overflow = '';
   if (pushHistory) pushURL({ player: null });
 }
@@ -2765,6 +2853,10 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(
 function openTeamView(teamName, pushHistory = true) {
   const norm2 = s => (s||'').trim().toLowerCase();
   const tKey = norm2(teamName);
+  // Resolver el nombre canónico aunque venga de la URL en otro casing.
+  const canonical = Object.keys(TEAM_LOGOS).find(n => norm2(n) === tKey);
+  if (canonical) teamName = canonical;
+  else if (!teamName) { showTab('home', pushHistory); return; }
   const faIn      = DATA.fa.filter(d => norm2(d.dest) === tKey);
   const faOut     = DATA.fa.filter(d => norm2(d.team25) === tKey && d.dest);
   const picks     = DATA.draft.filter(d => norm2(d.team) === tKey);
@@ -2963,13 +3055,13 @@ window._debugTrades = () => {
 fetchAll();
 </script>
 <!-- PLAYER DRAWER -->
-<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
-<div class="player-drawer" id="player-drawer">
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()" aria-hidden="true"></div>
+<div class="player-drawer" id="player-drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-player-name" aria-hidden="true">
   <div class="drawer-header">
     <div>
       <div class="drawer-player-name" id="drawer-player-name">—</div>
     </div>
-    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+    <button class="drawer-close" onclick="closeDrawer()" aria-label="Cerrar">✕</button>
   </div>
   <div class="drawer-body" id="drawer-body"></div>
 </div>
