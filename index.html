@@ -2140,20 +2140,33 @@ function resetDraft() {
 // Columnas: RECIBE | (jugadores/picks) | ... | RECIBE | ...
 // Estructura: cada fila es una parte del trade, agrupadas por número
 // ─────────────────────────────────────────────
-// Columnas: # | Activo | De | A | Fecha | Fuente
-// Una fila por activo movido entre equipos. Misma # = mismo traspaso.
+// Columnas (formato actual): # | Activo | POS | De | A | Fecha | Fuente
+// Compatibilidad con formato antiguo: # | Activo | De | A | Fecha | Fuente
+// Detección: si la cabecera fila 0 col 2 incluye "pos" o las celdas de la
+// columna 2 contienen valores tipo PG/SG/SF/PF/C, usamos el nuevo formato.
 function processTrades(rows) {
+  const headerCell = (rows[0] && rows[0][2] ? rows[0][2] : '').toString().toLowerCase();
+  const dataRows   = rows.slice(1);
+  const looksLikePosCol = /pos/i.test(headerCell)
+    || dataRows.some(r => {
+         const v = (r && r[2] ? r[2] : '').toString().trim().toUpperCase();
+         return v && /^(PG|SG|SF|PF|C|G|F|G\/F|F\/C|F\/G)$/.test(v);
+       });
+  const COLS = looksLikePosCol
+    ? { id:0, asset:1, pos:2, from:3, to:4, date:5, src:6 }
+    : { id:0, asset:1, pos:-1, from:2, to:3, date:4, src:5 };
   const tradeMap = new Map();
   const trades   = [];
   let lastId     = null;
 
-  rows.slice(1).forEach(r => {
-    const id    = cell(r,0);
-    const asset = cell(r,1);
-    const from  = cell(r,2);
-    const to    = cell(r,3);
-    const date  = cell(r,4);
-    const src   = cell(r,5);
+  dataRows.forEach(r => {
+    const id    = cell(r,COLS.id);
+    const asset = cell(r,COLS.asset);
+    const pos   = COLS.pos >= 0 ? cell(r,COLS.pos) : '';
+    const from  = cell(r,COLS.from);
+    const to    = cell(r,COLS.to);
+    const date  = cell(r,COLS.date);
+    const src   = cell(r,COLS.src);
 
     if (!id && !asset && !from && !to) return;
 
@@ -2173,7 +2186,7 @@ function processTrades(rows) {
     if (asset && to) {
       let side = trade.sides.find(s => s.team === to);
       if (!side) { side = { team: to, receives: [] }; trade.sides.push(side); }
-      side.receives.push({ item: asset, from });
+      side.receives.push({ item: asset, pos, from });
     }
   });
 
@@ -2190,12 +2203,18 @@ function tradeReceivesHTML(receives) {
   const byFrom = [];
   receives.forEach(r => {
     const grp = byFrom.find(g => g.from === r.from);
-    if (grp) grp.items.push(r.item);
-    else byFrom.push({ from: r.from, items: [r.item] });
+    if (grp) grp.items.push(r);
+    else byFrom.push({ from: r.from, items: [r] });
   });
+  const renderItem = r => {
+    const isAsset = !/^(pick|cash)/i.test((r.item||'').trim());
+    const pos = isAsset ? validPos(r.pos || lookupPos(r.item)) : '';
+    const posTag = pos ? `<span class="roster-pos-tag" style="margin-right:6px">${esc(pos)}</span>` : '';
+    return `<div class="trade-item" onclick="openPlayerDrawer('${esc(r.item)}')">${posTag}${esc(r.item)}</div>`;
+  };
   return byFrom.map((grp, i) => `
     <div class="trade-receives-label" style="${i > 0 ? 'margin-top:14px' : ''}">← ${t('trade_from')}: <strong class="clickable-team" onclick="openTeamView('${esc(grp.from)}')" style="cursor:pointer">${esc(grp.from)}</strong></div>
-    ${grp.items.map(item => `<div class="trade-item" onclick="openPlayerDrawer('${esc(item)}')">${esc(item)}</div>`).join('')}
+    ${grp.items.map(renderItem).join('')}
   `).join('');
 }
 
@@ -2296,32 +2315,42 @@ function parseTW(rawName) {
   return { name, tw };
 }
 
+// Normaliza el nombre del jugador quitando sufijos (TW)/(RFA)/(TO)/(PO) y
+// pasándolo a minúsculas, para usarlo como clave de índice/comparación.
+function normPlayerKey(name) {
+  if (!name) return '';
+  return parseTW(name).name.replace(/\s*\((?:RFA|TO|PO)\)\s*$/i, '').trim().toLowerCase();
+}
+
+// Índice global de posiciones por jugador, reconstruido cuando cambia DATA._stamp.
+function lookupPos(name) {
+  if (!lookupPos._idx || lookupPos._stamp !== DATA._stamp) {
+    const idx = new Map();
+    const put = (n, p) => { const k = normPlayerKey(n); if (k && p && !idx.has(k)) idx.set(k, p); };
+    (DATA.fa||[]).forEach(d => put(d.player, d.pos));
+    (DATA.draft||[]).forEach(d => put(d.player, d.pos));
+    (DATA.undrafted||[]).forEach(d => put(d.player, d.pos));
+    (DATA.rosters||[]).forEach(r => r.siguen.forEach(p => put(p.name, p.pos)));
+    (DATA.trades||[]).forEach(tr => tr.sides.forEach(s => s.receives.forEach(r => { if (r.pos) put(r.item, r.pos); })));
+    lookupPos._idx = idx;
+    lookupPos._stamp = DATA._stamp;
+  }
+  return lookupPos._idx.get(normPlayerKey(name)) || '';
+}
+
 // Normaliza el item recibido en un trade (puede traer "(TW)", "Two-way" o sufijos)
 // y lo compara exactamente con el nombre del jugador para evitar falsos positivos
 // del estilo "John" matcheando "Johnson".
 function tradeItemMatchesPlayer(item, playerName) {
   if (!item || !playerName) return false;
   if (/^(pick|cash)/i.test(item.trim())) return false;
-  const a = parseTW(item).name.trim().toLowerCase();
-  const b = playerName.trim().toLowerCase();
-  return a === b;
+  return normPlayerKey(item) === normPlayerKey(playerName);
 }
 
 function buildPlantilla(team) {
   const norm    = s => (s || '').trim().toLowerCase();
   const key     = norm(team.team);
-  const stripTag = n => (n || '').replace(/\s*\((?:RFA|TO|PO)\)\s*$/i, '').trim();
-  if (!buildPlantilla._posIdx || buildPlantilla._posIdxStamp !== DATA._stamp) {
-    const idx = new Map();
-    const put = (name, pos) => { const n = stripTag(name); if (n && pos && !idx.has(n)) idx.set(n, pos); };
-    (DATA.fa||[]).forEach(d => put(d.player, d.pos));
-    (DATA.draft||[]).forEach(d => put(d.player, d.pos));
-    (DATA.undrafted||[]).forEach(d => put(d.player, d.pos));
-    (DATA.rosters||[]).forEach(r => r.siguen.forEach(p => put(p.name, p.pos)));
-    buildPlantilla._posIdx = idx;
-    buildPlantilla._posIdxStamp = DATA._stamp;
-  }
-  const posLookup = name => buildPlantilla._posIdx.get(stripTag(name)) || '';
+  const posLookup = lookupPos;
 
   const staying = team.siguen.map(p => {
     const { name, tw } = parseTW(p.name);
@@ -2350,7 +2379,7 @@ function buildPlantilla(team) {
         .filter(r => !/pick|cash/i.test(r.item))
         .forEach(r => {
           const {name,tw} = parseTW(r.item);
-          tradeIn.push({ name, pos: posLookup(name).toUpperCase(), type: 'new', tw });
+          tradeIn.push({ name, pos: (r.pos || posLookup(name)).toUpperCase(), type: 'new', tw });
         });
     });
 
@@ -2777,10 +2806,12 @@ function openPlayerDrawer(playerName, pushHistory = true) {
       <div class="drawer-section-title">${t('tab_trades')}</div>`;
     tradeData.forEach(tr => {
       tr.sides.forEach(side => {
-        if (side.receives.some(r => tradeItemMatchesPlayer(r.item, playerName))) {
+        const myReceive = side.receives.find(r => tradeItemMatchesPlayer(r.item, playerName));
+        if (myReceive) {
           html += drawerRow(t('drawer_new_team'), `<span class="badge badge-team">${esc(side.team)}</span>`);
-          const fromTeam = side.receives.find(r => tradeItemMatchesPlayer(r.item, playerName))?.from;
-          if (fromTeam) html += drawerRow(t('drawer_old_team'), `<span class="badge badge-team">${esc(fromTeam)}</span>`);
+          if (myReceive.from) html += drawerRow(t('drawer_old_team'), `<span class="badge badge-team">${esc(myReceive.from)}</span>`);
+          const pos = validPos(myReceive.pos || lookupPos(playerName));
+          if (pos) html += drawerRow(t('draft_col_pos'), `<span class="pos-text">${esc(pos)}</span>`);
         }
       });
     });
@@ -2875,10 +2906,16 @@ function openTeamView(teamName, pushHistory = true) {
   const tradeIn = [], tradeOut = [];
   trades.forEach(tr => {
     const mySide = tr.sides.find(s => norm2(s.team) === tKey);
-    if (mySide) mySide.receives.forEach(r => tradeIn.push(r.item));
+    if (mySide) mySide.receives.forEach(r => tradeIn.push({ item: r.item, pos: r.pos }));
     // Salidas: activos donde from === este equipo (cualquier número de equipos)
-    tr.sides.forEach(side => side.receives.filter(r => norm2(r.from) === tKey && !/pick|cash/i.test(r.item)).forEach(r => tradeOut.push({item: r.item, to: side.team})));
+    tr.sides.forEach(side => side.receives.filter(r => norm2(r.from) === tKey && !/pick|cash/i.test(r.item)).forEach(r => tradeOut.push({item: r.item, to: side.team, pos: r.pos})));
   });
+
+  const itemPosTag = (item, pos) => {
+    if (/^(pick|cash)/i.test((item||'').trim())) return '';
+    const p = validPos(pos || lookupPos(item));
+    return p ? `<span class="roster-pos-tag" style="margin-right:6px">${esc(p)}</span>` : '';
+  };
 
   const subcol = (items, label, renderFn) => `
     <div>
@@ -2902,7 +2939,7 @@ function openTeamView(teamName, pushHistory = true) {
     ${tvCard(t('roster_fa'), faIn.length,
         faIn.length ? faIn.map(d => tvRow(esc(d.player), '', d.money ? `$${esc(d.money)}M/${esc(d.years)}y` : '')).join('') : tvEmpty())}
     ${tvCard(t('roster_trade'), tradeIn.length,
-        tradeIn.length ? tradeIn.map(item => tvRow(esc(item))).join('') : tvEmpty())}
+        tradeIn.length ? tradeIn.map(r => tvRow(itemPosTag(r.item, r.pos) + esc(r.item))).join('') : tvEmpty())}
     ${tvCard(t('roster_draft'), picks.length,
         picks.length ? picks.map(d => tvRow(esc(d.player), `#${esc(d.pick)}`)).join('') : tvEmpty())}
   </div>`;
@@ -2913,7 +2950,7 @@ function openTeamView(teamName, pushHistory = true) {
     ${tvCard(t('roster_salidas_fa'), faOut.length,
         faOut.length ? faOut.map(d => tvRow(esc(d.player), d.dest ? `→ ${esc(d.dest)}` : '')).join('') : tvEmpty())}
     ${tvCard(t('roster_salidas_trade'), tradeOut.length,
-        tradeOut.length ? tradeOut.map(r => tvRow(esc(r.item), `→ ${esc(r.to)}`)).join('') : tvEmpty())}
+        tradeOut.length ? tradeOut.map(r => tvRow(itemPosTag(r.item, r.pos) + esc(r.item), `→ ${esc(r.to)}`)).join('') : tvEmpty())}
     ${tvCard(t('roster_fa_pending'), faPending.length,
         faPending.length ? faPending.map(d => { const {name,badge} = faStatus(d.player); return tvRow(esc(name) + badge); }).join('') : tvEmpty())}
   </div>`;
