@@ -19,6 +19,7 @@
     --signed: #c8ff00;
     --pending: #ff9f00;
     --gone: #ff4455;
+    --resign: #60a5fa;
   }
 
   body.light {
@@ -34,6 +35,7 @@
     --signed: #1f5d00;
     --pending: #8a4e00;
     --gone: #cc1122;
+    --resign: #1d4ed8;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -546,6 +548,23 @@
 
   .roster-player-new { color: var(--signed); }
   .roster-player-new .roster-pos-tag { color: var(--signed); opacity: 0.6; }
+
+  .roster-player-resign { color: var(--resign); }
+  .roster-player-resign .roster-pos-tag { color: var(--resign); opacity: 0.6; }
+
+  .badge-resign {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--resign);
+    border: 1px solid var(--resign);
+    background: rgba(96,165,250,0.1);
+    border-radius: 3px;
+    padding: 1px 5px;
+    margin-left: 5px;
+    vertical-align: middle;
+  }
 
   .badge-tw {
     font-family: 'DM Mono', monospace;
@@ -1698,6 +1717,7 @@ const i18n = {
     load_error: 'Error al cargar datos. Verifica las URLs del Sheet.',
     trade_from: 'De',
     toast_updated: 'Datos actualizados', toast_error: 'Error al actualizar',
+    badge_resign: 'RENUEVA',
   },
   en: {
     home_eyebrow: 'Off-Season',
@@ -1757,6 +1777,7 @@ const i18n = {
     load_error: 'Failed to load data. Check the Sheet URLs.',
     trade_from: 'From',
     toast_updated: 'Data updated', toast_error: 'Update failed',
+    badge_resign: 'RE-SIGNS',
   }
 };
 
@@ -2353,15 +2374,33 @@ function buildPlantilla(team) {
   const key     = norm(team.team);
   const posLookup = lookupPos;
 
+  // Renovaciones: FA cuyo team25 === dest === este equipo. Las identificamos
+  // por la clave normalizada del jugador para detectar duplicados con siguen.
+  const resignKeys = new Set(
+    (DATA.fa||[])
+      .filter(d => d.dest && norm(d.dest) === key && norm(d.team25) === key)
+      .map(d => normPlayerKey(d.player))
+  );
+
   const staying = team.siguen.map(p => {
     const { name, tw } = parseTW(p.name);
     const pos = (p.pos || posLookup(name)).toUpperCase();
-    return { name, pos, type: 'staying', tw };
+    const k = normPlayerKey(p.name);
+    return { name, pos, type: 'staying', tw, resign: resignKeys.has(k) };
   });
 
+  const stayingKeys = new Set(staying.map(p => normPlayerKey(p.name)));
+
+  // Llegadas FA. Si una renovación ya está como SIGUEN del sheet, no duplicar.
+  // Si la renovación NO está en SIGUEN, la añadimos como llegada con badge.
   const faIn = (DATA.fa||[])
     .filter(d => norm(d.dest) === key)
-    .map(d => { const {name,tw} = parseTW(d.player); return { name, pos: (d.pos || posLookup(name)).toUpperCase(), type: 'new', tw }; });
+    .filter(d => !stayingKeys.has(normPlayerKey(d.player)))
+    .map(d => {
+      const {name,tw} = parseTW(d.player);
+      const isResign = norm(d.team25) === key;
+      return { name, pos: (d.pos || posLookup(name)).toUpperCase(), type: 'new', tw, resign: isResign };
+    });
 
   const draftIn = (DATA.draft||[])
     .filter(d => norm(d.team) === key && d.player)
@@ -2392,13 +2431,17 @@ function buildPlantilla(team) {
 }
 
 function plantillaBlock(players) {
-  const posTag = pos => POS_ORDER.includes(pos) ? `<span class="roster-pos-tag">${esc(pos)}</span>` : '';
-  const twTag  = tw  => tw ? `<span class="badge-tw">TW</span>` : '';
+  const posTag    = pos => POS_ORDER.includes(pos) ? `<span class="roster-pos-tag">${esc(pos)}</span>` : '';
+  const twTag     = tw  => tw ? `<span class="badge-tw">TW</span>` : '';
+  const resignTag = r  => r  ? `<span class="badge-resign">${t('badge_resign')}</span>` : '';
+  const cls = p => p.resign ? 'roster-player roster-player-resign'
+                  : p.type === 'new' ? 'roster-player roster-player-new'
+                  : 'roster-player';
   return `
     <div class="roster-block">
       <div class="roster-label plantilla">${t('roster_stays')}</div>
       ${players.length
-        ? players.map(p => `<div class="roster-player${p.type==='new'?' roster-player-new':''}">${posTag(p.pos)}${esc(p.name)}${twTag(p.tw)}</div>`).join('')
+        ? players.map(p => `<div class="${cls(p)}">${posTag(p.pos)}${esc(p.name)}${twTag(p.tw)}${resignTag(p.resign)}</div>`).join('')
         : `<div class="roster-player" style="color:var(--text-dim)">—</div>`}
     </div>`;
 }
@@ -2938,7 +2981,13 @@ function openTeamView(teamName, pushHistory = true) {
   html += `<div class="tv-section-title" style="color:var(--signed)">${t('roster_arrivals')}</div>
   <div class="team-view-grid" style="margin-bottom:28px">
     ${tvCard(t('roster_fa'), faIn.length,
-        faIn.length ? faIn.map(d => tvRow(esc(d.player), '', d.money ? `$${esc(d.money)}M/${esc(d.years)}y` : '')).join('') : tvEmpty())}
+        faIn.length ? faIn.map(d => {
+          const isResign = norm2(d.team25) === tKey;
+          const nameHTML = isResign
+            ? `<span style="color:var(--resign)">${esc(d.player)}</span><span class="badge-resign">${t('badge_resign')}</span>`
+            : esc(d.player);
+          return tvRow(nameHTML, '', d.money ? `$${esc(d.money)}M/${esc(d.years)}y` : '');
+        }).join('') : tvEmpty())}
     ${tvCard(t('roster_trade'), tradeIn.length,
         tradeIn.length ? tradeIn.map(r => tvRow(itemPosTag(r.item, r.pos) + esc(r.item))).join('') : tvEmpty())}
     ${tvCard(t('roster_draft'), picks.length,
@@ -2972,8 +3021,10 @@ function openTeamView(teamName, pushHistory = true) {
         const label = pos === '?' ? '—' : pos;
         const names = group.map(p => {
           const tw = p.tw ? ' <span class="badge-tw">TW</span>' : '';
-          const cls = p.type === 'new' ? ' style="color:var(--signed)"' : '';
-          return `<span${cls}>${esc(p.name)}${tw}</span>`;
+          const resign = p.resign ? ` <span class="badge-resign">${t('badge_resign')}</span>` : '';
+          const color = p.resign ? 'var(--resign)' : (p.type === 'new' ? 'var(--signed)' : '');
+          const cls = color ? ` style="color:${color}"` : '';
+          return `<span${cls}>${esc(p.name)}${tw}${resign}</span>`;
         }).join(', ');
         return [`<div class="tv-row" style="align-items:baseline;gap:10px;justify-content:flex-start">
           <span class="pos-text" style="min-width:30px;flex-shrink:0">${label}</span>
