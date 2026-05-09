@@ -2433,7 +2433,10 @@ function buildPlantilla(team) {
   return [...staying, ...faIn, ...draftIn, ...undraftedIn, ...tradeIn].sort((a, b) => {
     const ai = POS_ORDER.indexOf(a.pos), bi = POS_ORDER.indexOf(b.pos);
     const ao = ai === -1 ? 99 : ai,   bo = bi === -1 ? 99 : bi;
-    return ao !== bo ? ao - bo : a.name.localeCompare(b.name);
+    if (ao !== bo) return ao - bo;
+    // Dentro de la misma posición, los TW siempre al final.
+    if (!!a.tw !== !!b.tw) return a.tw ? 1 : -1;
+    return a.name.localeCompare(b.name);
   });
 }
 
