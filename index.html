@@ -905,6 +905,20 @@
   .tv-row-pick.undrafted { color: var(--text-dim); }
   .tv-row.tv-row-tw .tv-row-name { color: var(--text-muted); }
   .tv-empty { padding: 16px; font-size: 12px; color: var(--text-dim); font-family: 'DM Mono', monospace; }
+
+  .tv-color-legend {
+    display: flex; flex-wrap: wrap; gap: 18px;
+    margin-top: 8px; padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 1px;
+    color: var(--text-muted);
+  }
+  .tv-color-legend span { display: inline-flex; align-items: center; gap: 8px; }
+  .tv-color-legend i {
+    width: 10px; height: 10px; border-radius: 2px;
+    display: inline-block; flex-shrink: 0;
+  }
   .tv-section-title {
     font-family: 'DM Mono', monospace; font-size: 13px;
     text-transform: uppercase; letter-spacing: 2px;
@@ -1728,6 +1742,7 @@ const i18n = {
     trade_from: 'De',
     toast_updated: 'Datos actualizados', toast_error: 'Error al actualizar',
     badge_resign: 'RENUEVA',
+    legend_color_new: 'Alta', legend_color_resign: 'Renovación', legend_color_tw: 'Two-way',
   },
   en: {
     home_eyebrow: 'Off-Season',
@@ -1788,6 +1803,7 @@ const i18n = {
     trade_from: 'From',
     toast_updated: 'Data updated', toast_error: 'Update failed',
     badge_resign: 'RE-SIGNS',
+    legend_color_new: 'Signing', legend_color_resign: 'Re-sign', legend_color_tw: 'Two-way',
   }
 };
 
@@ -3123,6 +3139,13 @@ function openTeamView(teamName, pushHistory = true) {
       </div>
     </div>`;
   }
+
+  // ── LEYENDA DE COLORES ─────────────────────────
+  html += `<div class="tv-color-legend">
+    <span><i style="background:var(--signed)"></i>${t('legend_color_new')}</span>
+    <span><i style="background:var(--resign)"></i>${t('legend_color_resign')}</span>
+    <span><i style="background:var(--accent2)"></i>${t('legend_color_tw')}</span>
+  </div>`;
 
   html += `</div>`;
 
