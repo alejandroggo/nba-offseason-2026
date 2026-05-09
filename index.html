@@ -552,6 +552,9 @@
   .roster-player-resign { color: var(--resign); }
   .roster-player-resign .roster-pos-tag { color: var(--resign); opacity: 0.6; }
 
+  .roster-player-tw { color: var(--accent2); }
+  .roster-player-tw .roster-pos-tag { color: var(--accent2); opacity: 0.6; }
+
   .badge-resign {
     font-family: 'DM Mono', monospace;
     font-size: 9px;
@@ -2452,16 +2455,17 @@ function buildPlantilla(team) {
 
 function plantillaBlock(players) {
   const posTag    = pos => POS_ORDER.includes(pos) ? `<span class="roster-pos-tag">${esc(pos)}</span>` : '';
-  const twTag     = tw  => tw ? `<span class="badge-tw">TW</span>` : '';
-  const resignTag = r  => r  ? `<span class="badge-resign">${t('badge_resign')}</span>` : '';
+  // En PLANTILLA quitamos los badges (TW y RENUEVA): la información va por color.
+  // Prioridad de color: resign > new > tw > default.
   const cls = p => p.resign ? 'roster-player roster-player-resign'
                   : p.type === 'new' ? 'roster-player roster-player-new'
+                  : p.tw ? 'roster-player roster-player-tw'
                   : 'roster-player';
   return `
     <div class="roster-block">
       <div class="roster-label plantilla">${t('roster_stays')}</div>
       ${players.length
-        ? players.map(p => `<div class="${cls(p)}">${posTag(p.pos)}${esc(p.name)}${twTag(p.tw)}${resignTag(p.resign)}</div>`).join('')
+        ? players.map(p => `<div class="${cls(p)}">${posTag(p.pos)}${esc(p.name)}</div>`).join('')
         : `<div class="roster-player" style="color:var(--text-dim)">—</div>`}
     </div>`;
 }
@@ -3055,10 +3059,14 @@ function openTeamView(teamName, pushHistory = true) {
         if (!group) return [];
         const label = pos === '?' ? '—' : pos;
         const names = group.map(p => {
-          const tw = p.tw ? ' <span class="badge-tw">TW</span>' : '';
-          const color = p.resign ? 'var(--resign)' : (p.type === 'new' ? 'var(--signed)' : '');
+          // En PLANTILLA no usamos badges: el contrato/condición va por color.
+          // Prioridad: resign > new > tw > default.
+          const color = p.resign ? 'var(--resign)'
+                       : p.type === 'new' ? 'var(--signed)'
+                       : p.tw ? 'var(--accent2)'
+                       : '';
           const cls = color ? ` style="color:${color}"` : '';
-          return `<span${cls}>${esc(p.name)}${tw}</span>`;
+          return `<span${cls}>${esc(p.name)}</span>`;
         }).join(', ');
         return [`<div class="tv-row" style="align-items:baseline;gap:10px;justify-content:flex-start">
           <span class="pos-text" style="min-width:30px;flex-shrink:0">${label}</span>
