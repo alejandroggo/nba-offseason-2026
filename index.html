@@ -2207,7 +2207,7 @@ function tradeReceivesHTML(receives) {
     else byFrom.push({ from: r.from, items: [r] });
   });
   const renderItem = r => {
-    const isAsset = !/^(pick|cash)/i.test((r.item||'').trim());
+    const isAsset = !isNonPlayerAsset(r.item);
     const pos = isAsset ? validPos(r.pos || lookupPos(r.item)) : '';
     const posTag = pos ? `<span class="roster-pos-tag" style="margin-right:6px">${esc(pos)}</span>` : '';
     return `<div class="trade-item" onclick="openPlayerDrawer('${esc(r.item)}')">${posTag}${esc(r.item)}</div>`;
@@ -2315,6 +2315,13 @@ function parseTW(rawName) {
   return { name, tw };
 }
 
+// Detecta activos que no son jugadores (picks de draft, rondas, cash).
+// Cubre tanto inglés como español: pick, round, ronda, cash.
+const NON_PLAYER_ASSET_RE = /\b(pick|picks|round|ronda|rondas|cash)\b/i;
+function isNonPlayerAsset(item) {
+  return NON_PLAYER_ASSET_RE.test((item || '').trim());
+}
+
 // Normaliza el nombre del jugador quitando sufijos (TW)/(RFA)/(TO)/(PO) y
 // pasándolo a minúsculas, para usarlo como clave de índice/comparación.
 function normPlayerKey(name) {
@@ -2343,7 +2350,7 @@ function lookupPos(name) {
 // del estilo "John" matcheando "Johnson".
 function tradeItemMatchesPlayer(item, playerName) {
   if (!item || !playerName) return false;
-  if (/^(pick|cash)/i.test(item.trim())) return false;
+  if (isNonPlayerAsset(item)) return false;
   return normPlayerKey(item) === normPlayerKey(playerName);
 }
 
@@ -2376,7 +2383,7 @@ function buildPlantilla(team) {
     .forEach(tr => {
       const side = tr.sides.find(s => norm(s.team) === key);
       if (side) side.receives
-        .filter(r => !/pick|cash/i.test(r.item))
+        .filter(r => !isNonPlayerAsset(r.item))
         .forEach(r => {
           const {name,tw} = parseTW(r.item);
           tradeIn.push({ name, pos: (r.pos || posLookup(name)).toUpperCase(), type: 'new', tw });
@@ -2908,11 +2915,11 @@ function openTeamView(teamName, pushHistory = true) {
     const mySide = tr.sides.find(s => norm2(s.team) === tKey);
     if (mySide) mySide.receives.forEach(r => tradeIn.push({ item: r.item, pos: r.pos }));
     // Salidas: activos donde from === este equipo (cualquier número de equipos)
-    tr.sides.forEach(side => side.receives.filter(r => norm2(r.from) === tKey && !/pick|cash/i.test(r.item)).forEach(r => tradeOut.push({item: r.item, to: side.team, pos: r.pos})));
+    tr.sides.forEach(side => side.receives.filter(r => norm2(r.from) === tKey && !isNonPlayerAsset(r.item)).forEach(r => tradeOut.push({item: r.item, to: side.team, pos: r.pos})));
   });
 
   const itemPosTag = (item, pos) => {
-    if (/^(pick|cash)/i.test((item||'').trim())) return '';
+    if (isNonPlayerAsset(item)) return '';
     const p = validPos(pos || lookupPos(item));
     return p ? `<span class="roster-pos-tag" style="margin-right:6px">${esc(p)}</span>` : '';
   };
