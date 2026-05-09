@@ -2206,15 +2206,9 @@ function tradeReceivesHTML(receives) {
     if (grp) grp.items.push(r);
     else byFrom.push({ from: r.from, items: [r] });
   });
-  const renderItem = r => {
-    const isAsset = !isNonPlayerAsset(r.item);
-    const pos = isAsset ? validPos(r.pos || lookupPos(r.item)) : '';
-    const posTag = pos ? `<span class="roster-pos-tag" style="margin-right:6px">${esc(pos)}</span>` : '';
-    return `<div class="trade-item" onclick="openPlayerDrawer('${esc(r.item)}')">${posTag}${esc(r.item)}</div>`;
-  };
   return byFrom.map((grp, i) => `
     <div class="trade-receives-label" style="${i > 0 ? 'margin-top:14px' : ''}">← ${t('trade_from')}: <strong class="clickable-team" onclick="openTeamView('${esc(grp.from)}')" style="cursor:pointer">${esc(grp.from)}</strong></div>
-    ${grp.items.map(renderItem).join('')}
+    ${grp.items.map(r => `<div class="trade-item" onclick="openPlayerDrawer('${esc(r.item)}')">${esc(r.item)}</div>`).join('')}
   `).join('');
 }
 
