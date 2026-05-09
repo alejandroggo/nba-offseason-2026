@@ -894,6 +894,13 @@
   .tv-row-name:hover { color: var(--accent); text-decoration: underline; }
   .tv-row-detail { font-size: 11px; color: var(--text-muted); font-family: 'DM Mono', monospace; text-align: right; }
   .tv-row-money { font-size: 12px; color: var(--accent); font-family: 'DM Mono', monospace; }
+  .tv-row-pick {
+    font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 600;
+    color: var(--text-muted); min-width: 32px; text-align: left; flex-shrink: 0;
+    letter-spacing: 0.5px;
+  }
+  .tv-row-pick.undrafted { color: var(--text-dim); }
+  .tv-row.tv-row-tw .tv-row-name { color: var(--text-muted); }
   .tv-empty { padding: 16px; font-size: 12px; color: var(--text-dim); font-family: 'DM Mono', monospace; }
   .tv-section-title {
     font-family: 'DM Mono', monospace; font-size: 13px;
@@ -2935,6 +2942,7 @@ function openTeamView(teamName, pushHistory = true) {
   const faIn      = DATA.fa.filter(d => norm2(d.dest) === tKey);
   const faOut     = DATA.fa.filter(d => norm2(d.team25) === tKey && d.dest);
   const picks     = DATA.draft.filter(d => norm2(d.team) === tKey);
+  const undrafted = (DATA.undrafted || []).filter(d => norm2(d.team) === tKey && d.player);
   const trades    = DATA.trades.filter(tr => tr.sides.some(s => norm2(s.team) === tKey));
   const roster    = DATA.rosters.find(r => norm2(r.team) === tKey);
   const faPending = (DATA.faPending || []).filter(d => norm2(d.team25) === tKey);
@@ -2990,8 +2998,22 @@ function openTeamView(teamName, pushHistory = true) {
         }).join('') : tvEmpty())}
     ${tvCard(t('roster_trade'), tradeIn.length,
         tradeIn.length ? tradeIn.map(r => tvRow(itemPosTag(r.item, r.pos) + esc(r.item))).join('') : tvEmpty())}
-    ${tvCard(t('roster_draft'), picks.length,
-        picks.length ? picks.map(d => tvRow(esc(d.player), `#${esc(d.pick)}`)).join('') : tvEmpty())}
+    ${(() => {
+      const draftRows = [
+        ...picks.map(d => ({ pick: `#${d.pick}`, player: d.player, undrafted: false })),
+        ...undrafted.map(d => ({ pick: 'U', player: d.player, undrafted: true })),
+      ];
+      const renderDraftRow = d => {
+        const { name, tw } = parseTW(d.player);
+        const pickCls = d.undrafted ? 'tv-row-pick undrafted' : 'tv-row-pick';
+        return `<div class="tv-row${tw ? ' tv-row-tw' : ''}" style="justify-content:flex-start;gap:14px">
+          <span class="${pickCls}">${esc(d.pick)}</span>
+          <span class="tv-row-name" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(name)}${tw ? ' <span class="badge-tw">TW</span>' : ''}</span>
+        </div>`;
+      };
+      return tvCard(t('roster_draft'), draftRows.length,
+        draftRows.length ? draftRows.map(renderDraftRow).join('') : tvEmpty());
+    })()}
   </div>`;
 
   // ── SALIDAS ───────────────────────────────────
@@ -3021,10 +3043,9 @@ function openTeamView(teamName, pushHistory = true) {
         const label = pos === '?' ? '—' : pos;
         const names = group.map(p => {
           const tw = p.tw ? ' <span class="badge-tw">TW</span>' : '';
-          const resign = p.resign ? ` <span class="badge-resign">${t('badge_resign')}</span>` : '';
           const color = p.resign ? 'var(--resign)' : (p.type === 'new' ? 'var(--signed)' : '');
           const cls = color ? ` style="color:${color}"` : '';
-          return `<span${cls}>${esc(p.name)}${tw}${resign}</span>`;
+          return `<span${cls}>${esc(p.name)}${tw}</span>`;
         }).join(', ');
         return [`<div class="tv-row" style="align-items:baseline;gap:10px;justify-content:flex-start">
           <span class="pos-text" style="min-width:30px;flex-shrink:0">${label}</span>
