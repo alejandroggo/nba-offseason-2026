@@ -2331,9 +2331,19 @@ function processRosters(rows1, rows2) {
 
 const POS_ORDER = ['PG','SG','SF','PF','C'];
 
-function parseTW(rawName) {
-  const tw = /two[\s-]?way|\(tw\)/i.test(rawName);
-  const name = rawName.replace(/\s*two[\s-]?way\s*/i, '').replace(/\s*\(tw\)\s*/i, '').trim();
+// Detección Two-Way. Cubre "two way", "two-way", "twoway", "(tw)" y "TW"
+// (este último con word-boundary para no matchear cosas dentro de nombres).
+// Acepta strings extra (hints) como contract/notes para detectar TW puesto
+// en otra columna del sheet.
+const TW_DETECT_RE = /\b(?:tw|two[\s-]?way)\b/i;
+function parseTW(rawName, ...hints) {
+  const text = [rawName, ...hints].filter(Boolean).join(' ');
+  const tw = TW_DETECT_RE.test(text);
+  const name = (rawName || '')
+    .replace(/\s*\(two[\s-]?way\)\s*/i, '')
+    .replace(/\s*two[\s-]?way\s*/i, '')
+    .replace(/\s*\(tw\)\s*/i, '')
+    .trim();
   return { name, tw };
 }
 
@@ -2411,11 +2421,11 @@ function buildPlantilla(team) {
 
   const draftIn = (DATA.draft||[])
     .filter(d => norm(d.team) === key && d.player)
-    .map(d => { const {name,tw} = parseTW(d.player); return { name, pos: (d.pos || posLookup(name)).toUpperCase(), type: 'new', tw }; });
+    .map(d => { const {name,tw} = parseTW(d.player, d.contract); return { name, pos: (d.pos || posLookup(name)).toUpperCase(), type: 'new', tw }; });
 
   const undraftedIn = (DATA.undrafted||[])
     .filter(d => norm(d.team) === key && d.player)
-    .map(d => { const {name,tw} = parseTW(d.player); return { name, pos: (d.pos || posLookup(name)).toUpperCase(), type: 'new', tw }; });
+    .map(d => { const {name,tw} = parseTW(d.player, d.contract); return { name, pos: (d.pos || posLookup(name)).toUpperCase(), type: 'new', tw }; });
 
   const tradeIn = [];
   (DATA.trades||[])
@@ -3003,11 +3013,11 @@ function openTeamView(teamName, pushHistory = true) {
         tradeIn.length ? tradeIn.map(r => tvRow(itemPosTag(r.item, r.pos) + esc(r.item))).join('') : tvEmpty())}
     ${(() => {
       const draftRows = [
-        ...picks.map(d => ({ pick: `#${d.pick}`, player: d.player, undrafted: false })),
-        ...undrafted.map(d => ({ pick: 'U', player: d.player, undrafted: true })),
+        ...picks.map(d => ({ pick: `#${d.pick}`, player: d.player, contract: d.contract, undrafted: false })),
+        ...undrafted.map(d => ({ pick: 'U', player: d.player, contract: d.contract, undrafted: true })),
       ];
       const renderDraftRow = d => {
-        const { name, tw } = parseTW(d.player);
+        const { name, tw } = parseTW(d.player, d.contract);
         const pickCls = d.undrafted ? 'tv-row-pick undrafted' : 'tv-row-pick';
         return `<div class="tv-row${tw ? ' tv-row-tw' : ''}" style="justify-content:flex-start;gap:14px">
           <span class="${pickCls}">${esc(d.pick)}</span>
