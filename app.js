@@ -373,9 +373,11 @@ function togglePendingType(type) {
 }
 
 function filterFAPending() {
+  const q    = (document.getElementById('fa-pending-search')?.value || '').toLowerCase();
   const team = document.getElementById('fa-pending-team').value;
   const pos  = document.getElementById('fa-pending-pos').value;
   FILTERED.faPending = (DATA.faPending || []).filter(d => {
+    if (q && !(d.player || '').toLowerCase().includes(q) && !(d.team25 || '').toLowerCase().includes(q)) return false;
     if (team && (d.team25||'').trim().toLowerCase() !== team.trim().toLowerCase()) return false;
     if (pos  && validPos(d.pos) !== pos) return false;
     if (_pendingTypeFilter) {
@@ -388,12 +390,14 @@ function filterFAPending() {
 }
 
 function resetFAPending() {
+  const search = document.getElementById('fa-pending-search');
+  if (search) search.value = '';
   document.getElementById('fa-pending-team').value = '';
   document.getElementById('fa-pending-pos').value = '';
   _pendingTypeFilter = null;
   ['RFA','TO','PO'].forEach(t => {
     const btn = document.getElementById(`filter-btn-${t.toLowerCase()}`);
-    if (btn) btn.style.opacity = '0.4';
+    if (btn) btn.setAttribute('aria-pressed', 'false');
   });
   filterFAPending();
 }
@@ -682,9 +686,12 @@ function processRosters(rows1, rows2) {
     const fromSheet = (team.faSheet || [])
       .filter(p => !seen.has(stripTag(p.name)) && !salidasSet.has(stripTag(p.name)))
       .map(p => ({ player: p.name, pos: p.pos || '', team25: team.team, notes: '' }));
-    const merged = [...fromFA, ...fromSheet];
-    team.fa = merged.map(d => ({ name: d.player, pos: d.pos }));
-    pendingFromFA.push(...merged);
+    const allPending = [...fromFA, ...fromSheet];
+    // La card "FA Pendientes" del team view excluye a los cortados (col F,G).
+    // La lista global (pestaña FA → Pendientes) los conserva.
+    const teamPending = allPending.filter(d => !salidasSet.has(stripTag(d.player)));
+    team.fa = teamPending.map(d => ({ name: d.player, pos: d.pos }));
+    pendingFromFA.push(...allPending);
   });
   DATA.faPending = pendingFromFA;
   FILTERED.faPending = [...DATA.faPending];
@@ -1348,6 +1355,17 @@ function openTeamView(teamName, pushHistory = true) {
     if (mySide) mySide.receives.forEach(r => tradeIn.push({ item: r.item, pos: r.pos }));
     // Salidas: activos donde from === este equipo (cualquier número de equipos)
     tr.sides.forEach(side => side.receives.filter(r => norm2(r.from) === tKey && !isNonPlayerAsset(r.item)).forEach(r => tradeOut.push({item: r.item, to: side.team, pos: r.pos})));
+  });
+
+  // Cortados: jugadores en col F,G (Salidas) que no firmaron en otro lado ni
+  // fueron traspasados. Se muestran en la card "FA" sin destino.
+  const stripTag = n => (n || '').replace(/\s*\((?:RFA|TO|PO)\)\s*$/i, '').trim().toLowerCase();
+  const seenOut = new Set([
+    ...faOut.map(d => stripTag(d.player)),
+    ...tradeOut.map(r => stripTag(r.item)),
+  ]);
+  (roster?.salidas || []).forEach(p => {
+    if (!seenOut.has(stripTag(p.name))) faOut.push({ player: p.name, dest: '' });
   });
 
   const itemPosTag = (item, pos) => {
