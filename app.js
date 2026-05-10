@@ -680,11 +680,10 @@ function processRosters(rows1, rows2) {
     const key = team.team.trim().toLowerCase();
     const salidasSet = new Set((team.salidas || []).map(p => stripTag(p.name)));
     const fromFA = DATA.fa.filter(d => d.team25.trim().toLowerCase() === key && !d.dest)
-      .map(d => ({ player: d.player, pos: d.pos || '', team25: d.team25, notes: d.notes }))
-      .filter(d => !salidasSet.has(stripTag(d.player)));
+      .map(d => ({ player: d.player, pos: d.pos || '', team25: d.team25, notes: d.notes }));
     const seen = new Set(fromFA.map(d => stripTag(d.player)));
     const fromSheet = (team.faSheet || [])
-      .filter(p => !seen.has(stripTag(p.name)) && !salidasSet.has(stripTag(p.name)))
+      .filter(p => !seen.has(stripTag(p.name)))
       .map(p => ({ player: p.name, pos: p.pos || '', team25: team.team, notes: '' }));
     const allPending = [...fromFA, ...fromSheet];
     // La card "FA Pendientes" del team view excluye a los cortados (col F,G).
