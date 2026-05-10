@@ -1354,6 +1354,17 @@ function openTeamView(teamName, pushHistory = true) {
     tr.sides.forEach(side => side.receives.filter(r => norm2(r.from) === tKey && !isNonPlayerAsset(r.item)).forEach(r => tradeOut.push({item: r.item, to: side.team, pos: r.pos})));
   });
 
+  // Cortados: jugadores en col F,G (Salidas) que no firmaron en otro lado ni
+  // fueron traspasados. Se muestran en la card "FA" sin destino.
+  const stripTag = n => (n || '').replace(/\s*\((?:RFA|TO|PO)\)\s*$/i, '').trim().toLowerCase();
+  const seenOut = new Set([
+    ...faOut.map(d => stripTag(d.player)),
+    ...tradeOut.map(r => stripTag(r.item)),
+  ]);
+  (roster?.salidas || []).forEach(p => {
+    if (!seenOut.has(stripTag(p.name))) faOut.push({ player: p.name, dest: '' });
+  });
+
   const itemPosTag = (item, pos) => {
     if (isNonPlayerAsset(item)) return '';
     const p = validPos(pos || lookupPos(item));
