@@ -54,7 +54,7 @@ const i18n = {
     rosters_search_ph: 'Buscar equipo o jugador…',
     roster_stays: 'Plantilla', roster_arrivals: 'Llegadas', roster_departures: 'Salidas',
     roster_fa: 'FA', roster_draft: 'Draft', roster_trade: 'Vía Trade',
-    roster_salidas_fa: 'FA', roster_salidas_trade: 'Vía Trade', roster_fa_pending: 'FA Pendientes',
+    roster_salidas_fa: 'FA', roster_salidas_trade: 'Vía Trade', roster_fa_pending: 'FA Pendientes', roster_waived: 'Cortado',
     roster_section_trades: 'Traspasos', roster_section_coaches: 'Cuerpo técnico y dirección',
     coaches_title: 'Entrenadores y General Managers', coaches_subtitle: 'Cambios en banquillos y gerencias',
     coaches_search_ph: 'Equipo, nombre…',
@@ -115,7 +115,7 @@ const i18n = {
     rosters_search_ph: 'Search team or player…',
     roster_stays: 'Roster', roster_arrivals: 'Arrivals', roster_departures: 'Departures',
     roster_fa: 'FA', roster_draft: 'Draft', roster_trade: 'Via Trade',
-    roster_salidas_fa: 'FA', roster_salidas_trade: 'Via Trade', roster_fa_pending: 'Pending FA',
+    roster_salidas_fa: 'FA', roster_salidas_trade: 'Via Trade', roster_fa_pending: 'Pending FA', roster_waived: 'Waived',
     roster_section_trades: 'Trades', roster_section_coaches: 'Coaching staff & front office',
     coaches_title: 'Head Coaches & General Managers', coaches_subtitle: 'Coaching and front office changes',
     coaches_search_ph: 'Team, name…',
@@ -1424,7 +1424,7 @@ function openTeamView(teamName, pushHistory = true) {
   html += `<div class="tv-section-title" style="color:var(--gone)">${t('roster_departures')}</div>
   <div class="team-view-grid" style="margin-bottom:28px">
     ${tvCard(t('roster_salidas_fa'), faOut.length,
-        faOut.length ? faOut.map(d => tvRow(esc(d.player), d.dest ? `→ ${esc(d.dest)}` : '')).join('') : tvEmpty())}
+        faOut.length ? faOut.map(d => tvRow(esc(d.player), d.dest ? `→ ${esc(d.dest)}` : t('roster_waived'))).join('') : tvEmpty())}
     ${tvCard(t('roster_salidas_trade'), tradeOut.length,
         tradeOut.length ? tradeOut.map(r => tvRow(itemPosTag(r.item, r.pos) + esc(r.item), `→ ${esc(r.to)}`)).join('') : tvEmpty())}
     ${tvCard(t('roster_fa_pending'), faPending.length,
