@@ -1088,7 +1088,7 @@ function updateHomeCounts() {
   const draftCount   = DATA.draft.length;
   const tradesCount  = DATA.trades.length;
   const coachCount   = DATA.coaches.length;
-  const total = faCount + draftCount + tradesCount + coachCount;
+  const total = faCount + draftCount + tradesCount;
 
   document.getElementById('home-count-fa').textContent      = faCount     || '—';
   document.getElementById('home-count-draft').textContent   = draftCount  || '—';
