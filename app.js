@@ -1,0 +1,1561 @@
+// ─────────────────────────────────────────────
+// URLS — reemplaza con las de tu Sheet 2026
+// ─────────────────────────────────────────────
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZAb1-oLDkidOmC6LrplPJ_468sZ10eESYSrPLg8Pp9DsCg6KNI3YMezhYokdhyCA/exec';
+
+// ── Fechas de evento (actualizar según calendario) ──────────────────────────
+
+const URLS = {
+  fa:       `${SCRIPT_URL}?tab=fa`,
+  draft:    `${SCRIPT_URL}?tab=draft`,
+  trades:   `${SCRIPT_URL}?tab=trades`,
+  rosters1: `${SCRIPT_URL}?tab=rosters1`,
+  rosters2: `${SCRIPT_URL}?tab=rosters2`,
+  coaches:  `${SCRIPT_URL}?tab=coaches`,
+};
+
+// ─────────────────────────────────────────────
+// i18n
+// ─────────────────────────────────────────────
+const i18n = {
+  es: {
+    home_eyebrow: 'Off-Season',
+    home_total_label: 'movimientos',
+    home_subtitle: 'Todos los movimientos de la temporada 2025-26: agencia libre, draft, traspasos, plantillas y cambios en banquillos.',
+    home_fa_desc: 'Fichajes confirmados y mercado pendiente',
+    home_draft_desc: 'Picks seleccionados en rondas 1 y 2',
+    home_trades_desc: 'Traspasos confirmados entre franquicias',
+    home_rosters_desc: 'Los 30 equipos con altas, bajas y continuidades',
+    home_coaches_desc: 'Cambios en banquillos y gerencias',
+    home_teams_desc: 'Las 30 franquicias — movimientos y plantilla',
+    fa_event_date_label: 'Apertura agencia libre',
+    draft_event_date_label: 'Fecha del draft',
+    home_records: 'registros',
+    home_teams: 'equipos',
+    home_changes: 'cambios',
+    theme_light: 'Modo día',
+    theme_dark: 'Modo noche',
+    tab_fa: 'Agencia Libre', tab_fa_short: 'AG. LIBRE', tab_draft: 'Draft', tab_trades: 'Trades',
+    tab_rosters: 'Plantillas', tab_coaches: 'Entrenadores y GMs', tab_coaches_short: 'HC / GMs', tab_teams: 'Equipos',
+    fa_title: 'Agencia Libre', fa_subtitle: 'Free Agents — Movimientos confirmados y pendientes',
+    fa_signed_title: 'Firmados', fa_pending_title: 'Pendientes de firmar',
+    fa_search_ph: 'Jugador, equipo…',
+    fa_col_player: 'Jugador', fa_col_team25: 'Equipo 2026', fa_col_dest: 'Destino',
+    fa_col_m: 'Millones', fa_col_yr: 'Años', fa_col_aav: 'AAV', col_date: 'Fecha',
+    draft_title: 'Draft 2026', draft_subtitle: 'Picks seleccionados — Rondas 1 y 2',
+    draft_search_ph: 'Jugador, equipo, universidad…',
+    draft_col_pick: 'Pick', draft_col_player: 'Jugador', draft_col_pos: 'Posición',
+    draft_col_from: 'Procedencia', draft_col_signed: 'Firmado', draft_col_contract: 'Contrato',
+    draft_undrafted_title: 'No elegidos en el Draft',
+    draft_undrafted_subtitle: 'Jugadores que no fueron seleccionados',
+    trades_title: 'Traspasos', trades_subtitle: 'Traspasos confirmados',
+    trades_search_ph: 'Equipo, jugador, pick…',
+    rosters_title: 'Plantillas', rosters_subtitle: 'Los 30 equipos — temporada 2025-26',
+    rosters_search_ph: 'Buscar equipo o jugador…',
+    roster_stays: 'Plantilla', roster_arrivals: 'Llegadas', roster_departures: 'Salidas',
+    roster_fa: 'FA', roster_draft: 'Draft', roster_trade: 'Vía Trade',
+    roster_salidas_fa: 'FA', roster_salidas_trade: 'Vía Trade', roster_fa_pending: 'FA Pendientes',
+    roster_section_trades: 'Traspasos', roster_section_coaches: 'Cuerpo técnico y dirección',
+    coaches_title: 'Entrenadores y General Managers', coaches_subtitle: 'Cambios en banquillos y gerencias',
+    coaches_search_ph: 'Equipo, nombre…',
+    coaches_col_new: 'Nuevo', coaches_col_role: 'Rol',
+    coaches_col_prev: 'Anterior', coaches_col_date_hired: 'Contratado', coaches_col_date_fired: 'Despedido',
+    col_team: 'Equipo', col_source: 'Fuente', col_notes: 'Notas', col_country: 'País',
+    filter_search: 'Buscar', filter_type: 'Tipo', btn_reset: 'Limpiar',
+    loading: 'Cargando datos…', no_data: 'Sin resultados',
+    results: 'resultados', receives: 'Recibe',
+    footer_data: 'Datos', footer_src: 'Fuente',
+    last_update: 'Actualizado',
+    trade_label: 'Traspaso',
+    teams_title: 'Equipos', teams_subtitle: 'Las 30 franquicias de la NBA',
+    drawer_view_team: 'Nuevo equipo', drawer_view_old_team: 'Ver equipo anterior',
+    legend_rfa: 'Agente libre restringido', legend_to: 'Opción del equipo', legend_po: 'Opción del jugador',
+    back_btn: 'Volver', end_of_lottery: 'FIN DE LA LOTERÍA', end_of_round1: 'FIN DE LA PRIMERA RONDA',
+    drawer_old_team: 'Antiguo equipo', drawer_new_team: 'Nuevo equipo',
+    drawer_total: 'Total', drawer_years: 'Años',
+    load_error: 'Error al cargar datos. Verifica las URLs del Sheet.',
+    trade_from: 'De',
+    toast_updated: 'Datos actualizados', toast_error: 'Error al actualizar',
+    badge_resign: 'RENUEVA',
+    legend_color_new: 'Alta', legend_color_resign: 'Renovación', legend_color_tw: 'Two-way',
+  },
+  en: {
+    home_eyebrow: 'Off-Season',
+    home_total_label: 'moves',
+    home_subtitle: 'Every move of the 2025-26 offseason: free agency, draft, trades, rosters, and coaching changes.',
+    home_fa_desc: 'Confirmed signings and pending market',
+    home_draft_desc: 'Selected picks in rounds 1 and 2',
+    home_trades_desc: 'Confirmed trades between franchises',
+    home_rosters_desc: 'All 30 teams — arrivals, departures, returning',
+    home_coaches_desc: 'Coaching and front office changes',
+    home_teams_desc: 'All 30 franchises — moves and roster',
+    fa_event_date_label: 'Free agency opens',
+    draft_event_date_label: 'Draft date',
+    home_records: 'records',
+    home_teams: 'teams',
+    home_changes: 'changes',
+    theme_light: 'Light mode',
+    theme_dark: 'Dark mode',
+    tab_fa: 'Free Agency', tab_fa_short: 'FREE AG.', tab_draft: 'Draft', tab_trades: 'Trades',
+    tab_rosters: 'Rosters', tab_coaches: 'Coaches & GMs', tab_coaches_short: 'HC / GMs', tab_teams: 'Teams',
+    fa_title: 'Free Agency', fa_subtitle: 'Free Agents — Confirmed and pending moves',
+    fa_signed_title: 'Signed', fa_pending_title: 'Pending free agents',
+    fa_search_ph: 'Player, team…',
+    fa_col_player: 'Player', fa_col_team25: '2026 Team', fa_col_dest: 'Destination',
+    fa_col_m: 'Total ($M)', fa_col_yr: 'Years', fa_col_aav: 'AAV', col_date: 'Date',
+    draft_title: 'Draft 2026', draft_subtitle: 'Selected picks — Rounds 1 & 2',
+    draft_search_ph: 'Player, team, college…',
+    draft_col_pick: 'Pick', draft_col_player: 'Player', draft_col_pos: 'Position',
+    draft_col_from: 'From', draft_col_signed: 'Signed', draft_col_contract: 'Contract',
+    draft_undrafted_title: 'Undrafted Players',
+    draft_undrafted_subtitle: 'Players not selected in the Draft',
+    trades_title: 'Trades', trades_subtitle: 'Confirmed trades',
+    trades_search_ph: 'Team, player, pick…',
+    rosters_title: 'Rosters', rosters_subtitle: 'All 30 teams — 2025-26 season',
+    rosters_search_ph: 'Search team or player…',
+    roster_stays: 'Roster', roster_arrivals: 'Arrivals', roster_departures: 'Departures',
+    roster_fa: 'FA', roster_draft: 'Draft', roster_trade: 'Via Trade',
+    roster_salidas_fa: 'FA', roster_salidas_trade: 'Via Trade', roster_fa_pending: 'Pending FA',
+    roster_section_trades: 'Trades', roster_section_coaches: 'Coaching staff & front office',
+    coaches_title: 'Head Coaches & General Managers', coaches_subtitle: 'Coaching and front office changes',
+    coaches_search_ph: 'Team, name…',
+    coaches_col_new: 'New', coaches_col_role: 'Role',
+    coaches_col_prev: 'Previous', coaches_col_date_hired: 'Hired', coaches_col_date_fired: 'Fired',
+    col_team: 'Team', col_source: 'Source', col_notes: 'Notes', col_country: 'Country',
+    filter_search: 'Search', filter_type: 'Type', btn_reset: 'Reset',
+    loading: 'Loading data…', no_data: 'No results',
+    results: 'results', receives: 'Receives',
+    footer_data: 'Data', footer_src: 'Source',
+    last_update: 'Updated',
+    trade_label: 'Trade',
+    teams_title: 'Teams', teams_subtitle: 'All 30 NBA franchises',
+    drawer_view_team: 'New team', drawer_view_old_team: 'View previous team',
+    legend_rfa: 'Restricted free agent', legend_to: 'Team option', legend_po: 'Player option',
+    back_btn: 'Back', end_of_lottery: 'END OF LOTTERY', end_of_round1: 'END OF ROUND 1',
+    drawer_old_team: 'Old team', drawer_new_team: 'New team',
+    drawer_total: 'Total', drawer_years: 'Years',
+    load_error: 'Failed to load data. Check the Sheet URLs.',
+    trade_from: 'From',
+    toast_updated: 'Data updated', toast_error: 'Update failed',
+    badge_resign: 'RE-SIGNS',
+    legend_color_new: 'Signing', legend_color_resign: 'Re-sign', legend_color_tw: 'Two-way',
+  }
+};
+
+let lang = (() => { try { return localStorage.getItem('nba2026_lang') || 'es'; } catch(e) { return 'es'; } })();
+
+function t(key) { return i18n[lang][key] || key; }
+
+function setLang(l) {
+  lang = l;
+  try { localStorage.setItem('nba2026_lang', l); } catch(e) {}
+  const btnEs = document.getElementById('btn-es');
+  const btnEn = document.getElementById('btn-en');
+  btnEs.classList.toggle('active', l === 'es');
+  btnEn.classList.toggle('active', l === 'en');
+  btnEs.setAttribute('aria-pressed', String(l === 'es'));
+  btnEn.setAttribute('aria-pressed', String(l === 'en'));
+  document.documentElement.lang = l;
+  applyTranslations();
+  rerenderAll();
+}
+
+function applyTranslations() {
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const key = el.getAttribute("data-i18n");
+    const val = t(key);
+    if (el.children.length > 0) {
+      let tn = [...el.childNodes].find(n => n.nodeType === 3);
+      if (tn) tn.textContent = val + " ";
+      else el.insertBefore(document.createTextNode(val + " "), el.firstChild);
+    } else {
+      el.textContent = val;
+    }
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    const key = el.getAttribute('data-i18n-ph');
+    el.placeholder = t(key);
+  });
+  const upd = document.getElementById('lastUpdate');
+  if (loadedAt) upd.textContent = `${t('last_update')}: ${loadedAt}`;
+}
+
+// ─────────────────────────────────────────────
+// CSV PARSER
+// ─────────────────────────────────────────────
+function parseCSV(text) {
+  // Strip BOM (Google Sheets a veces lo añade)
+  if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+  const rows = [];
+  const lines = text.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    const row = [];
+    const line = lines[i];
+    let cur = '', inQ = false;
+    for (let j = 0; j < line.length; j++) {
+      const c = line[j];
+      if (c === '"') {
+        // Comilla escapada: dos comillas consecutivas dentro de un campo entrecomillado
+        if (inQ && line[j+1] === '"') { cur += '"'; j++; continue; }
+        inQ = !inQ; continue;
+      }
+      if (c === ',' && !inQ) { row.push(cur.trim()); cur = ''; continue; }
+      cur += c;
+    }
+    row.push(cur.trim());
+    // Incluir filas con comas (separadores vacíos de trades) aunque todas las celdas estén vacías;
+    // descartar solo líneas completamente en blanco (sin comas ni contenido)
+    if (line.includes(',') || row.some(c => c)) rows.push(row);
+  }
+  return rows;
+}
+
+function cell(row, i) { return (row[i] || '').trim(); }
+
+// ─────────────────────────────────────────────
+// DATA STORE
+// ─────────────────────────────────────────────
+const DATA = { fa: [], draft: [], undrafted: [], trades: [], rosters: [], coaches: [] };
+const FILTERED = { fa: [], draft: [], trades: [], coaches: [], rosters: [], faPending: [] };
+const SORT = { fa: {col:-1,asc:true}, draft: {col:-1,asc:true}, coaches: {col:-1,asc:true} };
+let loadedAt = null;
+
+// ─────────────────────────────────────────────
+// FETCH ALL
+// ─────────────────────────────────────────────
+const CACHE_KEY = 'nba2026_cache';
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutos
+
+function applyRawData(raw, ts) {
+  processFA(parseCSV(raw.fa));
+  processDraft(parseCSV(raw.draft));
+  window._rawTradeRows = parseCSV(raw.trades);
+  processTrades(window._rawTradeRows);
+  processRosters(parseCSV(raw.rosters1), parseCSV(raw.rosters2));
+  processCoaches(parseCSV(raw.coaches));
+  DATA._stamp = ts;
+
+  loadedAt = new Date(ts).toLocaleString(lang === 'es' ? 'es-ES' : 'en-US', {
+    day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+  });
+  document.getElementById('lastUpdate').textContent = `${t('last_update')}: ${loadedAt}`;
+  document.getElementById('footer-updated').textContent = `${t('last_update')}: ${loadedAt}`;
+  rerenderAll();
+  updateHomeCounts();
+  ['fa-tbody','fa-pending-tbody','draft-tbody','undrafted-tbody','coaches-tbody','trades-container'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.setAttribute('aria-busy', 'false');
+  });
+}
+
+async function fetchAll() {
+  // Cargar caché al instante si existe
+  let hadCache = false;
+  try {
+    const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+    if (cached) { applyRawData(cached.raw, cached.ts); hadCache = true; }
+  } catch(e) { /* caché corrupta, ignorar */ }
+
+  // Refrescar desde el Sheet en background — usar allSettled para tolerar
+  // que alguna fuente falle sin tirar el resto.
+  try {
+    const keys = ['fa', 'draft', 'trades', 'rosters1', 'rosters2', 'coaches'];
+    const settled = await Promise.allSettled(keys.map(k => fetch(URLS[k]).then(r => r.text())));
+    const failed = [];
+    const raw = {};
+    keys.forEach((k, idx) => {
+      const s = settled[idx];
+      if (s.status === 'fulfilled') raw[k] = s.value;
+      else failed.push(k);
+    });
+
+    if (failed.length === keys.length) throw new Error('all-failed');
+
+    // Para fuentes que fallaron, reutilizamos lo que hubiera en caché
+    if (failed.length && hadCache) {
+      try {
+        const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+        if (cached?.raw) failed.forEach(k => { if (cached.raw[k] != null) raw[k] = cached.raw[k]; });
+      } catch(e) {}
+    }
+    // Asegurar que todas las claves existen para evitar undefined en parseCSV
+    keys.forEach(k => { if (raw[k] == null) raw[k] = ''; });
+
+    const ts  = Date.now();
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ raw, ts })); } catch(e) {}
+
+    applyRawData(raw, ts);
+  } catch(e) {
+    console.error(e);
+    if (!localStorage.getItem(CACHE_KEY)) {
+      ['fa-tbody','draft-tbody','coaches-tbody'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = `<tr><td colspan="8"><div class="state-empty">${t('load_error')}</div></td></tr>`;
+      });
+    }
+  }
+}
+
+// ─────────────────────────────────────────────
+// PROCESS FA
+// Columnas: JUGADOR | 2025 | 2024 | MILLONES | AÑOS | AAV | FUENTE | NOTAS
+// ─────────────────────────────────────────────
+function processFA(rows) {
+  // Columnas: JUGADOR | POS | 2026(origen) | 2027(destino) | MILLONES | AÑOS | AAV | FUENTE | NOTAS
+  DATA.fa = rows.slice(1).filter(r => cell(r,0)).map(r => ({
+    player: cell(r,0),
+    pos:    cell(r,1),
+    team25: cell(r,2),
+    dest:   cell(r,3) === '—' ? '' : cell(r,3),
+    money:  cell(r,4),
+    years:  cell(r,5),
+    aav:    cell(r,6),
+    source: cell(r,7),
+    notes:  cell(r,8),
+    date:   cell(r,9),
+  }));
+  document.getElementById('count-fa').textContent = DATA.fa.filter(d => d.dest).length;
+  populateSelect('fa-team25', [...new Set(DATA.fa.map(d=>d.team25).filter(Boolean))].sort());
+  populateSelect('fa-dest',   [...new Set(DATA.fa.map(d=>d.dest).filter(Boolean))].sort());
+  populateSelect('fa-pos',    [...new Set(DATA.fa.map(d=>d.pos).filter(Boolean))].sort());
+}
+
+function renderFA(data) {
+  const signed  = data.filter(d => d.dest);
+  const pending = data.filter(d => !d.dest);
+
+  const tbody = document.getElementById('fa-tbody');
+  tbody.innerHTML = signed.length
+    ? signed.map(d => {
+        const {name, badge} = faStatus(d.player);
+        return `
+      <tr>
+        <td class="td-player clickable-player" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(name)}${badge}</td>
+        <td style="text-align:center"><span class="pos-text">${esc(validPos(d.pos)) || '—'}</span></td>
+        <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.dest)}')">${esc(d.dest)}</span></td>
+        <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team25)}')">${esc(d.team25)}</span></td>
+        <td class="td-money">${d.money ? '$'+esc(d.money)+'M' : '—'}</td>
+        <td class="td-num">${esc(d.years) || '—'}</td>
+        <td class="td-money">${d.aav ? '$'+esc(d.aav)+'M' : '—'}</td>
+        <td class="td-muted">${esc(d.source)}</td>
+        <td class="td-notes">${esc(d.notes)}</td>
+      </tr>`;}).join('')
+    : `<tr><td colspan="9"><div class="state-empty">${t('no_data')}</div></td></tr>`;
+
+  document.getElementById('fa-count').innerHTML = `<span>${signed.length}</span>&nbsp;${t('results')}`;
+}
+
+function renderFAPending(data) {
+  const pendingTbody = document.getElementById('fa-pending-tbody');
+  pendingTbody.innerHTML = data.length
+    ? data.map(d => {
+        const {name, badge} = faStatus(d.player);
+        return `
+      <tr>
+        <td class="td-player clickable-player" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(name)}${badge}</td>
+        <td style="text-align:center"><span class="pos-text">${esc(validPos(d.pos)) || '—'}</span></td>
+        <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team25)}')">${esc(d.team25)}</span></td>
+        <td class="td-notes">${esc(d.notes)}</td>
+      </tr>`;}).join('')
+    : `<tr><td colspan="4"><div class="state-empty">${t('no_data')}</div></td></tr>`;
+  document.getElementById('fa-pending-count').innerHTML = `<span>${data.length}</span>&nbsp;${t('results')}`;
+}
+
+let _pendingTypeFilter = null;
+
+function togglePendingType(type) {
+  _pendingTypeFilter = _pendingTypeFilter === type ? null : type;
+  ['RFA','TO','PO'].forEach(t => {
+    const btn = document.getElementById(`filter-btn-${t.toLowerCase()}`);
+    if (btn) btn.setAttribute('aria-pressed', String(_pendingTypeFilter === t));
+  });
+  filterFAPending();
+}
+
+function filterFAPending() {
+  const team = document.getElementById('fa-pending-team').value;
+  const pos  = document.getElementById('fa-pending-pos').value;
+  FILTERED.faPending = (DATA.faPending || []).filter(d => {
+    if (team && (d.team25||'').trim().toLowerCase() !== team.trim().toLowerCase()) return false;
+    if (pos  && validPos(d.pos) !== pos) return false;
+    if (_pendingTypeFilter) {
+      const m = (d.player || '').match(/\((RFA|TO|PO)\)\s*$/i);
+      if (!m || m[1].toUpperCase() !== _pendingTypeFilter) return false;
+    }
+    return true;
+  });
+  renderFAPending(FILTERED.faPending);
+}
+
+function resetFAPending() {
+  document.getElementById('fa-pending-team').value = '';
+  document.getElementById('fa-pending-pos').value = '';
+  _pendingTypeFilter = null;
+  ['RFA','TO','PO'].forEach(t => {
+    const btn = document.getElementById(`filter-btn-${t.toLowerCase()}`);
+    if (btn) btn.style.opacity = '0.4';
+  });
+  filterFAPending();
+}
+
+function filterFA() {
+  const q = document.getElementById('fa-search').value.toLowerCase();
+  const t25 = document.getElementById('fa-team25').value;
+  const dest = document.getElementById('fa-dest').value;
+  const pos = document.getElementById('fa-pos').value;
+  FILTERED.fa = DATA.fa.filter(d =>
+    (!q || `${d.player} ${d.team25} ${d.dest} ${d.notes}`.toLowerCase().includes(q)) &&
+    (!t25 || d.team25 === t25) &&
+    (!dest || d.dest === dest) &&
+    (!pos || d.pos === pos)
+  );
+  renderFA(FILTERED.fa);
+}
+
+function resetFA() {
+  document.getElementById('fa-search').value = '';
+  document.getElementById('fa-team25').value = '';
+  document.getElementById('fa-dest').value = '';
+  document.getElementById('fa-pos').value = '';
+  filterFA();
+}
+
+// ─────────────────────────────────────────────
+// PROCESS DRAFT
+// Columnas: PICK | (equipo) | JUGADOR | (col vacía) | POS | 2024 | √ | CONTRATO | NOTAS
+// Undrafted: filas sin número de pick (col0 vacía o no numérico) pero con jugador
+// ─────────────────────────────────────────────
+function processDraft(rows) {
+  const data = rows.slice(1).filter(r => cell(r,0) || cell(r,2));
+  DATA.draft = data.filter(r => cell(r,0) && !isNaN(parseInt(cell(r,0)))).map(r => ({
+    pick:     cell(r,0),
+    team:     cell(r,1),
+    player:   cell(r,2),
+    country:  cell(r,3),
+    pos:      cell(r,4),
+    from:     cell(r,5),
+    check:    cell(r,6),
+    contract: cell(r,7),
+    notes:    cell(r,8),
+    date:     cell(r,9),
+  }));
+  DATA.undrafted = data.filter(r => cell(r,2) && (!cell(r,0) || isNaN(parseInt(cell(r,0))))).map(r => ({
+    team:     cell(r,1),
+    player:   cell(r,2),
+    country:  cell(r,3),
+    pos:      cell(r,4),
+    from:     cell(r,5),
+    check:    cell(r,6),
+    contract: cell(r,7),
+    notes:    cell(r,8),
+  }));
+  document.getElementById('count-draft').textContent = DATA.draft.length;
+  populateSelect('draft-pos',  [...new Set(DATA.draft.map(d=>d.pos).filter(Boolean))].sort());
+  populateSelect('draft-team', [...new Set(DATA.draft.map(d=>d.team).filter(Boolean))].sort());
+}
+
+function renderDraft(data) {
+  const tbody = document.getElementById('draft-tbody');
+  if (!data.length) { tbody.innerHTML = `<tr><td colspan="9"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
+  const rows = [];
+  data.forEach((d, i) => {
+    const n = parseInt(d.pick);
+    const cls = n <= 5 ? 'top5' : n <= 30 ? 'r1' : '';
+    const chk = d.check ? `<span class="badge badge-check">${esc(d.check)}</span>` : '—';
+    const playerCell = d.player
+      ? `<td class="td-player clickable-player" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</td>`
+      : `<td class="td-muted">—</td>`;
+    const prev = i > 0 ? parseInt(data[i-1].pick) : null;
+    if (prev === 14 || prev === 30) {
+      const label = prev === 14 ? t('end_of_lottery') : t('end_of_round1');
+      rows.push(`<tr><td colspan="9" style="padding:8px 12px;border:none;background:var(--surface2);text-align:center"><span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted)">${label}</span></td></tr>`);
+    }
+    rows.push(`<tr>
+      <td><span class="pick-num ${cls}">${esc(d.pick)}</span></td>
+      ${playerCell}
+      <td style="text-align:center" title="${esc(d.country)}">${flag(d.country)}</td>
+      <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team)}')">${esc(d.team)}</span></td>
+      <td><span class="pos-text">${esc(d.pos)}</span></td>
+      <td class="td-muted">${esc(d.from)}</td>
+      <td>${chk}</td>
+      <td class="td-muted">${esc(d.contract)}</td>
+      <td class="td-notes">${esc(d.notes)}</td>
+    </tr>`);
+  });
+  tbody.innerHTML = rows.join('');
+  document.getElementById('draft-count').innerHTML = `<span>${data.length}</span>&nbsp;${t('results')}`;
+}
+
+function renderUndrafted(data) {
+  const tbody = document.getElementById('undrafted-tbody');
+  if (!data.length) { tbody.innerHTML = `<tr><td colspan="8"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
+  tbody.innerHTML = data.map(d => `
+    <tr>
+      <td class="td-player clickable-player" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</td>
+      <td style="font-size:18px;text-align:center" title="${esc(d.country)}">${flag(d.country)}</td>
+      <td>${d.team ? `<span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team)}')">${esc(d.team)}</span>` : '<span class="td-muted">—</span>'}</td>
+      <td><span class="pos-text">${esc(d.pos) || '—'}</span></td>
+      <td class="td-muted">${esc(d.from) || '—'}</td>
+      <td style="text-align:center">${d.check ? `<span class="badge badge-check">${esc(d.check)}</span>` : '—'}</td>
+      <td class="td-muted">${esc(d.contract) || '—'}</td>
+      <td class="td-notes">${esc(d.notes)}</td>
+    </tr>`).join('');
+}
+
+function filterDraft() {
+  const q = document.getElementById('draft-search').value.toLowerCase();
+  const pos = document.getElementById('draft-pos').value;
+  const team = document.getElementById('draft-team').value;
+  FILTERED.draft = DATA.draft.filter(d =>
+    (!q || `${d.player} ${d.team} ${d.from} ${d.notes}`.toLowerCase().includes(q)) &&
+    (!pos || d.pos === pos) &&
+    (!team || d.team === team)
+  );
+  const filteredUndrafted = (DATA.undrafted || []).filter(d =>
+    !q || `${d.player} ${d.pos} ${d.from} ${d.notes}`.toLowerCase().includes(q)
+  );
+  renderDraft(FILTERED.draft);
+  renderUndrafted(filteredUndrafted);
+}
+
+function resetDraft() {
+  document.getElementById('draft-search').value = '';
+  document.getElementById('draft-pos').value = '';
+  document.getElementById('draft-team').value = '';
+  filterDraft();
+}
+
+// ─────────────────────────────────────────────
+// PROCESS TRADES
+// Columnas: RECIBE | (jugadores/picks) | ... | RECIBE | ...
+// Estructura: cada fila es una parte del trade, agrupadas por número
+// ─────────────────────────────────────────────
+// Columnas (formato actual): # | Activo | POS | De | A | Fecha | Fuente
+// Compatibilidad con formato antiguo: # | Activo | De | A | Fecha | Fuente
+// Detección: si la cabecera fila 0 col 2 incluye "pos" o las celdas de la
+// columna 2 contienen valores tipo PG/SG/SF/PF/C, usamos el nuevo formato.
+function processTrades(rows) {
+  const headerCell = (rows[0] && rows[0][2] ? rows[0][2] : '').toString().toLowerCase();
+  const dataRows   = rows.slice(1);
+  const looksLikePosCol = /pos/i.test(headerCell)
+    || dataRows.some(r => {
+         const v = (r && r[2] ? r[2] : '').toString().trim().toUpperCase();
+         return v && /^(PG|SG|SF|PF|C|G|F|G\/F|F\/C|F\/G)$/.test(v);
+       });
+  const COLS = looksLikePosCol
+    ? { id:0, asset:1, pos:2, from:3, to:4, date:5, src:6 }
+    : { id:0, asset:1, pos:-1, from:2, to:3, date:4, src:5 };
+  const tradeMap = new Map();
+  const trades   = [];
+  let lastId     = null;
+
+  dataRows.forEach(r => {
+    const id    = cell(r,COLS.id);
+    const asset = cell(r,COLS.asset);
+    const pos   = COLS.pos >= 0 ? cell(r,COLS.pos) : '';
+    const from  = cell(r,COLS.from);
+    const to    = cell(r,COLS.to);
+    const date  = cell(r,COLS.date);
+    const src   = cell(r,COLS.src);
+
+    if (!id && !asset && !from && !to) return;
+
+    const tradeId = id || lastId;
+    if (!tradeId) return;
+    if (id) lastId = id;
+
+    if (!tradeMap.has(tradeId)) {
+      const trade = { id: tradeId, date: '', source: '', sides: [] };
+      tradeMap.set(tradeId, trade);
+      trades.push(trade);
+    }
+    const trade = tradeMap.get(tradeId);
+    if (date) trade.date   = date;
+    if (src)  trade.source = src;
+
+    if (asset && to) {
+      let side = trade.sides.find(s => s.team === to);
+      if (!side) { side = { team: to, receives: [] }; trade.sides.push(side); }
+      side.receives.push({ item: asset, pos, from });
+    }
+  });
+
+  DATA.trades = trades;
+  document.getElementById('count-trades').textContent = DATA.trades.length;
+
+  const allTeams = [...new Set(DATA.trades.flatMap(tr => tr.sides.map(s => s.team)).filter(Boolean))].sort();
+  populateSelect('trades-team', allTeams);
+}
+
+function tradeReceivesHTML(receives) {
+  if (!receives.length) return '<div class="trade-item td-muted">—</div>';
+  // Agrupar activos por equipo de origen
+  const byFrom = [];
+  receives.forEach(r => {
+    const grp = byFrom.find(g => g.from === r.from);
+    if (grp) grp.items.push(r);
+    else byFrom.push({ from: r.from, items: [r] });
+  });
+  return byFrom.map((grp, i) => `
+    <div class="trade-receives-label" style="${i > 0 ? 'margin-top:14px' : ''}">← ${t('trade_from')}: <strong class="clickable-team" onclick="openTeamView('${esc(grp.from)}')" style="cursor:pointer">${esc(grp.from)}</strong></div>
+    ${grp.items.map(r => `<div class="trade-item" onclick="openPlayerDrawer('${esc(r.item)}')">${esc(r.item)}</div>`).join('')}
+  `).join('');
+}
+
+function renderTrades(data) {
+  const container = document.getElementById('trades-container');
+  if (!data.length) { container.innerHTML = `<div class="state-empty">${t('no_data')}</div>`; return; }
+  container.innerHTML = data.map(trade => `
+    <div class="trade-card">
+      <div class="trade-header">
+        <span class="td-muted" style="font-size:11px;font-family:'DM Mono',monospace">
+          ${trade.date ? fmtDate(trade.date) : ''}${trade.date && trade.source ? ' · ' : ''}${trade.source ? esc(trade.source) : ''}
+        </span>
+      </div>
+      <div class="trade-body" style="grid-template-columns:repeat(${trade.sides.length},1fr)">
+        ${trade.sides.map(side => `
+          <div class="trade-side">
+            <div class="trade-team-label" style="display:flex;align-items:center;gap:8px">
+              ${teamLogo(side.team, 24)}<span class="clickable-team" onclick="openTeamView('${esc(side.team)}')">${esc(side.team)}</span>
+            </div>
+            ${tradeReceivesHTML(side.receives)}
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+  document.getElementById('trades-count').innerHTML = `<span>${data.length}</span>&nbsp;${t('results')}`;
+}
+
+function filterTrades() {
+  const q    = document.getElementById('trades-search').value.toLowerCase();
+  const team = document.getElementById('trades-team').value;
+  FILTERED.trades = DATA.trades.filter(trade => {
+    const text = trade.sides.flatMap(s => [s.team, ...s.receives.flatMap(r => [r.item, r.from])]).join(' ').toLowerCase();
+    return (!q || text.includes(q)) && (!team || trade.sides.some(s => s.team === team));
+  });
+  renderTrades(FILTERED.trades);
+}
+
+function resetTrades() {
+  document.getElementById('trades-search').value = '';
+  document.getElementById('trades-team').value = '';
+  filterTrades();
+}
+
+// ─────────────────────────────────────────────
+// PROCESS ROSTERS
+// Columnas: EQUIPO | SIGUEN | ... | LLEGADAS | ... | SALIDAS | ... | FA PENDIENTES | ...
+// ─────────────────────────────────────────────
+function processRosters(rows1, rows2) {
+  const parse = rows => {
+    const teams = [];
+    let current = null;
+    rows.slice(1).forEach(r => {
+      const a = cell(r,0);
+      if (a) {
+        current = { team: a, siguen: [], llegadas: [], salidas: [], fa: [], faSheet: [] };
+        teams.push(current);
+      }
+      if (!current) return;
+      // B,C=siguen | D,E=llegadas | F,G=salidas | H,I=fa pendientes
+      const pair = (n, p) => n ? { name: n, pos: p || '' } : null;
+      const s = pair(cell(r,1), cell(r,2)); if (s) current.siguen.push(s);
+      const l = pair(cell(r,3), cell(r,4)); if (l) current.llegadas.push(l);
+      const x = pair(cell(r,5), cell(r,6)); if (x) current.salidas.push(x);
+      const f = pair(cell(r,7), cell(r,8)); if (f) current.faSheet.push(f);
+    });
+    return teams;
+  };
+
+  DATA.rosters = [...parse(rows1), ...parse(rows2)].sort((a,b) => a.team.localeCompare(b.team));
+
+  // Strip trailing (RFA)/(TO)/(PO) tags for dedup purposes.
+  const stripTag = n => (n || '').replace(/\s*\((?:RFA|TO|PO)\)\s*$/i, '').trim().toLowerCase();
+
+  const pendingFromFA = [];
+  DATA.rosters.forEach(team => {
+    const key = team.team.trim().toLowerCase();
+    const fromFA = DATA.fa.filter(d => d.team25.trim().toLowerCase() === key && !d.dest)
+      .map(d => ({ player: d.player, pos: d.pos || '', team25: d.team25, notes: d.notes }));
+    const seen = new Set(fromFA.map(d => stripTag(d.player)));
+    const fromSheet = (team.faSheet || [])
+      .filter(p => !seen.has(stripTag(p.name)))
+      .map(p => ({ player: p.name, pos: p.pos || '', team25: team.team, notes: '' }));
+    const merged = [...fromFA, ...fromSheet];
+    team.fa = merged.map(d => ({ name: d.player, pos: d.pos }));
+    pendingFromFA.push(...merged);
+  });
+  DATA.faPending = pendingFromFA;
+  FILTERED.faPending = [...DATA.faPending];
+  populateSelect('fa-pending-team', [...new Set(DATA.faPending.map(d => d.team25).filter(Boolean))].sort());
+  populateSelect('fa-pending-pos',  [...new Set(DATA.faPending.map(d => validPos(d.pos)).filter(Boolean))].sort());
+  renderFAPending(FILTERED.faPending);
+}
+
+const POS_ORDER = ['PG','SG','SF','PF','C'];
+
+// Detección Two-Way. Cubre "two way", "two-way", "twoway", "(tw)" y "TW"
+// (este último con word-boundary para no matchear cosas dentro de nombres).
+// Acepta strings extra (hints) como contract/notes para detectar TW puesto
+// en otra columna del sheet.
+const TW_DETECT_RE = /\b(?:tw|two[\s-]?way)\b/i;
+function parseTW(rawName, ...hints) {
+  const text = [rawName, ...hints].filter(Boolean).join(' ');
+  const tw = TW_DETECT_RE.test(text);
+  const name = (rawName || '')
+    .replace(/\s*\(two[\s-]?way\)\s*/i, '')
+    .replace(/\s*two[\s-]?way\s*/i, '')
+    .replace(/\s*\(tw\)\s*/i, '')
+    .trim();
+  return { name, tw };
+}
+
+// Detecta activos que no son jugadores (picks de draft, rondas, cash).
+// Cubre tanto inglés como español: pick, round, ronda, cash.
+const NON_PLAYER_ASSET_RE = /\b(pick|picks|round|ronda|rondas|cash)\b/i;
+function isNonPlayerAsset(item) {
+  return NON_PLAYER_ASSET_RE.test((item || '').trim());
+}
+
+// Normaliza el nombre del jugador quitando sufijos (TW)/(RFA)/(TO)/(PO) y
+// pasándolo a minúsculas, para usarlo como clave de índice/comparación.
+function normPlayerKey(name) {
+  if (!name) return '';
+  return parseTW(name).name.replace(/\s*\((?:RFA|TO|PO)\)\s*$/i, '').trim().toLowerCase();
+}
+
+// Índice global de posiciones por jugador, reconstruido cuando cambia DATA._stamp.
+function lookupPos(name) {
+  if (!lookupPos._idx || lookupPos._stamp !== DATA._stamp) {
+    const idx = new Map();
+    const put = (n, p) => { const k = normPlayerKey(n); if (k && p && !idx.has(k)) idx.set(k, p); };
+    (DATA.fa||[]).forEach(d => put(d.player, d.pos));
+    (DATA.draft||[]).forEach(d => put(d.player, d.pos));
+    (DATA.undrafted||[]).forEach(d => put(d.player, d.pos));
+    (DATA.rosters||[]).forEach(r => r.siguen.forEach(p => put(p.name, p.pos)));
+    (DATA.trades||[]).forEach(tr => tr.sides.forEach(s => s.receives.forEach(r => { if (r.pos) put(r.item, r.pos); })));
+    lookupPos._idx = idx;
+    lookupPos._stamp = DATA._stamp;
+  }
+  return lookupPos._idx.get(normPlayerKey(name)) || '';
+}
+
+// Normaliza el item recibido en un trade (puede traer "(TW)", "Two-way" o sufijos)
+// y lo compara exactamente con el nombre del jugador para evitar falsos positivos
+// del estilo "John" matcheando "Johnson".
+function tradeItemMatchesPlayer(item, playerName) {
+  if (!item || !playerName) return false;
+  if (isNonPlayerAsset(item)) return false;
+  return normPlayerKey(item) === normPlayerKey(playerName);
+}
+
+function buildPlantilla(team) {
+  const norm    = s => (s || '').trim().toLowerCase();
+  const key     = norm(team.team);
+  const posLookup = lookupPos;
+
+  // Renovaciones: FA cuyo team25 === dest === este equipo. Las identificamos
+  // por la clave normalizada del jugador para detectar duplicados con siguen.
+  const resignKeys = new Set(
+    (DATA.fa||[])
+      .filter(d => d.dest && norm(d.dest) === key && norm(d.team25) === key)
+      .map(d => normPlayerKey(d.player))
+  );
+
+  const staying = team.siguen.map(p => {
+    const { name, tw } = parseTW(p.name);
+    const pos = (p.pos || posLookup(name)).toUpperCase();
+    const k = normPlayerKey(p.name);
+    return { name, pos, type: 'staying', tw, resign: resignKeys.has(k) };
+  });
+
+  const stayingKeys = new Set(staying.map(p => normPlayerKey(p.name)));
+
+  // Llegadas FA. Si una renovación ya está como SIGUEN del sheet, no duplicar.
+  // Si la renovación NO está en SIGUEN, la añadimos como llegada con badge.
+  const faIn = (DATA.fa||[])
+    .filter(d => norm(d.dest) === key)
+    .filter(d => !stayingKeys.has(normPlayerKey(d.player)))
+    .map(d => {
+      const {name,tw} = parseTW(d.player);
+      const isResign = norm(d.team25) === key;
+      return { name, pos: (d.pos || posLookup(name)).toUpperCase(), type: 'new', tw, resign: isResign };
+    });
+
+  const draftIn = (DATA.draft||[])
+    .filter(d => norm(d.team) === key && d.player)
+    .map(d => { const {name,tw} = parseTW(d.player, d.contract); return { name, pos: (d.pos || posLookup(name)).toUpperCase(), type: 'new', tw }; });
+
+  const undraftedIn = (DATA.undrafted||[])
+    .filter(d => norm(d.team) === key && d.player)
+    .map(d => { const {name,tw} = parseTW(d.player, d.contract); return { name, pos: (d.pos || posLookup(name)).toUpperCase(), type: 'new', tw }; });
+
+  const tradeIn = [];
+  (DATA.trades||[])
+    .filter(tr => tr.sides.some(s => norm(s.team) === key))
+    .forEach(tr => {
+      const side = tr.sides.find(s => norm(s.team) === key);
+      if (side) side.receives
+        .filter(r => !isNonPlayerAsset(r.item))
+        .forEach(r => {
+          const {name,tw} = parseTW(r.item);
+          tradeIn.push({ name, pos: (r.pos || posLookup(name)).toUpperCase(), type: 'new', tw });
+        });
+    });
+
+  return [...staying, ...faIn, ...draftIn, ...undraftedIn, ...tradeIn].sort((a, b) => {
+    const ai = POS_ORDER.indexOf(a.pos), bi = POS_ORDER.indexOf(b.pos);
+    const ao = ai === -1 ? 99 : ai,   bo = bi === -1 ? 99 : bi;
+    if (ao !== bo) return ao - bo;
+    // Dentro de la misma posición, los TW siempre al final.
+    if (!!a.tw !== !!b.tw) return a.tw ? 1 : -1;
+    return a.name.localeCompare(b.name);
+  });
+}
+
+function plantillaBlock(players) {
+  const posTag    = pos => POS_ORDER.includes(pos) ? `<span class="roster-pos-tag">${esc(pos)}</span>` : '';
+  // En PLANTILLA quitamos los badges (TW y RENUEVA): la información va por color.
+  // Prioridad de color: resign > new > tw > default.
+  const cls = p => p.resign ? 'roster-player roster-player-resign'
+                  : p.type === 'new' ? 'roster-player roster-player-new'
+                  : p.tw ? 'roster-player roster-player-tw'
+                  : 'roster-player';
+  return `
+    <div class="roster-block">
+      <div class="roster-label plantilla">${t('roster_stays')}</div>
+      ${players.length
+        ? players.map(p => `<div class="${cls(p)}">${posTag(p.pos)}${esc(p.name)}</div>`).join('')
+        : `<div class="roster-player" style="color:var(--text-dim)">—</div>`}
+    </div>`;
+}
+
+function renderRosters(data) {
+  const container = document.getElementById('rosters-container');
+  if (!data.length) { container.innerHTML = `<div class="state-empty">${t('no_data')}</div>`; return; }
+  container.innerHTML = data.map(team => `
+    <div class="team-card">
+      <div class="team-card-header">
+        ${teamLogo(team.team, 28)}
+        <span class="team-name clickable-team" onclick="openTeamView('${esc(team.team)}')" style="cursor:pointer">${esc(team.team)}</span>
+      </div>
+      <div class="team-card-body" style="padding:12px 16px">
+        ${plantillaBlock(buildPlantilla(team))}
+        ${rosterBlock(team.llegadas, 'llegadas', t('roster_arrivals'))}
+        ${rosterBlock(team.salidas, 'salidas', t('roster_departures'))}
+        ${rosterBlock(team.fa, 'fa', t('roster_fa'))}
+      </div>
+    </div>`).join('');
+  document.getElementById('rosters-count').innerHTML = `<span>${data.length}</span>&nbsp;${t('results')}`;
+}
+
+function rosterBlock(players, cls, label) {
+  if (!players.length) return '';
+  return `
+    <div class="roster-block">
+      <div class="roster-label ${cls}">${label}</div>
+      ${players.map(p => `<div class="roster-player">${esc(typeof p === 'object' ? p.name : p)}</div>`).join('')}
+    </div>`;
+}
+
+function filterRosters() {
+  const q = document.getElementById('rosters-search').value.toLowerCase();
+  FILTERED.rosters = DATA.rosters.filter(d => {
+    if (!q) return true;
+    const plantillaNames = buildPlantilla(d).map(p => p.name).join(' ');
+    return `${d.team} ${plantillaNames} ${[...d.llegadas,...d.salidas,...d.fa].map(p => typeof p === 'object' ? p.name : p).join(' ')}`.toLowerCase().includes(q);
+  });
+  renderRosters(FILTERED.rosters);
+}
+
+function resetRosters() {
+  document.getElementById('rosters-search').value = '';
+  filterRosters();
+}
+
+// ─────────────────────────────────────────────
+// PROCESS COACHES
+// Columnas: EQUIPO | NUEVO | ROL | FECHA(fichaje) | ANTIGUO | FECHA(despido) | FUENTE
+// ─────────────────────────────────────────────
+function processCoaches(rows) {
+  DATA.coaches = rows.slice(1).filter(r => cell(r,0)).map(r => ({
+    team:       cell(r,0),
+    new:        cell(r,1),
+    role:       cell(r,2),
+    dateHired:  cell(r,3),
+    prev:       cell(r,4),
+    dateFired:  cell(r,5),
+    source:     cell(r,6),
+  }));
+  document.getElementById('count-coaches').textContent = DATA.coaches.length;
+  populateSelect('coaches-role', [...new Set(DATA.coaches.map(d=>d.role).filter(Boolean))].sort());
+  populateSelect('coaches-team', [...new Set(DATA.coaches.map(d=>d.team).filter(Boolean))].sort());
+}
+
+function renderCoaches(data) {
+  const tbody = document.getElementById('coaches-tbody');
+  if (!data.length) { tbody.innerHTML = `<tr><td colspan="7"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
+  tbody.innerHTML = data.map(d => {
+    const roleCls = (d.role || '').toUpperCase().includes('HC') || (d.role || '').toUpperCase().includes('HEAD') ? 'badge-role-hc' : 'badge-role-gm';
+    return `<tr>
+      <td class="td-player">${esc(d.new)}</td>
+      <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team)}')">${esc(d.team)}</span></td>
+      <td>${d.role ? `<span class="badge ${roleCls}">${esc(d.role)}</span>` : '—'}</td>
+      <td class="td-muted">${fmtDate(d.dateHired)}</td>
+      <td class="td-muted">${esc(d.prev) || '—'}</td>
+      <td class="td-muted">${fmtDate(d.dateFired)}</td>
+      <td class="td-muted">${esc(d.source) || '—'}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('coaches-count').innerHTML = `<span>${data.length}</span>&nbsp;${t('results')}`;
+}
+
+function filterCoaches() {
+  const q = document.getElementById('coaches-search').value.toLowerCase();
+  const role = document.getElementById('coaches-role').value;
+  const team = document.getElementById('coaches-team').value;
+  FILTERED.coaches = DATA.coaches.filter(d =>
+    (!q || `${d.team} ${d.new} ${d.prev} ${d.role}`.toLowerCase().includes(q)) &&
+    (!role || d.role === role) &&
+    (!team || d.team === team)
+  );
+  renderCoaches(FILTERED.coaches);
+}
+
+function resetCoaches() {
+  document.getElementById('coaches-search').value = '';
+  document.getElementById('coaches-role').value = '';
+  document.getElementById('coaches-team').value = '';
+  filterCoaches();
+}
+
+// ─────────────────────────────────────────────
+// SORT
+// ─────────────────────────────────────────────
+const GETTERS = {
+  fa:     d => [d.player, d.pos, d.dest, d.team25, d.money, d.years, d.aav, d.source, d.notes],
+  draft:  d => [d.pick, d.player, d.team, d.pos, d.from, d.check, d.contract, d.notes],
+  coaches:d => [d.new, d.team, d.role, d.dateHired, d.prev, d.dateFired, d.source],
+};
+
+function sortSection(section, col) {
+  const s = SORT[section];
+  if (!s) return;
+  if (s.col === col) s.asc = !s.asc;
+  else { s.col = col; s.asc = true; }
+
+  const getter = GETTERS[section];
+  const src = FILTERED[section].length ? FILTERED[section] : [...(DATA[section] || [])];
+  if (!FILTERED[section].length) FILTERED[section] = src;
+
+  src.sort((a, b) => {
+    let av = getter(a)[col] || '';
+    let bv = getter(b)[col] || '';
+    const an = parseFloat(av), bn = parseFloat(bv);
+    const cmp = (!isNaN(an) && !isNaN(bn)) ? an - bn : av.localeCompare(bv);
+    return s.asc ? cmp : -cmp;
+  });
+
+  if (section === 'fa') renderFA(src);
+  else if (section === 'draft') renderDraft(src);
+  else if (section === 'coaches') renderCoaches(src);
+
+  document.querySelectorAll(`#section-${section === 'coaches' ? 'coaches' : section} thead th`).forEach((th, i) => {
+    th.classList.toggle('sorted', i === col);
+    if (th.hasAttribute('aria-sort')) {
+      th.setAttribute('aria-sort', i === col ? (s.asc ? 'ascending' : 'descending') : 'none');
+    }
+  });
+}
+
+// ─────────────────────────────────────────────
+// TABS
+// ─────────────────────────────────────────────
+function showTab(name, pushHistory = true) {
+  if (!document.getElementById(`section-${name}`)) { showTab('home', pushHistory); return; }
+  // Cerrar drawer si está abierto al cambiar de pestaña
+  const drawer = document.getElementById('player-drawer');
+  if (drawer && drawer.classList.contains('open')) closeDrawer(false);
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.classList.remove('active');
+    if (tab.hasAttribute('aria-selected')) tab.setAttribute('aria-selected', 'false');
+  });
+  document.querySelectorAll('.mobile-tab').forEach(tab => tab.classList.remove('active'));
+  document.getElementById(`section-${name}`).classList.add('active');
+  if (name !== 'home') {
+    const tabBtn = document.getElementById(`tab-${name}`);
+    if (tabBtn) {
+      tabBtn.classList.add('active');
+      if (tabBtn.hasAttribute('aria-selected')) tabBtn.setAttribute('aria-selected', 'true');
+    }
+    const mobileTab = document.getElementById(`mtab-${name}`);
+    if (mobileTab) mobileTab.classList.add('active');
+    document.body.classList.remove('on-home');
+    if (pushHistory) pushURL({ tab: name, team: null, player: null });
+  } else {
+    document.body.classList.add('on-home');
+    if (pushHistory) pushURL({ tab: null, team: null, player: null });
+  }
+}
+
+// ─────────────────────────────────────────────
+// UTILS
+// ─────────────────────────────────────────────
+const TEAM_LOGOS = {
+  'Atlanta Hawks': 'atl', 'Boston Celtics': 'bos', 'Brooklyn Nets': 'bkn',
+  'Charlotte Hornets': 'cha', 'Chicago Bulls': 'chi', 'Cleveland Cavaliers': 'cle',
+  'Dallas Mavericks': 'dal', 'Denver Nuggets': 'den', 'Detroit Pistons': 'det',
+  'Golden State Warriors': 'gs', 'Houston Rockets': 'hou', 'Indiana Pacers': 'ind',
+  'Los Angeles Clippers': 'lac', 'Los Angeles Lakers': 'lal', 'Memphis Grizzlies': 'mem',
+  'Miami Heat': 'mia', 'Milwaukee Bucks': 'mil', 'Minnesota Timberwolves': 'min',
+  'New Orleans Pelicans': 'no', 'New York Knicks': 'ny', 'Oklahoma City Thunder': 'okc',
+  'Orlando Magic': 'orl', 'Philadelphia 76ers': 'phi', 'Phoenix Suns': 'phx',
+  'Portland Trail Blazers': 'por', 'Sacramento Kings': 'sac', 'San Antonio Spurs': 'sa',
+  'Toronto Raptors': 'tor', 'Utah Jazz': 'utah', 'Washington Wizards': 'wsh',
+};
+
+function teamLogo(name, size = 40) {
+  const abbrev = TEAM_LOGOS[name];
+  if (!abbrev) return '';
+  return `<img src="https://a.espncdn.com/i/teamlogos/nba/500/${abbrev}.png" width="${size}" height="${size}" alt="" style="object-fit:contain;vertical-align:middle" onerror="this.style.display='none'">`;
+}
+
+function fmtDate(str) {
+  if (!str) return '—';
+  const d = new Date(str);
+  if (isNaN(d.getTime())) return str;
+  const months = lang === 'es'
+    ? ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic']
+    : ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${String(d.getDate()).padStart(2,'0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+const VALID_POS = new Set(['PG','SG','SF','PF','C','G','F','G/F','F/C','F/G']);
+function validPos(pos) {
+  const p = (pos || '').trim().toUpperCase();
+  return VALID_POS.has(p) ? p : '';
+}
+
+function faStatus(player) {
+  const m = (player || '').match(/\((RFA|TO|PO)\)\s*$/i);
+  if (!m) return { name: player || '', badge: '' };
+  const tag = m[1].toUpperCase();
+  const cls = tag === 'RFA' ? 'badge-rfa' : tag === 'TO' ? 'badge-to' : 'badge-po';
+  return {
+    name: player.replace(/\s*\([^)]+\)\s*$/, '').trim(),
+    badge: `&nbsp;<span class="badge ${cls}">${tag}</span>`
+  };
+}
+
+function flag(code) {
+  if (!code || code.trim().length !== 2) return '';
+  const c = code.trim().toLowerCase();
+  return `<img src="https://flagpedia.net/data/flags/w40/${c}.png" width="24" height="16" alt="${c.toUpperCase()}" style="vertical-align:middle;border-radius:2px;object-fit:cover" onerror="this.style.display='none'">`;
+}
+
+function esc(s) {
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function populateSelect(id, values) {
+  const sel = document.getElementById(id);
+  if (!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">—</option>' + values.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join('');
+  if (cur) sel.value = cur;
+}
+
+function rerenderAll() {
+  filterFA();
+  filterFAPending();
+  filterDraft();
+  filterTrades();
+  filterCoaches();
+  updateHomeCounts();
+  applyTranslations();
+}
+
+function updateHomeCounts() {
+  const faCount      = DATA.fa.filter(d=>d.dest).length;
+  const draftCount   = DATA.draft.length;
+  const tradesCount  = DATA.trades.length;
+  const coachCount   = DATA.coaches.length;
+  const total = faCount + draftCount + tradesCount + coachCount;
+
+  document.getElementById('home-count-fa').textContent      = faCount     || '—';
+  document.getElementById('home-count-draft').textContent   = draftCount  || '—';
+  document.getElementById('home-count-trades').textContent  = tradesCount || '—';
+  document.getElementById('home-count-coaches').textContent = coachCount  || '—';
+  document.getElementById('home-total-moves').textContent   = total       || '—';
+}
+
+// ─────────────────────────────────────────────
+// THEME TOGGLE
+// ─────────────────────────────────────────────
+let isLight = (() => { try { return localStorage.getItem('nba2026_theme') === 'light'; } catch(e) { return false; } })();
+
+async function refreshData() {
+  const btn = document.getElementById('refresh-btn');
+  btn.classList.add('loading');
+  btn.disabled = true;
+  let ok = true;
+  try { await fetchAll(); }
+  catch(e) { ok = false; }
+  finally {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+    showToast(ok ? t('toast_updated') : t('toast_error'), ok ? 'ok' : 'err');
+  }
+}
+
+let _toastTimer = null;
+function showToast(msg, kind = 'ok') {
+  let el = document.getElementById('toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'toast';
+    el.className = 'toast';
+    el.setAttribute('role', 'status');
+    el.setAttribute('aria-live', 'polite');
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.dataset.kind = kind;
+  el.classList.add('show');
+  if (_toastTimer) clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+function toggleTheme() {
+  isLight = !isLight;
+  applyTheme();
+  try { localStorage.setItem('nba2026_theme', isLight ? 'light' : 'dark'); } catch(e) {}
+}
+
+function applyTheme() {
+  document.body.classList.toggle('light', isLight);
+  const icon = document.getElementById('theme-icon');
+  if (icon) icon.textContent = isLight ? '🌙' : '☀️';
+  const tg = document.getElementById('theme-toggle');
+  if (tg) tg.title = t(isLight ? 'theme_dark' : 'theme_light');
+}
+
+
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+
+// ─────────────────────────────────────────────
+// URL ROUTING
+// ─────────────────────────────────────────────
+const BASE_PATH = '/nba-offseason-2026/';
+
+function slugify(str) {
+  return (str || '').toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+function pushURL(params) {
+  const url = new URL(window.location.href);
+  Object.keys(params).forEach(k => {
+    if (params[k]) url.searchParams.set(k, params[k]);
+    else url.searchParams.delete(k);
+  });
+  window.history.pushState({}, '', url.toString());
+}
+
+function readURL() {
+  const p = new URLSearchParams(window.location.search);
+  return { player: p.get('player'), team: p.get('team'), tab: p.get('tab') };
+}
+
+window.addEventListener('popstate', () => {
+  const { player, team, tab } = readURL();
+  if (team) { openTeamView(decodeURIComponent(team), false); }
+  else if (player) { openPlayerDrawer(decodeURIComponent(player), false); }
+  else { closeDrawer(false); showTab(tab || (window.innerWidth <= 640 ? 'fa' : 'home'), false); }
+});
+
+// ─────────────────────────────────────────────
+// PLAYER DRAWER
+// ─────────────────────────────────────────────
+function openPlayerDrawer(playerName, pushHistory = true) {
+  // Recopilar todos los datos del jugador en todas las pestañas
+  const faData    = DATA.fa.filter(d => d.player === playerName);
+  const draftData = DATA.draft.filter(d => d.player === playerName);
+  const undData   = DATA.undrafted ? DATA.undrafted.filter(d => d.player === playerName) : [];
+  const tradeData = DATA.trades.filter(tr => tr.sides.some(s => s.receives.some(r => tradeItemMatchesPlayer(r.item, playerName))));
+
+  document.getElementById('drawer-player-name').textContent = playerName;
+
+  let html = '';
+
+  // FA
+  if (faData.length) {
+    html += `<div class="drawer-section">
+      <div class="drawer-section-title">${t('tab_fa')}</div>`;
+    faData.forEach(d => {
+      if (d.team25) html += drawerRow(t('drawer_old_team'), `<span class="badge badge-team">${esc(d.team25)}</span>`);
+      if (d.dest)   html += drawerRow(t('drawer_new_team'), `<span class="badge badge-team">${esc(d.dest)}</span>`);
+      if (d.money)  html += drawerRow(t('drawer_total'), `$${esc(d.money)}M`, 'money');
+      if (d.years)  html += drawerRow(t('drawer_years'), esc(d.years));
+      if (d.aav)    html += drawerRow('AAV', `$${esc(d.aav)}M`, 'money');
+      if (d.source) html += drawerRow(t('footer_src'), esc(d.source));
+      if (d.notes)  html += drawerRow(t('col_notes'), esc(d.notes), 'notes');
+    });
+    html += `</div>`;
+  }
+
+  // Draft
+  if (draftData.length) {
+    html += `<div class="drawer-section">
+      <div class="drawer-section-title">${t('tab_draft')}</div>`;
+    draftData.forEach(d => {
+      if (d.pick)     html += drawerRow('Pick', `<span class="pick-num ${parseInt(d.pick)<=5?'top5':parseInt(d.pick)<=30?'r1':''}">${esc(d.pick)}</span>`);
+      if (d.team)     html += drawerRow(t('col_team'), `<span class="badge badge-team">${esc(d.team)}</span>`);
+      if (d.pos)      html += drawerRow(t('draft_col_pos'), `<span class="pos-text">${esc(d.pos)}</span>`);
+      if (d.from)     html += drawerRow(t('draft_col_from'), esc(d.from));
+      if (d.contract) html += drawerRow(t('draft_col_contract'), esc(d.contract));
+      if (d.notes)    html += drawerRow(t('col_notes'), esc(d.notes), 'notes');
+    });
+    html += `</div>`;
+  }
+
+  // Undrafted
+  if (undData.length) {
+    html += `<div class="drawer-section">
+      <div class="drawer-section-title">${t('draft_undrafted_title')}</div>`;
+    undData.forEach(d => {
+      if (d.team)  html += drawerRow(t('col_team'), `<span class="badge badge-team">${esc(d.team)}</span>`);
+      if (d.pos)   html += drawerRow(t('draft_col_pos'), `<span class="pos-text">${esc(d.pos)}</span>`);
+      if (d.from)  html += drawerRow(t('draft_col_from'), esc(d.from));
+      if (d.notes) html += drawerRow(t('col_notes'), esc(d.notes), 'notes');
+    });
+    html += `</div>`;
+  }
+
+  // Trades
+  if (tradeData.length) {
+    html += `<div class="drawer-section">
+      <div class="drawer-section-title">${t('tab_trades')}</div>`;
+    tradeData.forEach(tr => {
+      tr.sides.forEach(side => {
+        const myReceive = side.receives.find(r => tradeItemMatchesPlayer(r.item, playerName));
+        if (myReceive) {
+          html += drawerRow(t('drawer_new_team'), `<span class="badge badge-team">${esc(side.team)}</span>`);
+          if (myReceive.from) html += drawerRow(t('drawer_old_team'), `<span class="badge badge-team">${esc(myReceive.from)}</span>`);
+          const pos = validPos(myReceive.pos || lookupPos(playerName));
+          if (pos) html += drawerRow(t('draft_col_pos'), `<span class="pos-text">${esc(pos)}</span>`);
+        }
+      });
+    });
+    html += `</div>`;
+  }
+
+  if (!html) {
+    html = `<div class="drawer-empty">${t('no_data')}</div>`;
+  }
+
+  // Botones de navegación a equipos
+  const teamLinks = [];
+  if (faData.length) {
+    if (faData[0].dest)   teamLinks.push({ label: t('drawer_view_team'),     team: faData[0].dest });
+    if (faData[0].team25) teamLinks.push({ label: t('drawer_view_old_team'), team: faData[0].team25 });
+  } else if (draftData.length) {
+    if (draftData[0].team) teamLinks.push({ label: t('drawer_view_team'), team: draftData[0].team });
+  } else if (tradeData.length) {
+    tradeData[0].sides.forEach(side => {
+      const match = side.receives.find(r => tradeItemMatchesPlayer(r.item, playerName));
+      if (match) {
+        teamLinks.push({ label: t('drawer_view_team'), team: side.team });
+        if (match.from) teamLinks.push({ label: t('drawer_view_old_team'), team: match.from });
+      }
+    });
+  }
+  if (teamLinks.length) {
+    const btnStyle = `background:none;border:1px solid var(--border);color:var(--text-muted);padding:8px 14px;border-radius:4px;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;transition:all 0.2s`;
+    html += `<div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:8px">` +
+      teamLinks.map(lk => `<button onclick="openTeamView('${esc(lk.team)}')" style="${btnStyle}" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">${esc(lk.label)}: ${esc(lk.team)} →</button>`).join('') +
+    `</div>`;
+  }
+
+  document.getElementById('drawer-body').innerHTML = html;
+  const overlay = document.getElementById('drawer-overlay');
+  const drawerEl = document.getElementById('player-drawer');
+  overlay.classList.add('open');
+  drawerEl.classList.add('open');
+  drawerEl.setAttribute('aria-hidden', 'false');
+  overlay.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+
+  if (pushHistory) pushURL({ player: playerName, team: null });
+}
+
+function drawerRow(label, value, cls = '') {
+  return `<div class="drawer-row">
+    <span class="drawer-label">${label}</span>
+    <span class="drawer-value ${cls}">${value}</span>
+  </div>`;
+}
+
+function closeDrawer(pushHistory = true) {
+  const overlay = document.getElementById('drawer-overlay');
+  const drawerEl = document.getElementById('player-drawer');
+  overlay.classList.remove('open');
+  drawerEl.classList.remove('open');
+  drawerEl.setAttribute('aria-hidden', 'true');
+  overlay.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+  if (pushHistory) pushURL({ player: null });
+}
+
+// ESC para cerrar drawer
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+
+// ─────────────────────────────────────────────
+// TEAM VIEW
+// ─────────────────────────────────────────────
+function openTeamView(teamName, pushHistory = true) {
+  const norm2 = s => (s||'').trim().toLowerCase();
+  const tKey = norm2(teamName);
+  // Resolver el nombre canónico aunque venga de la URL en otro casing.
+  const canonical = Object.keys(TEAM_LOGOS).find(n => norm2(n) === tKey);
+  if (canonical) teamName = canonical;
+  else if (!teamName) { showTab('home', pushHistory); return; }
+  const faIn      = DATA.fa.filter(d => norm2(d.dest) === tKey);
+  const faOut     = DATA.fa.filter(d => norm2(d.team25) === tKey && d.dest);
+  const picks     = DATA.draft.filter(d => norm2(d.team) === tKey);
+  const undrafted = (DATA.undrafted || []).filter(d => norm2(d.team) === tKey && d.player);
+  const trades    = DATA.trades.filter(tr => tr.sides.some(s => norm2(s.team) === tKey));
+  const roster    = DATA.rosters.find(r => norm2(r.team) === tKey);
+  const faPending = (DATA.faPending || []).filter(d => norm2(d.team25) === tKey);
+  const coaches   = DATA.coaches.filter(d => norm2(d.team) === tKey);
+
+  document.getElementById('tv-team-name').textContent = teamName;
+  document.getElementById('tv-team-logo').innerHTML = teamLogo(teamName, 64);
+
+  let meta = '';
+  coaches.forEach(c => { meta += `<span>${esc(c.role)}: <strong>${esc(c.new)}</strong></span>  `; });
+  document.getElementById('tv-team-meta').innerHTML = meta;
+
+  const tradeIn = [], tradeOut = [];
+  trades.forEach(tr => {
+    const mySide = tr.sides.find(s => norm2(s.team) === tKey);
+    if (mySide) mySide.receives.forEach(r => tradeIn.push({ item: r.item, pos: r.pos }));
+    // Salidas: activos donde from === este equipo (cualquier número de equipos)
+    tr.sides.forEach(side => side.receives.filter(r => norm2(r.from) === tKey && !isNonPlayerAsset(r.item)).forEach(r => tradeOut.push({item: r.item, to: side.team, pos: r.pos})));
+  });
+
+  const itemPosTag = (item, pos) => {
+    if (isNonPlayerAsset(item)) return '';
+    const p = validPos(pos || lookupPos(item));
+    return p ? `<span class="roster-pos-tag" style="margin-right:6px">${esc(p)}</span>` : '';
+  };
+
+  const subcol = (items, label, renderFn) => `
+    <div>
+      <div class="roster-subcol-label">${label}</div>
+      ${items.length ? items.map(renderFn).join('') : '<div class="roster-player td-muted">—</div>'}
+    </div>`;
+
+  const tvRow = (name, detail = '', money = '') => `
+    <div class="tv-row">
+      <span class="tv-row-name">${name}</span>
+      ${money ? `<span class="tv-row-money">${money}</span>` : detail ? `<span class="tv-row-detail">${detail}</span>` : ''}
+    </div>`;
+
+  const tvEmpty = () => `<div class="tv-empty">—</div>`;
+
+  let html = `<div style="padding:24px 32px">`;
+
+  // ── LLEGADAS ──────────────────────────────────
+  html += `<div class="tv-section-title" style="color:var(--signed)">${t('roster_arrivals')}</div>
+  <div class="team-view-grid" style="margin-bottom:28px">
+    ${tvCard(t('roster_fa'), faIn.length,
+        faIn.length ? faIn.map(d => {
+          const isResign = norm2(d.team25) === tKey;
+          const nameHTML = isResign
+            ? `<span style="color:var(--resign)">${esc(d.player)}</span><span class="badge-resign">${t('badge_resign')}</span>`
+            : esc(d.player);
+          return tvRow(nameHTML, '', d.money ? `$${esc(d.money)}M/${esc(d.years)}y` : '');
+        }).join('') : tvEmpty())}
+    ${tvCard(t('roster_trade'), tradeIn.length,
+        tradeIn.length ? tradeIn.map(r => tvRow(itemPosTag(r.item, r.pos) + esc(r.item))).join('') : tvEmpty())}
+    ${(() => {
+      const draftRows = [
+        ...picks.map(d => ({ pick: `#${d.pick}`, player: d.player, contract: d.contract, undrafted: false })),
+        ...undrafted.map(d => ({ pick: 'U', player: d.player, contract: d.contract, undrafted: true })),
+      ];
+      const renderDraftRow = d => {
+        const { name, tw } = parseTW(d.player, d.contract);
+        const pickCls = d.undrafted ? 'tv-row-pick undrafted' : 'tv-row-pick';
+        return `<div class="tv-row${tw ? ' tv-row-tw' : ''}" style="justify-content:flex-start;gap:14px">
+          <span class="${pickCls}">${esc(d.pick)}</span>
+          <span class="tv-row-name" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(name)}${tw ? ' <span class="badge-tw">TW</span>' : ''}</span>
+        </div>`;
+      };
+      return tvCard(t('roster_draft'), draftRows.length,
+        draftRows.length ? draftRows.map(renderDraftRow).join('') : tvEmpty());
+    })()}
+  </div>`;
+
+  // ── SALIDAS ───────────────────────────────────
+  html += `<div class="tv-section-title" style="color:var(--gone)">${t('roster_departures')}</div>
+  <div class="team-view-grid" style="margin-bottom:28px">
+    ${tvCard(t('roster_salidas_fa'), faOut.length,
+        faOut.length ? faOut.map(d => tvRow(esc(d.player), d.dest ? `→ ${esc(d.dest)}` : '')).join('') : tvEmpty())}
+    ${tvCard(t('roster_salidas_trade'), tradeOut.length,
+        tradeOut.length ? tradeOut.map(r => tvRow(itemPosTag(r.item, r.pos) + esc(r.item), `→ ${esc(r.to)}`)).join('') : tvEmpty())}
+    ${tvCard(t('roster_fa_pending'), faPending.length,
+        faPending.length ? faPending.map(d => { const {name,badge} = faStatus(d.player); return tvRow(esc(name) + badge); }).join('') : tvEmpty())}
+  </div>`;
+
+  // ── PLANTILLA (siguen + altas, agrupadas por posición) ────
+  const POS_LIST = ['PG','SG','SF','PF','C'];
+  if (roster) {
+    const plantilla = buildPlantilla(roster);
+    if (plantilla.length) {
+      const byPos = {};
+      plantilla.forEach(p => {
+        const key = POS_LIST.includes(p.pos) ? p.pos : '?';
+        (byPos[key] = byPos[key] || []).push(p);
+      });
+      const rows = [...POS_LIST, '?'].flatMap(pos => {
+        const group = byPos[pos];
+        if (!group) return [];
+        const label = pos === '?' ? '—' : pos;
+        const names = group.map(p => {
+          // En PLANTILLA no usamos badges: el contrato/condición va por color.
+          // Prioridad: resign > new > tw > default.
+          const color = p.resign ? 'var(--resign)'
+                       : p.type === 'new' ? 'var(--signed)'
+                       : p.tw ? 'var(--accent2)'
+                       : '';
+          const cls = color ? ` style="color:${color}"` : '';
+          return `<span${cls}>${esc(p.name)}</span>`;
+        }).join(', ');
+        return [`<div class="tv-row" style="align-items:baseline;gap:10px;justify-content:flex-start">
+          <span class="pos-text" style="min-width:30px;flex-shrink:0">${label}</span>
+          <span style="font-size:13px;color:var(--text)">${names}</span>
+        </div>`];
+      }).join('');
+      html += `<div class="tv-section-title">${t('roster_stays')}</div>
+      <div class="tv-card" style="margin-bottom:28px">
+        <div class="tv-card-body">${rows}</div>
+      </div>`;
+    }
+  }
+
+  // ── TRASPASOS ─────────────────────────────────
+  if (trades.length) {
+    html += `<div class="tv-section-title">${t('roster_section_trades')}</div>`;
+    html += trades.map(tr => `
+      <div class="trade-card" style="margin-bottom:10px">
+        <div class="trade-header">
+          <span class="td-muted" style="font-size:11px;font-family:'DM Mono',monospace">
+            ${tr.date ? fmtDate(tr.date) : ''}${tr.date && tr.source ? ' · ' : ''}${tr.source ? esc(tr.source) : ''}
+          </span>
+        </div>
+        <div class="trade-body" style="grid-template-columns:repeat(${tr.sides.length},1fr)">
+          ${tr.sides.map(side => `
+            <div class="trade-side">
+              <div class="trade-team-label">${esc(side.team)}</div>
+              ${tradeReceivesHTML(side.receives)}
+            </div>`).join('')}
+        </div>
+      </div>`).join('');
+    html += `<div style="margin-bottom:28px"></div>`;
+  }
+
+  // ── HC/GMs ────────────────────────────────────
+  if (coaches.length) {
+    html += `<div class="tv-section-title">${t('roster_section_coaches')}</div>
+    <div class="tv-card" style="margin-bottom:28px">
+      <div class="tv-card-body">
+        <div class="table-wrap"><table><thead><tr>
+          <th>${t('coaches_col_new')}</th>
+          <th>${t('coaches_col_prev')}</th>
+          <th>${t('coaches_col_date_hired')}</th>
+        </tr></thead><tbody>` +
+      coaches.map(d => {
+        const rc = (d.role||'').toUpperCase().includes('HC') || (d.role||'').toUpperCase().includes('HEAD') ? 'badge-role-hc' : 'badge-role-gm';
+        const roleBadge = d.role ? ` <span class="badge ${rc}">${esc(d.role)}</span>` : '';
+        return `<tr>
+          <td class="td-player">${esc(d.new)}${roleBadge}</td>
+          <td class="td-muted">${esc(d.prev)||'—'}</td>
+          <td class="td-muted">${fmtDate(d.dateHired)}</td>
+        </tr>`;
+      }).join('') + `</tbody></table></div>
+      </div>
+    </div>`;
+  }
+
+  // ── LEYENDA DE COLORES ─────────────────────────
+  html += `<div class="tv-color-legend">
+    <span><i style="background:var(--signed)"></i>${t('legend_color_new')}</span>
+    <span><i style="background:var(--resign)"></i>${t('legend_color_resign')}</span>
+    <span><i style="background:var(--accent2)"></i>${t('legend_color_tw')}</span>
+  </div>`;
+
+  html += `</div>`;
+
+  document.getElementById('tv-content').innerHTML = html;
+
+  document.getElementById('team-back-btn').textContent = '← ' + t('back_btn');
+
+  // Cerrar drawer si estuviera abierto al abrir vista de equipo
+  const drawer = document.getElementById('player-drawer');
+  if (drawer && drawer.classList.contains('open')) closeDrawer(false);
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+  document.getElementById('section-team').classList.add('active');
+  document.body.classList.remove('on-home');
+
+  if (pushHistory) pushURL({ team: teamName, player: null, tab: null });
+}
+
+function tvCard(label, count, bodyHTML) {
+  return `<div class="tv-card">
+    <div class="tv-card-header">
+      <span class="tv-label">${label}</span>
+      <span class="tv-count">${count}</span>
+    </div>
+    <div class="tv-card-body">${bodyHTML}</div>
+  </div>`;
+}
+
+function goBack() {
+  window.history.back();
+}
+
+function renderTeamsGrid() {
+  const teams = Object.keys(TEAM_LOGOS).sort();
+  document.getElementById('teams-grid').innerHTML = teams.map(name => `
+    <div class="teams-grid-card" onclick="openTeamView('${esc(name)}')">
+      ${teamLogo(name, 48)}
+      <div class="teams-grid-name">${esc(name)}</div>
+    </div>`).join('');
+}
+
+applyTheme();
+if (lang !== 'es') setLang(lang);
+// A11y: add scope="col" a todos los th de cabecera
+document.querySelectorAll('thead th').forEach(th => { if (!th.hasAttribute('scope')) th.setAttribute('scope', 'col'); });
+if (window.innerWidth <= 640) {
+  showTab('fa', false);
+} else {
+  document.body.classList.add('on-home');
+}
+renderTeamsGrid();
+
+// Debug: escribe _debugTrades() en la consola del navegador para ver los datos
+window._debugTrades = () => {
+  const raw = window._rawTradeRows;
+  console.group('TRADES DEBUG');
+  console.log('Filas CSV (primeras 10):', raw ? raw.slice(0,10) : 'No disponible — recarga la página');
+  console.log('Trades parseados:', JSON.parse(JSON.stringify(DATA.trades)));
+  console.groupEnd();
+};
+fetchAll();
