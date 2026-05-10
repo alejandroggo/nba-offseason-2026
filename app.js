@@ -373,9 +373,11 @@ function togglePendingType(type) {
 }
 
 function filterFAPending() {
+  const q    = (document.getElementById('fa-pending-search')?.value || '').toLowerCase();
   const team = document.getElementById('fa-pending-team').value;
   const pos  = document.getElementById('fa-pending-pos').value;
   FILTERED.faPending = (DATA.faPending || []).filter(d => {
+    if (q && !(d.player || '').toLowerCase().includes(q) && !(d.team25 || '').toLowerCase().includes(q)) return false;
     if (team && (d.team25||'').trim().toLowerCase() !== team.trim().toLowerCase()) return false;
     if (pos  && validPos(d.pos) !== pos) return false;
     if (_pendingTypeFilter) {
@@ -388,12 +390,14 @@ function filterFAPending() {
 }
 
 function resetFAPending() {
+  const search = document.getElementById('fa-pending-search');
+  if (search) search.value = '';
   document.getElementById('fa-pending-team').value = '';
   document.getElementById('fa-pending-pos').value = '';
   _pendingTypeFilter = null;
   ['RFA','TO','PO'].forEach(t => {
     const btn = document.getElementById(`filter-btn-${t.toLowerCase()}`);
-    if (btn) btn.style.opacity = '0.4';
+    if (btn) btn.setAttribute('aria-pressed', 'false');
   });
   filterFAPending();
 }

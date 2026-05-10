@@ -230,6 +230,10 @@
     <h3 class="fa-subsection-title fa-subsection-title--pending" data-i18n="fa_pending_title">Pendientes de firmar</h3>
     <div class="filters filters--compact" role="search">
       <div class="filter-group">
+        <label class="filter-label" for="fa-pending-search" data-i18n="filter_search">Buscar</label>
+        <input type="text" class="filter-input" id="fa-pending-search" oninput="filterFAPending()" data-i18n-ph="fa_search_ph">
+      </div>
+      <div class="filter-group">
         <label class="filter-label" for="fa-pending-team" data-i18n="col_team">Equipo</label>
         <select class="filter-select" id="fa-pending-team" onchange="filterFAPending()"><option value="">—</option></select>
       </div>
