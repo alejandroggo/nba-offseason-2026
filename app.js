@@ -54,7 +54,7 @@ const i18n = {
     rosters_search_ph: 'Buscar equipo o jugador…',
     roster_stays: 'Plantilla', roster_arrivals: 'Llegadas', roster_departures: 'Salidas',
     roster_fa: 'FA', roster_draft: 'Draft', roster_trade: 'Vía Trade',
-    roster_salidas_fa: 'FA', roster_salidas_trade: 'Vía Trade', roster_fa_pending: 'FA Pendientes',
+    roster_salidas_fa: 'FA', roster_salidas_trade: 'Vía Trade', roster_fa_pending: 'FA Pendientes', roster_waived: 'Cortado',
     roster_section_trades: 'Traspasos', roster_section_coaches: 'Cuerpo técnico y dirección',
     coaches_title: 'Entrenadores y General Managers', coaches_subtitle: 'Cambios en banquillos y gerencias',
     coaches_search_ph: 'Equipo, nombre…',
@@ -115,7 +115,7 @@ const i18n = {
     rosters_search_ph: 'Search team or player…',
     roster_stays: 'Roster', roster_arrivals: 'Arrivals', roster_departures: 'Departures',
     roster_fa: 'FA', roster_draft: 'Draft', roster_trade: 'Via Trade',
-    roster_salidas_fa: 'FA', roster_salidas_trade: 'Via Trade', roster_fa_pending: 'Pending FA',
+    roster_salidas_fa: 'FA', roster_salidas_trade: 'Via Trade', roster_fa_pending: 'Pending FA', roster_waived: 'Waived',
     roster_section_trades: 'Trades', roster_section_coaches: 'Coaching staff & front office',
     coaches_title: 'Head Coaches & General Managers', coaches_subtitle: 'Coaching and front office changes',
     coaches_search_ph: 'Team, name…',
@@ -680,11 +680,10 @@ function processRosters(rows1, rows2) {
     const key = team.team.trim().toLowerCase();
     const salidasSet = new Set((team.salidas || []).map(p => stripTag(p.name)));
     const fromFA = DATA.fa.filter(d => d.team25.trim().toLowerCase() === key && !d.dest)
-      .map(d => ({ player: d.player, pos: d.pos || '', team25: d.team25, notes: d.notes }))
-      .filter(d => !salidasSet.has(stripTag(d.player)));
+      .map(d => ({ player: d.player, pos: d.pos || '', team25: d.team25, notes: d.notes }));
     const seen = new Set(fromFA.map(d => stripTag(d.player)));
     const fromSheet = (team.faSheet || [])
-      .filter(p => !seen.has(stripTag(p.name)) && !salidasSet.has(stripTag(p.name)))
+      .filter(p => !seen.has(stripTag(p.name)))
       .map(p => ({ player: p.name, pos: p.pos || '', team25: team.team, notes: '' }));
     const allPending = [...fromFA, ...fromSheet];
     // La card "FA Pendientes" del team view excluye a los cortados (col F,G).
@@ -790,12 +789,14 @@ function buildPlantilla(team) {
       return { name, pos: (d.pos || posLookup(name)).toUpperCase(), type: 'new', tw, resign: isResign };
     });
 
+  // Picks de draft: solo entran a Plantilla si están firmados (col G "√").
+  // Como Llegadas siguen apareciendo todos en el team view.
   const draftIn = (DATA.draft||[])
-    .filter(d => norm(d.team) === key && d.player)
+    .filter(d => norm(d.team) === key && d.player && d.check)
     .map(d => { const {name,tw} = parseTW(d.player, d.contract); return { name, pos: (d.pos || posLookup(name)).toUpperCase(), type: 'new', tw }; });
 
   const undraftedIn = (DATA.undrafted||[])
-    .filter(d => norm(d.team) === key && d.player)
+    .filter(d => norm(d.team) === key && d.player && d.check)
     .map(d => { const {name,tw} = parseTW(d.player, d.contract); return { name, pos: (d.pos || posLookup(name)).toUpperCase(), type: 'new', tw }; });
 
   const tradeIn = [];
@@ -1089,7 +1090,7 @@ function updateHomeCounts() {
   const draftCount   = DATA.draft.length;
   const tradesCount  = DATA.trades.length;
   const coachCount   = DATA.coaches.length;
-  const total = faCount + draftCount + tradesCount + coachCount;
+  const total = faCount + draftCount + tradesCount;
 
   document.getElementById('home-count-fa').textContent      = faCount     || '—';
   document.getElementById('home-count-draft').textContent   = draftCount  || '—';
@@ -1395,14 +1396,20 @@ function openTeamView(teamName, pushHistory = true) {
   <div class="team-view-grid" style="margin-bottom:28px">
     ${tvCard(t('roster_fa'), faIn.length,
         faIn.length ? faIn.map(d => {
+          const { name, tw } = parseTW(d.player, d.notes, d.aav);
           const isResign = norm2(d.team25) === tKey;
-          const nameHTML = isResign
-            ? `<span style="color:var(--resign)">${esc(d.player)}</span><span class="badge-resign">${t('badge_resign')}</span>`
-            : esc(d.player);
+          const baseHTML = isResign
+            ? `<span style="color:var(--resign)">${esc(name)}</span><span class="badge-resign">${t('badge_resign')}</span>`
+            : esc(name);
+          const nameHTML = baseHTML + (tw ? ' <span class="badge-tw">TW</span>' : '');
           return tvRow(nameHTML, '', d.money ? `$${esc(d.money)}M/${esc(d.years)}y` : '');
         }).join('') : tvEmpty())}
     ${tvCard(t('roster_trade'), tradeIn.length,
-        tradeIn.length ? tradeIn.map(r => tvRow(itemPosTag(r.item, r.pos) + esc(r.item))).join('') : tvEmpty())}
+        tradeIn.length ? tradeIn.map(r => {
+          if (isNonPlayerAsset(r.item)) return tvRow(itemPosTag(r.item, r.pos) + esc(r.item));
+          const { name, tw } = parseTW(r.item);
+          return tvRow(itemPosTag(name, r.pos) + esc(name) + (tw ? ' <span class="badge-tw">TW</span>' : ''));
+        }).join('') : tvEmpty())}
     ${(() => {
       const draftRows = [
         ...picks.map(d => ({ pick: `#${d.pick}`, player: d.player, contract: d.contract, undrafted: false })),
@@ -1425,7 +1432,7 @@ function openTeamView(teamName, pushHistory = true) {
   html += `<div class="tv-section-title" style="color:var(--gone)">${t('roster_departures')}</div>
   <div class="team-view-grid" style="margin-bottom:28px">
     ${tvCard(t('roster_salidas_fa'), faOut.length,
-        faOut.length ? faOut.map(d => tvRow(esc(d.player), d.dest ? `→ ${esc(d.dest)}` : '')).join('') : tvEmpty())}
+        faOut.length ? faOut.map(d => tvRow(esc(d.player), d.dest ? `→ ${esc(d.dest)}` : t('roster_waived'))).join('') : tvEmpty())}
     ${tvCard(t('roster_salidas_trade'), tradeOut.length,
         tradeOut.length ? tradeOut.map(r => tvRow(itemPosTag(r.item, r.pos) + esc(r.item), `→ ${esc(r.to)}`)).join('') : tvEmpty())}
     ${tvCard(t('roster_fa_pending'), faPending.length,
