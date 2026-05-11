@@ -82,7 +82,7 @@ const i18n = {
   en: {
     home_eyebrow: 'Off-Season',
     home_total_label: 'moves',
-    home_subtitle: 'Every move of the 2025-26 offseason: free agency, draft, trades, rosters, and coaching changes.',
+    home_subtitle: 'Every transaction of the 2025-26 offseason: free agency, draft, trades, rosters, and coaching changes.',
     home_fa_desc: 'Confirmed signings and pending market',
     home_draft_desc: 'Selected picks in rounds 1 and 2',
     home_trades_desc: 'Confirmed trades between franchises',
