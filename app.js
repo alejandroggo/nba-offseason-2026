@@ -789,12 +789,14 @@ function buildPlantilla(team) {
       return { name, pos: (d.pos || posLookup(name)).toUpperCase(), type: 'new', tw, resign: isResign };
     });
 
+  // Picks de draft: solo entran a Plantilla si están firmados (col G "√").
+  // Como Llegadas siguen apareciendo todos en el team view.
   const draftIn = (DATA.draft||[])
-    .filter(d => norm(d.team) === key && d.player)
+    .filter(d => norm(d.team) === key && d.player && d.check)
     .map(d => { const {name,tw} = parseTW(d.player, d.contract); return { name, pos: (d.pos || posLookup(name)).toUpperCase(), type: 'new', tw }; });
 
   const undraftedIn = (DATA.undrafted||[])
-    .filter(d => norm(d.team) === key && d.player)
+    .filter(d => norm(d.team) === key && d.player && d.check)
     .map(d => { const {name,tw} = parseTW(d.player, d.contract); return { name, pos: (d.pos || posLookup(name)).toUpperCase(), type: 'new', tw }; });
 
   const tradeIn = [];
