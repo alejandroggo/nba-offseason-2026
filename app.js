@@ -824,17 +824,17 @@ function buildPlantilla(team) {
 
 function plantillaBlock(players) {
   const posTag    = pos => POS_ORDER.includes(pos) ? `<span class="roster-pos-tag">${esc(pos)}</span>` : '';
-  // En PLANTILLA quitamos los badges (TW y RENUEVA): la información va por color.
-  // Prioridad de color: resign > new > tw > default.
+  // Color por status (resign > new > default). TW siempre como badge naranja
+  // al lado del nombre, sin sustituir el color de status.
   const cls = p => p.resign ? 'roster-player roster-player-resign'
                   : p.type === 'new' ? 'roster-player roster-player-new'
-                  : p.tw ? 'roster-player roster-player-tw'
                   : 'roster-player';
+  const tw = p => p.tw ? ' <span class="badge-tw">TW</span>' : '';
   return `
     <div class="roster-block">
       <div class="roster-label plantilla">${t('roster_stays')}</div>
       ${players.length
-        ? players.map(p => `<div class="${cls(p)}">${posTag(p.pos)}${esc(p.name)}</div>`).join('')
+        ? players.map(p => `<div class="${cls(p)}">${posTag(p.pos)}${esc(p.name)}${tw(p)}</div>`).join('')
         : `<div class="roster-player" style="color:var(--text-dim)">—</div>`}
     </div>`;
 }
@@ -1454,14 +1454,15 @@ function openTeamView(teamName, pushHistory = true) {
         if (!group) return [];
         const label = pos === '?' ? '—' : pos;
         const names = group.map(p => {
-          // En PLANTILLA no usamos badges: el contrato/condición va por color.
-          // Prioridad: resign > new > tw > default.
+          // En PLANTILLA: color por status (resign > new > default). TW se
+          // muestra siempre como badge naranja al lado del nombre, sin
+          // sustituir el color de status.
           const color = p.resign ? 'var(--resign)'
                        : p.type === 'new' ? 'var(--signed)'
-                       : p.tw ? 'var(--accent2)'
                        : '';
           const cls = color ? ` style="color:${color}"` : '';
-          return `<span${cls}>${esc(p.name)}</span>`;
+          const twBadge = p.tw ? ' <span class="badge-tw">TW</span>' : '';
+          return `<span${cls}>${esc(p.name)}</span>${twBadge}`;
         }).join(', ');
         return [`<div class="tv-row" style="align-items:baseline;gap:10px;justify-content:flex-start">
           <span class="pos-text" style="min-width:30px;flex-shrink:0">${label}</span>
@@ -1523,7 +1524,7 @@ function openTeamView(teamName, pushHistory = true) {
   html += `<div class="tv-color-legend">
     <span><i style="background:var(--signed)"></i>${t('legend_color_new')}</span>
     <span><i style="background:var(--resign)"></i>${t('legend_color_resign')}</span>
-    <span><i style="background:var(--accent2)"></i>${t('legend_color_tw')}</span>
+    <span><span class="badge-tw">TW</span>${t('legend_color_tw')}</span>
   </div>`;
 
   html += `</div>`;
