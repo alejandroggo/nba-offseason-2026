@@ -1394,14 +1394,20 @@ function openTeamView(teamName, pushHistory = true) {
   <div class="team-view-grid" style="margin-bottom:28px">
     ${tvCard(t('roster_fa'), faIn.length,
         faIn.length ? faIn.map(d => {
+          const { name, tw } = parseTW(d.player, d.notes, d.aav);
           const isResign = norm2(d.team25) === tKey;
-          const nameHTML = isResign
-            ? `<span style="color:var(--resign)">${esc(d.player)}</span><span class="badge-resign">${t('badge_resign')}</span>`
-            : esc(d.player);
+          const baseHTML = isResign
+            ? `<span style="color:var(--resign)">${esc(name)}</span><span class="badge-resign">${t('badge_resign')}</span>`
+            : esc(name);
+          const nameHTML = baseHTML + (tw ? ' <span class="badge-tw">TW</span>' : '');
           return tvRow(nameHTML, '', d.money ? `$${esc(d.money)}M/${esc(d.years)}y` : '');
         }).join('') : tvEmpty())}
     ${tvCard(t('roster_trade'), tradeIn.length,
-        tradeIn.length ? tradeIn.map(r => tvRow(itemPosTag(r.item, r.pos) + esc(r.item))).join('') : tvEmpty())}
+        tradeIn.length ? tradeIn.map(r => {
+          if (isNonPlayerAsset(r.item)) return tvRow(itemPosTag(r.item, r.pos) + esc(r.item));
+          const { name, tw } = parseTW(r.item);
+          return tvRow(itemPosTag(name, r.pos) + esc(name) + (tw ? ' <span class="badge-tw">TW</span>' : ''));
+        }).join('') : tvEmpty())}
     ${(() => {
       const draftRows = [
         ...picks.map(d => ({ pick: `#${d.pick}`, player: d.player, contract: d.contract, undrafted: false })),
