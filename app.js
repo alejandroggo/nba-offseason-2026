@@ -772,12 +772,25 @@ function buildPlantilla(team) {
       .map(d => normPlayerKey(d.player))
   );
 
-  const staying = team.siguen.map(p => {
-    const { name, tw } = parseTW(p.name);
-    const pos = (p.pos || posLookup(name)).toUpperCase();
-    const k = normPlayerKey(p.name);
-    return { name, pos, type: 'staying', tw, resign: resignKeys.has(k) };
-  });
+  // Picks de draft firmados (√): tienen prioridad sobre siguen, para que un
+  // rookie listado por error en B,C aparezca solo una vez como ALTA.
+  const draftedCheckKeys = new Set([
+    ...(DATA.draft||[])
+      .filter(d => norm(d.team) === key && d.player && d.check)
+      .map(d => normPlayerKey(d.player)),
+    ...(DATA.undrafted||[])
+      .filter(d => norm(d.team) === key && d.player && d.check)
+      .map(d => normPlayerKey(d.player)),
+  ]);
+
+  const staying = team.siguen
+    .filter(p => !draftedCheckKeys.has(normPlayerKey(p.name)))
+    .map(p => {
+      const { name, tw } = parseTW(p.name);
+      const pos = (p.pos || posLookup(name)).toUpperCase();
+      const k = normPlayerKey(p.name);
+      return { name, pos, type: 'staying', tw, resign: resignKeys.has(k) };
+    });
 
   const stayingKeys = new Set(staying.map(p => normPlayerKey(p.name)));
 
