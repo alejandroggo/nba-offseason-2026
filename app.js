@@ -77,6 +77,7 @@ const i18n = {
     trade_from: 'De',
     toast_updated: 'Datos actualizados', toast_error: 'Error al actualizar',
     badge_resign: 'RENUEVA',
+    drawer_scouting: 'Scouting Report', drawer_scouting_link: 'Ver informe',
     legend_color_new: 'Alta', legend_color_resign: 'Renovación', legend_color_tw: 'Two-way',
   },
   en: {
@@ -138,6 +139,7 @@ const i18n = {
     trade_from: 'From',
     toast_updated: 'Data updated', toast_error: 'Update failed',
     badge_resign: 'RE-SIGNS',
+    drawer_scouting: 'Scouting Report', drawer_scouting_link: 'View report',
     legend_color_new: 'Signing', legend_color_resign: 'Re-sign', legend_color_tw: 'Two-way',
   }
 };
@@ -442,6 +444,7 @@ function processDraft(rows) {
     contract: cell(r,7),
     notes:    cell(r,8),
     date:     cell(r,9),
+    scouting: cell(r,10),
   }));
   DATA.undrafted = data.filter(r => cell(r,2) && (!cell(r,0) || isNaN(parseInt(cell(r,0))))).map(r => ({
     team:     cell(r,1),
@@ -452,6 +455,7 @@ function processDraft(rows) {
     check:    cell(r,6),
     contract: cell(r,7),
     notes:    cell(r,8),
+    scouting: cell(r,10),
   }));
   document.getElementById('count-draft').textContent = DATA.draft.length;
   populateSelect('draft-pos',  [...new Set(DATA.draft.map(d=>d.pos).filter(Boolean))].sort());
@@ -1244,6 +1248,16 @@ function openPlayerDrawer(playerName, pushHistory = true) {
       if (d.notes) html += drawerRow(t('col_notes'), esc(d.notes), 'notes');
     });
     html += `</div>`;
+  }
+
+  // Scouting Report (aplica a draft y undrafted; primer URL no vacío)
+  const scoutingUrl = [...draftData, ...undData].map(d => d.scouting).find(Boolean);
+  if (scoutingUrl) {
+    const safeUrl = /^https?:\/\//i.test(scoutingUrl) ? scoutingUrl : `https://${scoutingUrl}`;
+    html += `<div class="drawer-section">
+      <div class="drawer-section-title">${t('drawer_scouting')}</div>
+      <a class="drawer-scouting-link" href="${esc(safeUrl)}" target="_blank" rel="noopener noreferrer">${t('drawer_scouting_link')} →</a>
+    </div>`;
   }
 
   // Trades
