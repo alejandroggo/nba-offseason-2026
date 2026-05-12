@@ -443,8 +443,7 @@ function processDraft(rows) {
     check:    cell(r,6),
     contract: cell(r,7),
     notes:    cell(r,8),
-    date:     cell(r,9),
-    scouting: cell(r,10),
+    scouting: cell(r,9),
   }));
   DATA.undrafted = data.filter(r => cell(r,2) && (!cell(r,0) || isNaN(parseInt(cell(r,0))))).map(r => ({
     team:     cell(r,1),
@@ -455,7 +454,7 @@ function processDraft(rows) {
     check:    cell(r,6),
     contract: cell(r,7),
     notes:    cell(r,8),
-    scouting: cell(r,10),
+    scouting: cell(r,9),
   }));
   document.getElementById('count-draft').textContent = DATA.draft.length;
   populateSelect('draft-pos',  [...new Set(DATA.draft.map(d=>d.pos).filter(Boolean))].sort());
