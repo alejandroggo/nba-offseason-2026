@@ -1225,14 +1225,13 @@ function openPlayerDrawer(playerName, pushHistory = true) {
   if (draftData.length) {
     html += `<div class="drawer-section">
       <div class="drawer-section-title">${t('tab_draft')}</div>`;
-    draftData.forEach(d => {
-      if (d.pick)     html += drawerRow('Pick', `<span class="pick-num ${parseInt(d.pick)<=5?'top5':parseInt(d.pick)<=30?'r1':''}">${esc(d.pick)}</span>`);
-      if (d.team)     html += drawerRow(t('col_team'), `<span class="badge badge-team">${esc(d.team)}</span>`);
-      if (d.pos)      html += drawerRow(t('draft_col_pos'), `<span class="pos-text">${esc(d.pos)}</span>`);
-      if (d.from)     html += drawerRow(t('draft_col_from'), esc(d.from));
-      if (d.contract) html += drawerRow(t('draft_col_contract'), esc(d.contract));
-      if (d.notes)    html += drawerRow(t('col_notes'), esc(d.notes), 'notes');
-    });
+    const d = draftData[0];
+    if (d.pick)     html += drawerRow('Pick', esc(d.pick));
+    if (d.team)     html += drawerRow(t('col_team'), `<span class="badge badge-team">${esc(d.team)}</span>`);
+    if (d.pos)      html += drawerRow(t('draft_col_pos'), `<span class="pos-text">${esc(d.pos)}</span>`);
+    if (d.from)     html += drawerRow(t('draft_col_from'), esc(d.from));
+    if (d.contract) html += drawerRow(t('draft_col_contract'), esc(d.contract));
+    if (d.notes)    html += drawerRow(t('col_notes'), esc(d.notes), 'notes');
     html += `</div>`;
   }
 
@@ -1240,12 +1239,12 @@ function openPlayerDrawer(playerName, pushHistory = true) {
   if (undData.length) {
     html += `<div class="drawer-section">
       <div class="drawer-section-title">${t('draft_undrafted_title')}</div>`;
-    undData.forEach(d => {
-      if (d.team)  html += drawerRow(t('col_team'), `<span class="badge badge-team">${esc(d.team)}</span>`);
-      if (d.pos)   html += drawerRow(t('draft_col_pos'), `<span class="pos-text">${esc(d.pos)}</span>`);
-      if (d.from)  html += drawerRow(t('draft_col_from'), esc(d.from));
-      if (d.notes) html += drawerRow(t('col_notes'), esc(d.notes), 'notes');
-    });
+    const d = undData[0];
+    if (d.team)     html += drawerRow(t('col_team'), `<span class="badge badge-team">${esc(d.team)}</span>`);
+    if (d.pos)      html += drawerRow(t('draft_col_pos'), `<span class="pos-text">${esc(d.pos)}</span>`);
+    if (d.from)     html += drawerRow(t('draft_col_from'), esc(d.from));
+    if (d.contract) html += drawerRow(t('draft_col_contract'), esc(d.contract));
+    if (d.notes)    html += drawerRow(t('col_notes'), esc(d.notes), 'notes');
     html += `</div>`;
   }
 
