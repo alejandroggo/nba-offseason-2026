@@ -41,7 +41,7 @@ const i18n = {
     fa_signed_title: 'Firmados', fa_pending_title: 'Pendientes de firmar',
     fa_search_ph: 'Jugador, equipo…',
     fa_col_player: 'Jugador', fa_col_team25: 'Equipo 2026', fa_col_dest: 'Destino',
-    fa_col_m: 'Millones', fa_col_yr: 'Años', fa_col_aav: 'AAV', col_date: 'Fecha',
+    fa_col_m: 'Total ($M)', fa_col_yr: 'Años', fa_col_aav: 'AAV', col_date: 'Fecha',
     draft_title: 'Draft 2026', draft_subtitle: 'Picks seleccionados — Rondas 1 y 2',
     draft_search_ph: 'Jugador, equipo, universidad…',
     draft_col_pick: 'Pick', draft_col_player: 'Jugador', draft_col_pos: 'Posición',
@@ -69,7 +69,7 @@ const i18n = {
     trade_label: 'Traspaso',
     teams_title: 'Equipos', teams_subtitle: 'Las 30 franquicias de la NBA',
     drawer_view_team: 'Nuevo equipo', drawer_view_old_team: 'Ver equipo anterior',
-    legend_rfa: 'Agente libre restringido', legend_to: 'Opción del equipo', legend_po: 'Opción del jugador',
+    legend_rfa: 'Agente libre restringido', legend_to: 'Opción de equipo', legend_po: 'Opción de jugador',
     back_btn: 'Volver', end_of_lottery: 'FIN DE LA LOTERÍA', end_of_round1: 'FIN DE LA PRIMERA RONDA',
     drawer_old_team: 'Antiguo equipo', drawer_new_team: 'Nuevo equipo',
     drawer_total: 'Total', drawer_years: 'Años',
@@ -77,12 +77,13 @@ const i18n = {
     trade_from: 'De',
     toast_updated: 'Datos actualizados', toast_error: 'Error al actualizar',
     badge_resign: 'RENUEVA',
+    drawer_scouting: 'Scouting Report', drawer_scouting_link: 'Ver informe',
     legend_color_new: 'Alta', legend_color_resign: 'Renovación', legend_color_tw: 'Two-way',
   },
   en: {
     home_eyebrow: 'Off-Season',
     home_total_label: 'moves',
-    home_subtitle: 'Every move of the 2025-26 offseason: free agency, draft, trades, rosters, and coaching changes.',
+    home_subtitle: 'Every transaction of the 2025-26 offseason: free agency, draft, trades, rosters, and coaching changes.',
     home_fa_desc: 'Confirmed signings and pending market',
     home_draft_desc: 'Selected picks in rounds 1 and 2',
     home_trades_desc: 'Confirmed trades between franchises',
@@ -138,6 +139,7 @@ const i18n = {
     trade_from: 'From',
     toast_updated: 'Data updated', toast_error: 'Update failed',
     badge_resign: 'RE-SIGNS',
+    drawer_scouting: 'Scouting Report', drawer_scouting_link: 'View report',
     legend_color_new: 'Signing', legend_color_resign: 'Re-sign', legend_color_tw: 'Two-way',
   }
 };
@@ -441,7 +443,7 @@ function processDraft(rows) {
     check:    cell(r,6),
     contract: cell(r,7),
     notes:    cell(r,8),
-    date:     cell(r,9),
+    scouting: cell(r,9),
   }));
   DATA.undrafted = data.filter(r => cell(r,2) && (!cell(r,0) || isNaN(parseInt(cell(r,0))))).map(r => ({
     team:     cell(r,1),
@@ -452,6 +454,7 @@ function processDraft(rows) {
     check:    cell(r,6),
     contract: cell(r,7),
     notes:    cell(r,8),
+    scouting: cell(r,9),
   }));
   document.getElementById('count-draft').textContent = DATA.draft.length;
   populateSelect('draft-pos',  [...new Set(DATA.draft.map(d=>d.pos).filter(Boolean))].sort());
@@ -1244,6 +1247,16 @@ function openPlayerDrawer(playerName, pushHistory = true) {
       if (d.notes) html += drawerRow(t('col_notes'), esc(d.notes), 'notes');
     });
     html += `</div>`;
+  }
+
+  // Scouting Report (aplica a draft y undrafted; primer URL no vacío)
+  const scoutingUrl = [...draftData, ...undData].map(d => d.scouting).find(Boolean);
+  if (scoutingUrl) {
+    const safeUrl = /^https?:\/\//i.test(scoutingUrl) ? scoutingUrl : `https://${scoutingUrl}`;
+    html += `<div class="drawer-section">
+      <div class="drawer-section-title">${t('drawer_scouting')}</div>
+      <a class="drawer-scouting-link" href="${esc(safeUrl)}" target="_blank" rel="noopener noreferrer">${t('drawer_scouting_link')} →</a>
+    </div>`;
   }
 
   // Trades
