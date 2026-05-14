@@ -54,7 +54,7 @@ const i18n = {
     rosters_search_ph: 'Buscar equipo o jugador…',
     roster_stays: 'Plantilla', roster_arrivals: 'Llegadas', roster_departures: 'Salidas',
     roster_fa: 'FA', roster_draft: 'Draft', roster_trade: 'Vía Trade',
-    roster_salidas_fa: 'FA', roster_salidas_trade: 'Vía Trade', roster_fa_pending: 'FA Pendientes', roster_waived: 'Cortado',
+    roster_salidas_fa: 'FA', roster_salidas_trade: 'Vía Trade', roster_fa_pending: 'FA Pendientes', roster_waived: 'Cortado', roster_deceased: 'Fallecido', roster_retired: 'Retirado', roster_overseas: 'Otras ligas',
     roster_section_trades: 'Traspasos', roster_section_coaches: 'Cuerpo técnico y dirección',
     coaches_title: 'Entrenadores y General Managers', coaches_subtitle: 'Cambios en banquillos y gerencias',
     coaches_search_ph: 'Equipo, nombre…',
@@ -116,7 +116,7 @@ const i18n = {
     rosters_search_ph: 'Search team or player…',
     roster_stays: 'Roster', roster_arrivals: 'Arrivals', roster_departures: 'Departures',
     roster_fa: 'FA', roster_draft: 'Draft', roster_trade: 'Via Trade',
-    roster_salidas_fa: 'FA', roster_salidas_trade: 'Via Trade', roster_fa_pending: 'Pending FA', roster_waived: 'Waived',
+    roster_salidas_fa: 'FA', roster_salidas_trade: 'Via Trade', roster_fa_pending: 'Pending FA', roster_waived: 'Waived', roster_deceased: 'Deceased', roster_retired: 'Retired', roster_overseas: 'Overseas',
     roster_section_trades: 'Trades', roster_section_coaches: 'Coaching staff & front office',
     coaches_title: 'Head Coaches & General Managers', coaches_subtitle: 'Coaching and front office changes',
     coaches_search_ph: 'Team, name…',
@@ -725,6 +725,24 @@ function parseTW(rawName, ...hints) {
 const NON_PLAYER_ASSET_RE = /\b(pick|picks|round|ronda|rondas|cash)\b/i;
 function isNonPlayerAsset(item) {
   return NON_PLAYER_ASSET_RE.test((item || '').trim());
+}
+
+// Parsea una razón de salida desde el sufijo entre paréntesis del nombre en
+// col F (Salidas). Tags reconocidos: deceased/fallecido, retired/retirado,
+// FIBA/overseas. Si el tag no se reconoce, devuelve el nombre intacto y usa
+// 'waived' como razón por defecto.
+const SALIDA_REASON_MAP = {
+  deceased: 'deceased', fallecido: 'deceased',
+  retired:  'retired',  retirado:  'retired',
+  fiba:     'overseas', overseas:  'overseas',
+};
+function parseSalidaReason(rawName) {
+  const m = (rawName || '').match(/\(([^)]+)\)\s*$/);
+  if (m) {
+    const key = SALIDA_REASON_MAP[m[1].trim().toLowerCase()];
+    if (key) return { name: rawName.replace(/\s*\([^)]+\)\s*$/, '').trim(), reasonKey: key };
+  }
+  return { name: (rawName || '').trim(), reasonKey: 'waived' };
 }
 
 // Normaliza el nombre del jugador quitando sufijos (TW)/(RFA)/(TO)/(PO) y
@@ -1391,7 +1409,8 @@ function openTeamView(teamName, pushHistory = true) {
     ...tradeOut.map(r => stripTag(r.item)),
   ]);
   (roster?.salidas || []).forEach(p => {
-    if (!seenOut.has(stripTag(p.name))) faOut.push({ player: p.name, dest: '' });
+    const { name, reasonKey } = parseSalidaReason(p.name);
+    if (!seenOut.has(stripTag(name))) faOut.push({ player: name, dest: '', reasonKey });
   });
 
   const itemPosTag = (item, pos) => {
@@ -1457,7 +1476,7 @@ function openTeamView(teamName, pushHistory = true) {
   html += `<div class="tv-section-title" style="color:var(--gone)">${t('roster_departures')}</div>
   <div class="team-view-grid" style="margin-bottom:28px">
     ${tvCard(t('roster_salidas_fa'), faOut.length,
-        faOut.length ? faOut.map(d => tvRow(esc(d.player), d.dest ? `→ ${esc(d.dest)}` : t('roster_waived'))).join('') : tvEmpty())}
+        faOut.length ? faOut.map(d => tvRow(esc(d.player), d.dest ? `→ ${esc(d.dest)}` : t(`roster_${d.reasonKey || 'waived'}`))).join('') : tvEmpty())}
     ${tvCard(t('roster_salidas_trade'), tradeOut.length,
         tradeOut.length ? tradeOut.map(r => tvRow(itemPosTag(r.item, r.pos) + esc(r.item), `→ ${esc(r.to)}`)).join('') : tvEmpty())}
     ${tvCard(t('roster_fa_pending'), faPending.length,
