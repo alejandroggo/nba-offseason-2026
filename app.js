@@ -498,7 +498,7 @@ function renderDraft(data) {
     const prev = i > 0 ? parseInt(data[i-1].pick) : null;
     if (prev === 14 || prev === 30) {
       const label = prev === 14 ? t('end_of_lottery') : t('end_of_round1');
-      rows.push(`<tr><td colspan="9" style="padding:8px 12px;border:none;background:var(--surface2);text-align:center"><span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted)">${label}</span></td></tr>`);
+      rows.push(`<tr><td colspan="9" style="padding:8px 12px;border:none;background:var(--surface-2);text-align:center"><span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted)">${label}</span></td></tr>`);
     }
     rows.push(`<tr>
       <td><span class="pick-num ${cls}">${esc(d.pick)}</span></td>
@@ -1159,7 +1159,7 @@ function updateHomeCounts() {
 // ─────────────────────────────────────────────
 // THEME TOGGLE
 // ─────────────────────────────────────────────
-let isLight = (() => { try { return localStorage.getItem('nba2026_theme') === 'light'; } catch(e) { return false; } })();
+let currentTheme = (() => { try { return localStorage.getItem('ag-theme') || 'auto'; } catch(e) { return 'auto'; } })();
 
 async function refreshData() {
   const btn = document.getElementById('refresh-btn');
@@ -1194,17 +1194,21 @@ function showToast(msg, kind = 'ok') {
 }
 
 function toggleTheme() {
-  isLight = !isLight;
+  currentTheme = currentTheme === 'auto' ? 'light' : currentTheme === 'light' ? 'dark' : 'auto';
+  try { localStorage.setItem('ag-theme', currentTheme); } catch(e) {}
   applyTheme();
-  try { localStorage.setItem('nba2026_theme', isLight ? 'light' : 'dark'); } catch(e) {}
 }
 
 function applyTheme() {
-  document.body.classList.toggle('light', isLight);
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const dark = currentTheme === 'dark' || (currentTheme === 'auto' && prefersDark);
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
   const icon = document.getElementById('theme-icon');
-  if (icon) icon.textContent = isLight ? '🌙' : '☀️';
   const tg = document.getElementById('theme-toggle');
-  if (tg) tg.title = t(isLight ? 'theme_dark' : 'theme_light');
+  const labels = { auto: 'Tema: automático', light: 'Tema: día', dark: 'Tema: noche' };
+  const icons  = { auto: 'Auto', light: '☀️', dark: '🌙' };
+  if (icon) icon.textContent = icons[currentTheme];
+  if (tg) tg.setAttribute('aria-label', labels[currentTheme]);
 }
 
 
