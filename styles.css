@@ -943,26 +943,90 @@
   ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
   /* FOOTER */
-  footer {
+  .ag-footer {
     margin-top: 60px;
-    padding: 24px 32px;
+    padding: 28px 32px;
     border-top: 1px solid var(--border);
     display: flex;
-    align-items: center;
-    justify-content: space-between;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 20px 48px;
+    align-items: flex-start;
   }
 
-  .footer-credits {
+  .ag-footer-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 160px;
+  }
+
+  .ag-footer-brand strong {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .ag-footer-brand span {
     font-family: 'DM Mono', monospace;
     font-size: 11px;
     color: var(--text-muted);
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
   }
 
-  .footer-credits a { color: var(--accent); text-decoration: none; }
-  .footer-credits a:hover { text-decoration: underline; }
+  .ag-footer-projects,
+  .ag-footer-pubs {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .ag-footer-projects a,
+  .ag-footer-pubs a {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    text-decoration: none;
+    letter-spacing: 0.3px;
+    transition: color 0.15s;
+  }
+
+  .ag-footer-projects a:hover,
+  .ag-footer-pubs a:hover {
+    color: var(--accent);
+  }
+
+  .ag-footer-meta {
+    flex: 1 0 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.3px;
+  }
+
+  .ag-footer-meta a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .ag-footer-meta a:hover { text-decoration: underline; }
+
+  @media (max-width: 640px) {
+    .ag-footer {
+      padding: 24px 16px;
+      gap: 20px;
+    }
+    .ag-footer-brand,
+    .ag-footer-projects,
+    .ag-footer-pubs {
+      flex: 1 0 100%;
+    }
+  }
 
   /* HOME */
   #section-home {

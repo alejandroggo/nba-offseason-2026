@@ -241,7 +241,8 @@ function applyRawData(raw, ts) {
     day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
   });
   document.getElementById('lastUpdate').textContent = `${t('last_update')}: ${loadedAt}`;
-  document.getElementById('footer-updated').textContent = `${t('last_update')}: ${loadedAt}`;
+  const fup = document.getElementById('footer-updated');
+  if (fup) fup.textContent = `${t('last_update')}: ${loadedAt}`;
   rerenderAll();
   updateHomeCounts();
   ['fa-tbody','fa-pending-tbody','draft-tbody','undrafted-tbody','coaches-tbody','trades-container'].forEach(id => {
