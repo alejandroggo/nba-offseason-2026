@@ -1073,6 +1073,19 @@
     font-style: normal;
   }
 
+  .ag-data-badge {
+    display: inline-block;
+    margin-top: 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 3px 8px;
+  }
+
   .home-masthead-right {
     text-align: right;
     flex-shrink: 0;

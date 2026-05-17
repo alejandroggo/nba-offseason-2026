@@ -251,25 +251,46 @@ function applyRawData(raw, ts) {
   });
 }
 
+function setDataDate(dateStr) {
+  if (!dateStr) return;
+  const d = new Date(dateStr);
+  if (isNaN(d)) return;
+  const fmt = d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+  const iso = d.toISOString().split('T')[0];
+  const timeEl = document.getElementById('ag-last-update');
+  if (timeEl) { timeEl.textContent = fmt; timeEl.setAttribute('datetime', iso); }
+  const badge = document.getElementById('ag-data-badge');
+  const badgeTime = document.getElementById('ag-data-badge-time');
+  if (badge && badgeTime) { badgeTime.textContent = fmt; badgeTime.setAttribute('datetime', iso); badge.hidden = false; }
+}
+
 async function fetchAll() {
   // Cargar caché al instante si existe
   let hadCache = false;
   try {
     const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
-    if (cached) { applyRawData(cached.raw, cached.ts); hadCache = true; }
+    if (cached) { applyRawData(cached.raw, cached.ts); if (cached.dataDate) setDataDate(cached.dataDate); hadCache = true; }
   } catch(e) { /* caché corrupta, ignorar */ }
 
   // Refrescar desde el Sheet en background — usar allSettled para tolerar
   // que alguna fuente falle sin tirar el resto.
   try {
     const keys = ['fa', 'draft', 'trades', 'rosters1', 'rosters2', 'coaches'];
-    const settled = await Promise.allSettled(keys.map(k => fetch(URLS[k]).then(r => r.text())));
+    const settled = await Promise.allSettled(keys.map(k => fetch(URLS[k]).then(async r => ({
+      text: await r.text(),
+      lastModified: r.headers.get('Last-Modified'),
+    }))));
+    let dataDate = null;
     const failed = [];
     const raw = {};
     keys.forEach((k, idx) => {
       const s = settled[idx];
-      if (s.status === 'fulfilled') raw[k] = s.value;
-      else failed.push(k);
+      if (s.status === 'fulfilled') {
+        raw[k] = s.value.text;
+        if (!dataDate && s.value.lastModified) dataDate = s.value.lastModified;
+      } else {
+        failed.push(k);
+      }
     });
 
     if (failed.length === keys.length) throw new Error('all-failed');
@@ -285,9 +306,10 @@ async function fetchAll() {
     keys.forEach(k => { if (raw[k] == null) raw[k] = ''; });
 
     const ts  = Date.now();
-    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ raw, ts })); } catch(e) {}
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ raw, ts, dataDate })); } catch(e) {}
 
     applyRawData(raw, ts);
+    setDataDate(dataDate);
   } catch(e) {
     console.error(e);
     if (!localStorage.getItem(CACHE_KEY)) {
