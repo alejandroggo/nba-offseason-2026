@@ -263,7 +263,10 @@
   .filter-input:focus-visible, .filter-select:focus-visible,
   .btn-reset:focus-visible, .tab:focus-visible, .mobile-tab:focus-visible,
   .lang-btn:focus-visible, .theme-toggle:focus-visible,
-  button:focus-visible, [role="button"]:focus-visible {
+  button:focus-visible, [role="button"]:focus-visible,
+  a:focus-visible,
+  .clickable-player:focus-visible, .clickable-team:focus-visible,
+  .teams-grid-card:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
   }
