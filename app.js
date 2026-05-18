@@ -241,7 +241,8 @@ function applyRawData(raw, ts) {
     day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
   });
   document.getElementById('lastUpdate').textContent = `${t('last_update')}: ${loadedAt}`;
-  document.getElementById('footer-updated').textContent = `${t('last_update')}: ${loadedAt}`;
+  const fup = document.getElementById('footer-updated');
+  if (fup) fup.textContent = `${t('last_update')}: ${loadedAt}`;
   rerenderAll();
   updateHomeCounts();
   ['fa-tbody','fa-pending-tbody','draft-tbody','undrafted-tbody','coaches-tbody','trades-container'].forEach(id => {
@@ -250,25 +251,46 @@ function applyRawData(raw, ts) {
   });
 }
 
+function setDataDate(dateStr) {
+  if (!dateStr) return;
+  const d = new Date(dateStr);
+  if (isNaN(d)) return;
+  const fmt = d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+  const iso = d.toISOString().split('T')[0];
+  const timeEl = document.getElementById('ag-last-update');
+  if (timeEl) { timeEl.textContent = fmt; timeEl.setAttribute('datetime', iso); }
+  const badge = document.getElementById('ag-data-badge');
+  const badgeTime = document.getElementById('ag-data-badge-time');
+  if (badge && badgeTime) { badgeTime.textContent = fmt; badgeTime.setAttribute('datetime', iso); badge.hidden = false; }
+}
+
 async function fetchAll() {
   // Cargar caché al instante si existe
   let hadCache = false;
   try {
     const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
-    if (cached) { applyRawData(cached.raw, cached.ts); hadCache = true; }
+    if (cached) { applyRawData(cached.raw, cached.ts); if (cached.dataDate) setDataDate(cached.dataDate); hadCache = true; }
   } catch(e) { /* caché corrupta, ignorar */ }
 
   // Refrescar desde el Sheet en background — usar allSettled para tolerar
   // que alguna fuente falle sin tirar el resto.
   try {
     const keys = ['fa', 'draft', 'trades', 'rosters1', 'rosters2', 'coaches'];
-    const settled = await Promise.allSettled(keys.map(k => fetch(URLS[k]).then(r => r.text())));
+    const settled = await Promise.allSettled(keys.map(k => fetch(URLS[k]).then(async r => ({
+      text: await r.text(),
+      lastModified: r.headers.get('Last-Modified'),
+    }))));
+    let dataDate = null;
     const failed = [];
     const raw = {};
     keys.forEach((k, idx) => {
       const s = settled[idx];
-      if (s.status === 'fulfilled') raw[k] = s.value;
-      else failed.push(k);
+      if (s.status === 'fulfilled') {
+        raw[k] = s.value.text;
+        if (!dataDate && s.value.lastModified) dataDate = s.value.lastModified;
+      } else {
+        failed.push(k);
+      }
     });
 
     if (failed.length === keys.length) throw new Error('all-failed');
@@ -284,9 +306,10 @@ async function fetchAll() {
     keys.forEach(k => { if (raw[k] == null) raw[k] = ''; });
 
     const ts  = Date.now();
-    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ raw, ts })); } catch(e) {}
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ raw, ts, dataDate })); } catch(e) {}
 
     applyRawData(raw, ts);
+    setDataDate(dataDate);
   } catch(e) {
     console.error(e);
     if (!localStorage.getItem(CACHE_KEY)) {
@@ -332,10 +355,10 @@ function renderFA(data) {
         const {name, badge} = faStatus(d.player);
         return `
       <tr>
-        <td class="td-player clickable-player" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(name)}${badge}</td>
+        <td class="td-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(name)}${badge}</td>
         <td style="text-align:center"><span class="pos-text">${esc(validPos(d.pos)) || '—'}</span></td>
-        <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.dest)}')">${esc(d.dest)}</span></td>
-        <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team25)}')">${esc(d.team25)}</span></td>
+        <td><span class="badge badge-team clickable-team" tabindex="0" onclick="openTeamView('${esc(d.dest)}')">${esc(d.dest)}</span></td>
+        <td><span class="badge badge-team clickable-team" tabindex="0" onclick="openTeamView('${esc(d.team25)}')">${esc(d.team25)}</span></td>
         <td class="td-money">${d.money ? '$'+esc(d.money)+'M' : '—'}</td>
         <td class="td-num">${esc(d.years) || '—'}</td>
         <td class="td-money">${d.aav ? '$'+esc(d.aav)+'M' : '—'}</td>
@@ -354,9 +377,9 @@ function renderFAPending(data) {
         const {name, badge} = faStatus(d.player);
         return `
       <tr>
-        <td class="td-player clickable-player" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(name)}${badge}</td>
+        <td class="td-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(name)}${badge}</td>
         <td style="text-align:center"><span class="pos-text">${esc(validPos(d.pos)) || '—'}</span></td>
-        <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team25)}')">${esc(d.team25)}</span></td>
+        <td><span class="badge badge-team clickable-team" tabindex="0" onclick="openTeamView('${esc(d.team25)}')">${esc(d.team25)}</span></td>
         <td class="td-notes">${esc(d.notes)}</td>
       </tr>`;}).join('')
     : `<tr><td colspan="4"><div class="state-empty">${t('no_data')}</div></td></tr>`;
@@ -470,18 +493,18 @@ function renderDraft(data) {
     const cls = n <= 5 ? 'top5' : n <= 30 ? 'r1' : '';
     const chk = d.check ? `<span class="badge badge-check">${esc(d.check)}</span>` : '—';
     const playerCell = d.player
-      ? `<td class="td-player clickable-player" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</td>`
+      ? `<td class="td-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</td>`
       : `<td class="td-muted">—</td>`;
     const prev = i > 0 ? parseInt(data[i-1].pick) : null;
     if (prev === 14 || prev === 30) {
       const label = prev === 14 ? t('end_of_lottery') : t('end_of_round1');
-      rows.push(`<tr><td colspan="9" style="padding:8px 12px;border:none;background:var(--surface2);text-align:center"><span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted)">${label}</span></td></tr>`);
+      rows.push(`<tr><td colspan="9" style="padding:8px 12px;border:none;background:var(--surface-2);text-align:center"><span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted)">${label}</span></td></tr>`);
     }
     rows.push(`<tr>
       <td><span class="pick-num ${cls}">${esc(d.pick)}</span></td>
       ${playerCell}
       <td style="text-align:center" title="${esc(d.country)}">${flag(d.country)}</td>
-      <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team)}')">${esc(d.team)}</span></td>
+      <td><span class="badge badge-team clickable-team" tabindex="0" onclick="openTeamView('${esc(d.team)}')">${esc(d.team)}</span></td>
       <td><span class="pos-text">${esc(d.pos)}</span></td>
       <td class="td-muted">${esc(d.from)}</td>
       <td>${chk}</td>
@@ -498,9 +521,9 @@ function renderUndrafted(data) {
   if (!data.length) { tbody.innerHTML = `<tr><td colspan="8"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
   tbody.innerHTML = data.map(d => `
     <tr>
-      <td class="td-player clickable-player" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</td>
+      <td class="td-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</td>
       <td style="font-size:18px;text-align:center" title="${esc(d.country)}">${flag(d.country)}</td>
-      <td>${d.team ? `<span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team)}')">${esc(d.team)}</span>` : '<span class="td-muted">—</span>'}</td>
+      <td>${d.team ? `<span class="badge badge-team clickable-team" tabindex="0" onclick="openTeamView('${esc(d.team)}')">${esc(d.team)}</span>` : '<span class="td-muted">—</span>'}</td>
       <td><span class="pos-text">${esc(d.pos) || '—'}</span></td>
       <td class="td-muted">${esc(d.from) || '—'}</td>
       <td style="text-align:center">${d.check ? `<span class="badge badge-check">${esc(d.check)}</span>` : '—'}</td>
@@ -604,7 +627,7 @@ function tradeReceivesHTML(receives) {
     else byFrom.push({ from: r.from, items: [r] });
   });
   return byFrom.map((grp, i) => `
-    <div class="trade-receives-label" style="${i > 0 ? 'margin-top:14px' : ''}">← ${t('trade_from')}: <strong class="clickable-team" onclick="openTeamView('${esc(grp.from)}')" style="cursor:pointer">${esc(grp.from)}</strong></div>
+    <div class="trade-receives-label" style="${i > 0 ? 'margin-top:14px' : ''}">← ${t('trade_from')}: <strong class="clickable-team" tabindex="0" onclick="openTeamView('${esc(grp.from)}')" style="cursor:pointer">${esc(grp.from)}</strong></div>
     ${grp.items.map(r => `<div class="trade-item" onclick="openPlayerDrawer('${esc(r.item)}')">${esc(r.item)}</div>`).join('')}
   `).join('');
 }
@@ -623,7 +646,7 @@ function renderTrades(data) {
         ${trade.sides.map(side => `
           <div class="trade-side">
             <div class="trade-team-label" style="display:flex;align-items:center;gap:8px">
-              ${teamLogo(side.team, 24)}<span class="clickable-team" onclick="openTeamView('${esc(side.team)}')">${esc(side.team)}</span>
+              ${teamLogo(side.team, 24)}<span class="clickable-team" tabindex="0" onclick="openTeamView('${esc(side.team)}')">${esc(side.team)}</span>
             </div>
             ${tradeReceivesHTML(side.receives)}
           </div>`).join('')}
@@ -880,7 +903,7 @@ function renderRosters(data) {
     <div class="team-card">
       <div class="team-card-header">
         ${teamLogo(team.team, 28)}
-        <span class="team-name clickable-team" onclick="openTeamView('${esc(team.team)}')" style="cursor:pointer">${esc(team.team)}</span>
+        <span class="team-name clickable-team" tabindex="0" onclick="openTeamView('${esc(team.team)}')" style="cursor:pointer">${esc(team.team)}</span>
       </div>
       <div class="team-card-body" style="padding:12px 16px">
         ${plantillaBlock(buildPlantilla(team))}
@@ -942,7 +965,7 @@ function renderCoaches(data) {
     const roleCls = (d.role || '').toUpperCase().includes('HC') || (d.role || '').toUpperCase().includes('HEAD') ? 'badge-role-hc' : 'badge-role-gm';
     return `<tr>
       <td class="td-player">${esc(d.new)}</td>
-      <td><span class="badge badge-team clickable-team" onclick="openTeamView('${esc(d.team)}')">${esc(d.team)}</span></td>
+      <td><span class="badge badge-team clickable-team" tabindex="0" onclick="openTeamView('${esc(d.team)}')">${esc(d.team)}</span></td>
       <td>${d.role ? `<span class="badge ${roleCls}">${esc(d.role)}</span>` : '—'}</td>
       <td class="td-muted">${fmtDate(d.dateHired)}</td>
       <td class="td-muted">${esc(d.prev) || '—'}</td>
@@ -1136,7 +1159,7 @@ function updateHomeCounts() {
 // ─────────────────────────────────────────────
 // THEME TOGGLE
 // ─────────────────────────────────────────────
-let isLight = (() => { try { return localStorage.getItem('nba2026_theme') === 'light'; } catch(e) { return false; } })();
+let currentTheme = (() => { try { return localStorage.getItem('ag-theme') || 'auto'; } catch(e) { return 'auto'; } })();
 
 async function refreshData() {
   const btn = document.getElementById('refresh-btn');
@@ -1171,17 +1194,23 @@ function showToast(msg, kind = 'ok') {
 }
 
 function toggleTheme() {
-  isLight = !isLight;
+  currentTheme = currentTheme === 'auto' ? 'light' : currentTheme === 'light' ? 'dark' : 'auto';
+  try { localStorage.setItem('ag-theme', currentTheme); } catch(e) {}
   applyTheme();
-  try { localStorage.setItem('nba2026_theme', isLight ? 'light' : 'dark'); } catch(e) {}
 }
 
 function applyTheme() {
-  document.body.classList.toggle('light', isLight);
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const dark = currentTheme === 'dark' || (currentTheme === 'auto' && prefersDark);
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
   const icon = document.getElementById('theme-icon');
-  if (icon) icon.textContent = isLight ? '🌙' : '☀️';
   const tg = document.getElementById('theme-toggle');
-  if (tg) tg.title = t(isLight ? 'theme_dark' : 'theme_light');
+  const labels = { auto: 'Tema: automático', light: 'Tema: día', dark: 'Tema: noche' };
+  const SVG_SUN  = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`;
+  const SVG_MOON = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+  const icons = { auto: 'Auto', light: SVG_SUN, dark: SVG_MOON };
+  if (icon) icon.innerHTML = icons[currentTheme];
+  if (tg) tg.setAttribute('aria-label', labels[currentTheme]);
 }
 
 
@@ -1605,7 +1634,7 @@ function goBack() {
 function renderTeamsGrid() {
   const teams = Object.keys(TEAM_LOGOS).sort();
   document.getElementById('teams-grid').innerHTML = teams.map(name => `
-    <div class="teams-grid-card" onclick="openTeamView('${esc(name)}')">
+    <div class="teams-grid-card" role="button" tabindex="0" onclick="openTeamView('${esc(name)}')">
       ${teamLogo(name, 48)}
       <div class="teams-grid-name">${esc(name)}</div>
     </div>`).join('');
@@ -1630,4 +1659,14 @@ window._debugTrades = () => {
   console.log('Trades parseados:', JSON.parse(JSON.stringify(DATA.trades)));
   console.groupEnd();
 };
+
+document.addEventListener('keydown', function(e) {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const el = e.target;
+  if (el.classList.contains('clickable-player') || el.classList.contains('clickable-team') || el.classList.contains('teams-grid-card')) {
+    e.preventDefault();
+    el.click();
+  }
+});
+
 fetchAll();
