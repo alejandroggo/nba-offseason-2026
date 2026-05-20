@@ -378,6 +378,8 @@
   /* TABLE */
   .table-wrap {
     overflow-x: auto;
+    overflow-y: auto;
+    max-height: calc(100vh - 110px);
     border: 1px solid var(--border);
     border-radius: 8px;
   }
@@ -399,7 +401,7 @@
     cursor: pointer;
     user-select: none;
     position: sticky;
-    top: 105px;
+    top: 0;
     transition: color var(--transition);
   }
 
@@ -1398,7 +1400,7 @@
 
   @media (max-width: 640px) {
     header { padding: 0 16px; height: 48px; }
-    thead th { top: 48px; }
+    thead th { top: 0; }
     main { padding: 20px 16px 78px; }
     .section-title { font-size: 28px; }
     .trade-body { grid-template-columns: 1fr; }
