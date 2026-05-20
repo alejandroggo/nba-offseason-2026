@@ -1039,6 +1039,7 @@ function sortSection(section, col) {
 // ─────────────────────────────────────────────
 function showTab(name, pushHistory = true) {
   if (!document.getElementById(`section-${name}`)) { showTab('home', pushHistory); return; }
+  window.scrollTo(0, 0);
   // Cerrar drawer si está abierto al cambiar de pestaña
   const drawer = document.getElementById('player-drawer');
   if (drawer && drawer.classList.contains('open')) closeDrawer(false);

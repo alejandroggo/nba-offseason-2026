@@ -227,6 +227,9 @@
     gap: 0;
     overflow-x: auto;
     scrollbar-width: none;
+    position: sticky;
+    top: 56px;
+    z-index: 99;
   }
 
   nav::-webkit-scrollbar { display: none; }
@@ -396,7 +399,7 @@
     cursor: pointer;
     user-select: none;
     position: sticky;
-    top: 56px;
+    top: 105px;
     transition: color var(--transition);
   }
 
@@ -1395,6 +1398,7 @@
 
   @media (max-width: 640px) {
     header { padding: 0 16px; height: 48px; }
+    thead th { top: 48px; }
     main { padding: 20px 16px 78px; }
     .section-title { font-size: 28px; }
     .trade-body { grid-template-columns: 1fr; }
