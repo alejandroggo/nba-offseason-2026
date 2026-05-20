@@ -489,7 +489,7 @@
   .badge-pending-c { background: rgba(255,159,0,0.12); color: var(--pending); border: 1px solid rgba(255,159,0,0.25); }
   .badge-role-hc { background: rgba(var(--accent-rgb),0.08); color: var(--accent); border: 1px solid rgba(var(--accent-rgb),0.2); }
   .badge-role-gm { background: rgba(255,107,53,0.08); color: var(--accent2); border: 1px solid rgba(255,107,53,0.2); }
-  .badge-team { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
+  .badge-team { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); gap: 4px; }
   .badge-rfa  { background: rgba(255,165,0,0.12); color: #ffaa33; border: 1px solid rgba(255,165,0,0.3); }
   .badge-to   { background: rgba(29,66,138,0.2); color: #7aadff; border: 1px solid rgba(29,66,138,0.4); }
   .badge-po   { background: rgba(160,100,255,0.12); color: #b580ff; border: 1px solid rgba(160,100,255,0.3); }

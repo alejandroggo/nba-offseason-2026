@@ -357,8 +357,8 @@ function renderFA(data) {
       <tr>
         <td class="td-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(name)}${badge}</td>
         <td style="text-align:center"><span class="pos-text">${esc(validPos(d.pos)) || '—'}</span></td>
-        <td><span class="badge badge-team clickable-team" tabindex="0" onclick="openTeamView('${esc(d.dest)}')">${esc(d.dest)}</span></td>
-        <td><span class="badge badge-team clickable-team" tabindex="0" onclick="openTeamView('${esc(d.team25)}')">${esc(d.team25)}</span></td>
+        <td>${teamBadgeHTML(d.dest)}</td>
+        <td>${teamBadgeHTML(d.team25)}</td>
         <td class="td-money">${d.money ? '$'+esc(d.money)+'M' : '—'}</td>
         <td class="td-num">${esc(d.years) || '—'}</td>
         <td class="td-money">${d.aav ? '$'+esc(d.aav)+'M' : '—'}</td>
@@ -379,7 +379,7 @@ function renderFAPending(data) {
       <tr>
         <td class="td-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(name)}${badge}</td>
         <td style="text-align:center"><span class="pos-text">${esc(validPos(d.pos)) || '—'}</span></td>
-        <td><span class="badge badge-team clickable-team" tabindex="0" onclick="openTeamView('${esc(d.team25)}')">${esc(d.team25)}</span></td>
+        <td>${teamBadgeHTML(d.team25)}</td>
         <td class="td-notes">${esc(d.notes)}</td>
       </tr>`;}).join('')
     : `<tr><td colspan="4"><div class="state-empty">${t('no_data')}</div></td></tr>`;
@@ -504,7 +504,7 @@ function renderDraft(data) {
       <td><span class="pick-num ${cls}">${esc(d.pick)}</span></td>
       ${playerCell}
       <td style="text-align:center" title="${esc(d.country)}">${flag(d.country)}</td>
-      <td><span class="badge badge-team clickable-team" tabindex="0" onclick="openTeamView('${esc(d.team)}')">${esc(d.team)}</span></td>
+      <td>${teamBadgeHTML(d.team)}</td>
       <td><span class="pos-text">${esc(d.pos)}</span></td>
       <td class="td-muted">${esc(d.from)}</td>
       <td>${chk}</td>
@@ -523,7 +523,7 @@ function renderUndrafted(data) {
     <tr>
       <td class="td-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</td>
       <td style="font-size:18px;text-align:center" title="${esc(d.country)}">${flag(d.country)}</td>
-      <td>${d.team ? `<span class="badge badge-team clickable-team" tabindex="0" onclick="openTeamView('${esc(d.team)}')">${esc(d.team)}</span>` : '<span class="td-muted">—</span>'}</td>
+      <td>${d.team ? teamBadgeHTML(d.team) : '<span class="td-muted">—</span>'}</td>
       <td><span class="pos-text">${esc(d.pos) || '—'}</span></td>
       <td class="td-muted">${esc(d.from) || '—'}</td>
       <td style="text-align:center">${d.check ? `<span class="badge badge-check">${esc(d.check)}</span>` : '—'}</td>
@@ -965,7 +965,7 @@ function renderCoaches(data) {
     const roleCls = (d.role || '').toUpperCase().includes('HC') || (d.role || '').toUpperCase().includes('HEAD') ? 'badge-role-hc' : 'badge-role-gm';
     return `<tr>
       <td class="td-player">${esc(d.new)}</td>
-      <td><span class="badge badge-team clickable-team" tabindex="0" onclick="openTeamView('${esc(d.team)}')">${esc(d.team)}</span></td>
+      <td>${teamBadgeHTML(d.team)}</td>
       <td>${d.role ? `<span class="badge ${roleCls}">${esc(d.role)}</span>` : '—'}</td>
       <td class="td-muted">${fmtDate(d.dateHired)}</td>
       <td class="td-muted">${esc(d.prev) || '—'}</td>
@@ -1086,6 +1086,15 @@ function teamLogo(name, size = 40) {
   const abbrev = TEAM_LOGOS[name];
   if (!abbrev) return '';
   return `<img src="https://a.espncdn.com/i/teamlogos/nba/500/${abbrev}.png" width="${size}" height="${size}" alt="" style="object-fit:contain;vertical-align:middle" onerror="this.style.display='none'">`;
+}
+
+function teamBadgeHTML(name, clickable = true) {
+  if (!name) return '';
+  const logo = teamLogo(name, 14);
+  if (clickable) {
+    return `<span class="badge badge-team clickable-team" tabindex="0" onclick="openTeamView('${esc(name)}')">${logo}${esc(name)}</span>`;
+  }
+  return `<span class="badge badge-team">${logo}${esc(name)}</span>`;
 }
 
 function fmtDate(str) {
@@ -1271,8 +1280,8 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     html += `<div class="drawer-section">
       <div class="drawer-section-title">${t('tab_fa')}</div>`;
     faData.forEach(d => {
-      if (d.team25) html += drawerRow(t('drawer_old_team'), `<span class="badge badge-team">${esc(d.team25)}</span>`);
-      if (d.dest)   html += drawerRow(t('drawer_new_team'), `<span class="badge badge-team">${esc(d.dest)}</span>`);
+      if (d.team25) html += drawerRow(t('drawer_old_team'), teamBadgeHTML(d.team25, false));
+      if (d.dest)   html += drawerRow(t('drawer_new_team'), teamBadgeHTML(d.dest, false));
       if (d.money)  html += drawerRow(t('drawer_total'), `$${esc(d.money)}M`, 'money');
       if (d.years)  html += drawerRow(t('drawer_years'), esc(d.years));
       if (d.aav)    html += drawerRow('AAV', `$${esc(d.aav)}M`, 'money');
@@ -1288,7 +1297,7 @@ function openPlayerDrawer(playerName, pushHistory = true) {
       <div class="drawer-section-title">${t('tab_draft')}</div>`;
     const d = draftData[0];
     if (d.pick)     html += drawerRow('Pick', esc(d.pick));
-    if (d.team)     html += drawerRow(t('col_team'), `<span class="badge badge-team">${esc(d.team)}</span>`);
+    if (d.team)     html += drawerRow(t('col_team'), teamBadgeHTML(d.team, false));
     if (d.pos)      html += drawerRow(t('draft_col_pos'), `<span class="pos-text">${esc(d.pos)}</span>`);
     if (d.from)     html += drawerRow(t('draft_col_from'), esc(d.from));
     if (d.contract) html += drawerRow(t('draft_col_contract'), esc(d.contract));
@@ -1301,7 +1310,7 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     html += `<div class="drawer-section">
       <div class="drawer-section-title">${t('draft_undrafted_title')}</div>`;
     const d = undData[0];
-    if (d.team)     html += drawerRow(t('col_team'), `<span class="badge badge-team">${esc(d.team)}</span>`);
+    if (d.team)     html += drawerRow(t('col_team'), teamBadgeHTML(d.team, false));
     if (d.pos)      html += drawerRow(t('draft_col_pos'), `<span class="pos-text">${esc(d.pos)}</span>`);
     if (d.from)     html += drawerRow(t('draft_col_from'), esc(d.from));
     if (d.contract) html += drawerRow(t('draft_col_contract'), esc(d.contract));
@@ -1327,8 +1336,8 @@ function openPlayerDrawer(playerName, pushHistory = true) {
       tr.sides.forEach(side => {
         const myReceive = side.receives.find(r => tradeItemMatchesPlayer(r.item, playerName));
         if (myReceive) {
-          html += drawerRow(t('drawer_new_team'), `<span class="badge badge-team">${esc(side.team)}</span>`);
-          if (myReceive.from) html += drawerRow(t('drawer_old_team'), `<span class="badge badge-team">${esc(myReceive.from)}</span>`);
+          html += drawerRow(t('drawer_new_team'), teamBadgeHTML(side.team, false));
+          if (myReceive.from) html += drawerRow(t('drawer_old_team'), teamBadgeHTML(myReceive.from, false));
           const pos = validPos(myReceive.pos || lookupPos(playerName));
           if (pos) html += drawerRow(t('draft_col_pos'), `<span class="pos-text">${esc(pos)}</span>`);
         }
