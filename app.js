@@ -1469,7 +1469,7 @@ function openTeamView(teamName, pushHistory = true) {
   const undrafted = (DATA.undrafted || []).filter(d => norm2(d.team) === tKey && d.player);
   const trades    = DATA.trades.filter(tr => tr.sides.some(s => norm2(s.team) === tKey));
   const roster    = DATA.rosters.find(r => norm2(r.team) === tKey);
-  const faPending = (DATA.faPending || []).filter(d => norm2(d.team25) === tKey);
+  const faPending = (roster?.fa || []).map(d => ({ player: d.name, pos: d.pos }));
   const coaches   = DATA.coaches.filter(d => norm2(d.team) === tKey);
 
   document.getElementById('tv-team-name').textContent = teamName;
