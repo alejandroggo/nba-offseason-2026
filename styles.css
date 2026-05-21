@@ -977,8 +977,9 @@
     display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap;
   }
   .team-view-identity {
-    display: flex; align-items: center; gap: 16px;
+    display: flex; flex-direction: row; align-items: center; gap: 16px;
   }
+  .team-view-identity .tv-team-logo { flex-shrink: 0; }
   .team-view-name {
     font-family: 'Bebas Neue', sans-serif;
     font-size: clamp(40px, 7vw, 72px);
