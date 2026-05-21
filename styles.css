@@ -1448,6 +1448,7 @@
     header { flex-shrink: 0; position: relative; top: auto; }
     main {
       flex: 1;
+      min-height: 0;
       overflow-y: auto;
       overflow-x: hidden;
       -webkit-overflow-scrolling: touch;
