@@ -1408,7 +1408,7 @@ function openPlayerDrawer(playerName, pushHistory = true) {
 
 function drawerRow(label, value, cls = '') {
   return `<div class="drawer-row">
-    <span class="drawer-label">${label}</span>
+    <span class="drawer-label">${label}:</span>
     <span class="drawer-value ${cls}">${value}</span>
   </div>`;
 }

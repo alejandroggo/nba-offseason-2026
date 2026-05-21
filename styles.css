@@ -950,7 +950,7 @@
     padding: 7px 0; border-bottom: 1px solid var(--border); gap: 16px;
   }
   .drawer-row:last-child { border-bottom: none; }
-  .drawer-label { font-size: 12px; color: var(--text-muted); flex-shrink: 0; }
+  .drawer-label { font-size: 12px; color: var(--text); flex-shrink: 0; }
   .drawer-value { font-size: 13px; color: var(--text); font-weight: 500; text-align: right; }
   .drawer-value.money { font-family: 'DM Mono', monospace; color: var(--accent); }
   .drawer-value.notes { font-size: 12px; font-weight: 400; color: var(--text-muted); text-align: right; line-height: 1.5; max-width: 260px; }
