@@ -648,7 +648,7 @@ function renderTrades(data) {
   container.innerHTML = data.map(trade => `
     <div class="trade-card">
       <div class="trade-header">
-        <span class="td-muted" style="font-size:11px;font-family:'DM Mono',monospace">
+        <span class="trade-header-meta">
           ${trade.date ? fmtDate(trade.date) : ''}${trade.date && trade.source ? ' · ' : ''}${trade.source ? esc(trade.source) : ''}
         </span>
       </div>
