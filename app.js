@@ -75,7 +75,7 @@ const i18n = {
     drawer_old_team: 'Antiguo equipo', drawer_new_team: 'Nuevo equipo',
     drawer_total: 'Total', drawer_years: 'Años',
     load_error: 'Error al cargar datos. Verifica las URLs del Sheet.',
-    trade_from: 'De',
+    trade_from: 'De', trade_receives: 'recibe',
     toast_updated: 'Datos actualizados', toast_error: 'Error al actualizar',
     badge_resign: 'RENUEVA',
     drawer_scouting: 'Scouting Report', drawer_scouting_link: 'Ver informe',
@@ -137,7 +137,7 @@ const i18n = {
     drawer_old_team: 'Old team', drawer_new_team: 'New team',
     drawer_total: 'Total', drawer_years: 'Years',
     load_error: 'Failed to load data. Check the Sheet URLs.',
-    trade_from: 'From',
+    trade_from: 'From', trade_receives: 'receives',
     toast_updated: 'Data updated', toast_error: 'Update failed',
     badge_resign: 'RE-SIGNS',
     drawer_scouting: 'Scouting Report', drawer_scouting_link: 'View report',
@@ -654,7 +654,7 @@ function renderTrades(data) {
         ${trade.sides.map(side => `
           <div class="trade-side">
             <div class="trade-team-label">
-              ${teamLogo(side.team, 20)}<span class="clickable-team" tabindex="0" onclick="openTeamView('${esc(side.team)}')">${esc(side.team)}</span>
+              ${teamLogo(side.team, 20)}<span class="clickable-team" tabindex="0" onclick="openTeamView('${esc(side.team)}')">${esc(side.team)}</span><span class="trade-receives-word">${t('trade_receives')}</span>
             </div>
             ${tradeReceivesHTML(side.receives)}
           </div>`).join('')}

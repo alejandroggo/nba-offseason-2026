@@ -577,6 +577,12 @@
     color: var(--text);
     margin-bottom: 10px;
   }
+  .trade-receives-word {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; font-weight: 400;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--text-dim);
+  }
 
   .trade-receives-label {
     font-family: 'DM Mono', monospace;
