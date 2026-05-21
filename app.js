@@ -1723,3 +1723,8 @@ document.addEventListener('keydown', function(e) {
 });
 
 fetchAll();
+
+// Auto-refresh cada 5 minutos (silencioso, sin toast)
+setInterval(async () => {
+  try { await fetchAll(); } catch(e) {}
+}, 5 * 60 * 1000);
