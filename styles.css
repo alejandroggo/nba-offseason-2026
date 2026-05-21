@@ -1437,19 +1437,37 @@
   @media (max-width: 768px) {
     nav:not(.mobile-nav) { display: none; }
 
+    /* Layout flex para nav verdaderamente fija */
+    html, body { height: 100%; }
+    body {
+      display: flex;
+      flex-direction: column;
+      height: 100dvh;
+      overflow: hidden;
+    }
+    header { flex-shrink: 0; position: relative; top: auto; }
+    main {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      padding: 20px 16px 20px;
+      max-width: 100%;
+    }
+    .table-wrap { max-height: none; }
+
     .mobile-nav {
       display: flex;
-      position: fixed;
-      top: auto;
-      bottom: 0; left: 0; right: 0;
+      flex-shrink: 0;
+      position: static;
+      top: auto; bottom: auto; left: auto; right: auto;
+      transform: none;
+      will-change: auto;
       background: var(--surface);
       border-top: 1px solid var(--border);
-      height: 58px;
-      z-index: 200;
+      height: calc(58px + env(safe-area-inset-bottom, 0px));
       padding-bottom: env(safe-area-inset-bottom, 0);
-      transform: translateZ(0);
-      -webkit-transform: translateZ(0);
-      will-change: transform;
+      z-index: 200;
     }
 
     .mobile-tab {
@@ -1468,6 +1486,17 @@
       position: relative;
     }
 
+    /* Indicador activo: línea en la parte superior */
+    .mobile-tab::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 20%; right: 20%;
+      height: 2px;
+      background: transparent;
+      border-radius: 0 0 2px 2px;
+      transition: background 0.2s;
+    }
+    .mobile-tab.active::before { background: var(--accent); }
     .mobile-tab.active { color: var(--accent); }
 
     .mobile-tab-icon {
