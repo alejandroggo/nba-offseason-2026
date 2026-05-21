@@ -12,6 +12,7 @@ const URLS = {
   rosters1: `${SCRIPT_URL}?tab=rosters1`,
   rosters2: `${SCRIPT_URL}?tab=rosters2`,
   coaches:  `${SCRIPT_URL}?tab=coaches`,
+  fecha:    `${SCRIPT_URL}?tab=fecha`,
 };
 
 // ─────────────────────────────────────────────
@@ -275,25 +276,31 @@ async function fetchAll() {
   // Refrescar desde el Sheet en background — usar allSettled para tolerar
   // que alguna fuente falle sin tirar el resto.
   try {
-    const keys = ['fa', 'draft', 'trades', 'rosters1', 'rosters2', 'coaches'];
-    const settled = await Promise.allSettled(keys.map(k => fetch(URLS[k]).then(async r => ({
+    const dataKeys = ['fa', 'draft', 'trades', 'rosters1', 'rosters2', 'coaches'];
+    const allKeys  = [...dataKeys, 'fecha'];
+    const settled = await Promise.allSettled(allKeys.map(k => fetch(URLS[k]).then(async r => ({
       text: await r.text(),
       lastModified: r.headers.get('Last-Modified'),
     }))));
     let dataDate = null;
     const failed = [];
     const raw = {};
-    keys.forEach((k, idx) => {
+    allKeys.forEach((k, idx) => {
       const s = settled[idx];
       if (s.status === 'fulfilled') {
         raw[k] = s.value.text;
         if (!dataDate && s.value.lastModified) dataDate = s.value.lastModified;
-      } else {
+      } else if (k !== 'fecha') {
         failed.push(k);
       }
     });
+    // Fecha explícita desde pestaña "fecha" — tiene prioridad sobre Last-Modified
+    if (raw.fecha) {
+      const cell = raw.fecha.split('\n')[0].split(',')[0].replace(/"/g, '').trim();
+      if (cell) dataDate = cell;
+    }
 
-    if (failed.length === keys.length) throw new Error('all-failed');
+    if (failed.length === dataKeys.length) throw new Error('all-failed');
 
     // Para fuentes que fallaron, reutilizamos lo que hubiera en caché
     if (failed.length && hadCache) {
@@ -302,8 +309,8 @@ async function fetchAll() {
         if (cached?.raw) failed.forEach(k => { if (cached.raw[k] != null) raw[k] = cached.raw[k]; });
       } catch(e) {}
     }
-    // Asegurar que todas las claves existen para evitar undefined en parseCSV
-    keys.forEach(k => { if (raw[k] == null) raw[k] = ''; });
+    // Asegurar que todas las claves de datos existen para evitar undefined en parseCSV
+    dataKeys.forEach(k => { if (raw[k] == null) raw[k] = ''; });
 
     const ts  = Date.now();
     try { localStorage.setItem(CACHE_KEY, JSON.stringify({ raw, ts, dataDate })); } catch(e) {}
