@@ -1577,8 +1577,13 @@ function openTeamView(teamName, pushHistory = true) {
         </div>`];
       }).join('');
       html += `<div class="tv-section-title">${t('roster_stays')} <span class="tv-section-count">(${plantilla.length})</span></div>
-      <div class="tv-card" style="margin-bottom:28px">
+      <div class="tv-card" style="margin-bottom:8px">
         <div class="tv-card-body">${rows}</div>
+      </div>
+      <div class="tv-color-legend" style="margin-bottom:28px">
+        <span><i style="background:var(--signed)"></i>${t('legend_color_new')}</span>
+        <span><i style="background:var(--resign)"></i>${t('legend_color_resign')}</span>
+        <span><span class="badge-tw">TW</span>${t('legend_color_tw')}</span>
       </div>`;
     }
   }
@@ -1603,13 +1608,6 @@ function openTeamView(teamName, pushHistory = true) {
       </div>`).join('');
     html += `<div style="margin-bottom:28px"></div>`;
   }
-
-  // ── LEYENDA DE COLORES ─────────────────────────
-  html += `<div class="tv-color-legend">
-    <span><i style="background:var(--signed)"></i>${t('legend_color_new')}</span>
-    <span><i style="background:var(--resign)"></i>${t('legend_color_resign')}</span>
-    <span><span class="badge-tw">TW</span>${t('legend_color_tw')}</span>
-  </div>`;
 
   // ── HC/GMs ────────────────────────────────────
   if (coaches.length) {
