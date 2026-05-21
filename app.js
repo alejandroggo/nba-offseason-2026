@@ -1563,7 +1563,7 @@ function openTeamView(teamName, pushHistory = true) {
           <span style="font-size:13px;color:var(--text)">${names}</span>
         </div>`];
       }).join('');
-      html += `<div class="tv-section-title">${t('roster_stays')} <span class="tv-section-count">${plantilla.length}</span></div>
+      html += `<div class="tv-section-title">${t('roster_stays')} <span class="tv-section-count">(${plantilla.length})</span></div>
       <div class="tv-card" style="margin-bottom:28px">
         <div class="tv-card-body">${rows}</div>
       </div>`;
