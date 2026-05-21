@@ -590,7 +590,7 @@
     color: var(--text-dim);
     margin-top: 4px; margin-bottom: 10px;
   }
-  .trade-receives-label--gap { margin-top: 14px; }
+  .trade-group--gap { margin-top: 14px; }
   .trade-receives-label .clickable-team { color: var(--text-muted); }
   .trade-receives-label .clickable-team:hover { color: var(--accent); opacity: 1; }
 
