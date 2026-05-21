@@ -1297,6 +1297,12 @@ function openPlayerDrawer(playerName, pushHistory = true) {
 
   document.getElementById('drawer-player-name').textContent = playerName;
 
+  const typeLabel = faData.length ? t('tab_fa')
+    : (draftData.length || undData.length) ? t('tab_draft')
+    : tradeData.length ? t('tab_trades')
+    : '';
+  document.getElementById('drawer-player-type').textContent = typeLabel;
+
   let html = '';
 
   // FA
