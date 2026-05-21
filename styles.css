@@ -970,6 +970,8 @@
   .tv-meta-new { color: var(--signed); font-weight: 500; }
   .tv-meta-fired { color: var(--danger); margin-left: 2px; }
   .tv-coach-fired { color: var(--danger); }
+  [data-theme="dark"] .tv-meta-new { color: var(--text); }
+  [data-theme="dark"] .tv-card-header .tv-label { color: var(--text); }
 
   .team-view-grid {
     display: grid;
@@ -1017,7 +1019,7 @@
     display: inline-block; flex-shrink: 0;
   }
   .tv-section-title {
-    font-family: 'DM Mono', monospace; font-size: 13px;
+    font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 700;
     text-transform: uppercase; letter-spacing: 2px;
     color: var(--text-muted); margin-bottom: 14px; margin-top: 8px;
     display: flex; align-items: center; gap: 10px;
