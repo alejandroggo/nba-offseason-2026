@@ -1529,7 +1529,7 @@ function openTeamView(teamName, pushHistory = true) {
         tradeIn.length ? tradeIn.map(r => {
           if (isNonPlayerAsset(r.item)) return tvRow(itemPosTag(r.item, r.pos) + esc(r.item));
           const { name, tw } = parseTW(r.item);
-          return tvRow(itemPosTag(name, r.pos) + esc(name) + (tw ? ' <span class="badge-tw">TW</span>' : ''));
+          return tvRow(itemPosTag(name, r.pos) + esc(name) + (tw ? ' <span class="badge-tw">TW</span>' : ''), '', '', name);
         }).join('') : tvEmpty())}
     ${(() => {
       const draftRows = [
