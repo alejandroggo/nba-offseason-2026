@@ -1336,14 +1336,23 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     html += `</div>`;
   }
 
-  // Scouting Report (aplica a draft y undrafted; primer URL no vacío)
-  const scoutingUrl = allDraftData.map(d => d.scouting).find(Boolean);
-  if (scoutingUrl) {
-    const safeUrl = /^https?:\/\//i.test(scoutingUrl) ? scoutingUrl : `https://${scoutingUrl}`;
+  // Scouting Report (aplica a draft y undrafted; todos los URLs no vacíos)
+  const scoutingUrls = allDraftData.map(d => d.scouting).filter(Boolean);
+  if (scoutingUrls.length) {
     html += `<div class="drawer-section">
       <div class="drawer-section-title">${t('drawer_scouting')}</div>
-      <a class="drawer-scouting-link" href="${esc(safeUrl)}" target="_blank" rel="noopener noreferrer">${t('drawer_scouting_link')} →</a>
-    </div>`;
+      <ul class="drawer-scouting-list">` +
+      scoutingUrls.map(raw => {
+        const safeUrl = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+        let host = '';
+        try { host = new URL(safeUrl).hostname.replace(/^www\./, ''); } catch(e) { host = raw; }
+        let label;
+        if (/esperandomarzo/i.test(host))     label = 'vía Esperando Marzo, Bryan García';
+        else if (/youtube|youtu\.be/i.test(host) || /draftlab|draft-lab/i.test(host)) label = 'vía Javier Molero';
+        else label = 'vía ' + host;
+        return `<li><a class="drawer-scouting-link" href="${esc(safeUrl)}" target="_blank" rel="noopener noreferrer">${esc(label)} →</a></li>`;
+      }).join('') +
+      `</ul></div>`;
   }
 
   // Trades
