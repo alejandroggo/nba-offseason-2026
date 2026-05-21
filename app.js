@@ -730,7 +730,7 @@ function processRosters(rows1, rows2) {
     // La lista global (pestaña FA → Pendientes) los conserva.
     const teamPending = allPending.filter(d => !salidasSet.has(stripTag(d.player)));
     team.fa = teamPending.map(d => ({ name: d.player, pos: d.pos }));
-    pendingFromFA.push(...allPending);
+    pendingFromFA.push(...teamPending);
   });
   DATA.faPending = pendingFromFA;
   FILTERED.faPending = [...DATA.faPending];
