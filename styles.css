@@ -405,7 +405,7 @@
     font-size: var(--font-xs);
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: var(--text-muted);
+    color: var(--text);
     font-weight: 600;
     padding: var(--space-2) var(--space-4);
     text-align: left;
