@@ -1530,7 +1530,8 @@
   @media (max-width: 768px) {
     header { padding: 0 12px; height: 48px; }
     thead th { top: 0; }
-    main { padding: 20px 16px calc(58px + env(safe-area-inset-bottom, 16px) + 16px); }
+    main { padding: 20px 16px 20px; }
+    footer { display: none; }
     .section-title { font-size: 28px; }
     .trade-body { grid-template-columns: repeat(2, 1fr) !important; }
     .trade-side { border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 12px 14px; }
