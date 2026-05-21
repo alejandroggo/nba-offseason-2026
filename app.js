@@ -1603,7 +1603,9 @@ function openTeamView(teamName, pushHistory = true) {
         </div>`];
       }).join('');
       const nonTW = plantilla.filter(p => !p.tw).length;
-      html += `<div class="tv-section-title">${t('roster_stays')} <span class="tv-section-count">(${nonTW})</span></div>
+      const twCount = plantilla.length - nonTW;
+      const countLabel = twCount ? `${nonTW} + ${twCount} TW` : `${nonTW}`;
+      html += `<div class="tv-section-title">${t('roster_stays')} <span class="tv-section-count">(${countLabel})</span></div>
       <div class="tv-card" style="margin-bottom:8px">
         <div class="tv-card-body">${rows}</div>
       </div>
