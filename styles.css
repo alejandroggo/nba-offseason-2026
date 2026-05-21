@@ -1427,7 +1427,7 @@
   html:not([data-theme="dark"]) .home-row:hover .home-row-ordinal { color: rgba(255,255,255,0.2); }
 
   /* Ocultar nav cuando estamos en home */
-  body.on-home nav { display: none; }
+  body.on-home nav:not(.mobile-nav) { display: none; }
 
   /* Botón volver al home en el logo */
   .logo { cursor: pointer; }
@@ -1435,8 +1435,8 @@
   /* MOBILE BOTTOM NAV */
   .mobile-nav { display: none; }
 
-  @media (max-width: 640px) {
-    nav { display: none; }
+  @media (max-width: 768px) {
+    nav:not(.mobile-nav) { display: none; }
 
     .mobile-nav {
       display: flex;
@@ -1482,6 +1482,9 @@
       line-height: 1;
     }
 
+    /* Siempre visible en móvil, incluso en home */
+    body.on-home .mobile-nav { display: flex; }
+
   }
 
   @media (max-width: 900px) {
@@ -1492,7 +1495,7 @@
     .home-row-stat { font-size: 28px; min-width: 60px; }
   }
 
-  @media (max-width: 640px) {
+  @media (max-width: 768px) {
     header { padding: 0 16px; height: 48px; }
     thead th { top: 0; }
     main { padding: 20px 16px 78px; }

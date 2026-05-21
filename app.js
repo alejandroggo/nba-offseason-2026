@@ -1285,7 +1285,7 @@ window.addEventListener('popstate', () => {
   const { player, team, tab } = readURL();
   if (team) { openTeamView(decodeURIComponent(team), false); }
   else if (player) { openPlayerDrawer(decodeURIComponent(player), false); }
-  else { closeDrawer(false); showTab(tab || (window.innerWidth <= 640 ? 'fa' : 'home'), false); }
+  else { closeDrawer(false); showTab(tab || (window.innerWidth <= 768 ? 'fa' : 'home'), false); }
 });
 
 // ─────────────────────────────────────────────
@@ -1697,7 +1697,7 @@ applyTheme();
 if (lang !== 'es') setLang(lang);
 // A11y: add scope="col" a todos los th de cabecera
 document.querySelectorAll('thead th').forEach(th => { if (!th.hasAttribute('scope')) th.setAttribute('scope', 'col'); });
-if (window.innerWidth <= 640) {
+if (window.innerWidth <= 768) {
   showTab('fa', false);
 } else {
   document.body.classList.add('on-home');
