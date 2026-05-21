@@ -1532,9 +1532,11 @@
     thead th { top: 0; }
     main { padding: 20px 16px calc(58px + env(safe-area-inset-bottom, 16px) + 16px); }
     .section-title { font-size: 28px; }
-    .trade-body { grid-template-columns: 1fr; }
-    .trade-side { border-right: none; border-bottom: 1px solid var(--border); padding: 12px 14px; }
+    .trade-body { grid-template-columns: repeat(2, 1fr) !important; }
+    .trade-side { border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 12px 14px; }
+    .trade-side:nth-child(2n) { border-right: none; }
     .trade-side:last-child { border-bottom: none; }
+    .trade-side:nth-last-child(2):nth-child(odd) { border-bottom: none; }
     .trade-team-label { font-size: 9px; margin-bottom: 6px; }
     .trade-item { font-size: 13px; }
     .trade-header { padding: 8px 14px; }
