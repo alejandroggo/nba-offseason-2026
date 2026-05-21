@@ -1337,7 +1337,7 @@ function openPlayerDrawer(playerName, pushHistory = true) {
   }
 
   // Scouting Report (aplica a draft y undrafted; todos los URLs no vacíos)
-  const scoutingUrls = allDraftData.map(d => d.scouting).filter(Boolean);
+  const scoutingUrls = allDraftData.flatMap(d => d.scouting ? d.scouting.split(',').map(s => s.trim()).filter(Boolean) : []);
   if (scoutingUrls.length) {
     html += `<div class="drawer-section">
       <div class="drawer-section-title">${t('drawer_scouting')}</div>
