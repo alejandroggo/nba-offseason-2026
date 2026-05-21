@@ -1528,7 +1528,7 @@
   }
 
   @media (max-width: 768px) {
-    header { padding: 0 16px; height: 48px; }
+    header { padding: 0 12px; height: 48px; }
     thead th { top: 0; }
     main { padding: 20px 16px calc(58px + env(safe-area-inset-bottom, 16px) + 16px); }
     .section-title { font-size: 28px; }
@@ -1539,7 +1539,14 @@
     .trade-item { font-size: 13px; }
     .trade-header { padding: 8px 14px; }
     .trade-card { margin-bottom: 8px; }
-    .logo-title { font-size: 22px; }
+    .logo-title { font-size: 17px; letter-spacing: 1px; }
+    .logo-year  { font-size: 17px; }
+    .header-meta { display: none; }
+    .header-right { gap: 8px; }
+    .lang-toggle { height: 28px; }
+    .lang-btn { font-size: 10px; padding: 0 8px; }
+    .theme-toggle { height: 28px; padding: 0 8px; font-size: 10px; }
+    .refresh-btn { height: 28px; padding: 0 8px; }
     .home-masthead { padding: 24px 16px 20px; }
     .home-row { padding: 0 16px; min-height: 72px; }
     .home-row-ordinal { font-size: 44px; min-width: 56px; }
