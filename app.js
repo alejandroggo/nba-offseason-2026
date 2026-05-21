@@ -633,11 +633,10 @@ function tradeReceivesHTML(receives) {
     else byFrom.push({ from: r.from, items: [r] });
   });
   return byFrom.map((grp, i) => `
-    <div class="trade-receives-label${i > 0 ? ' trade-receives-label--gap' : ''}">
-      ${i === 0 ? teamLogo(grp.from, 16) : ''}
-      <span class="clickable-team" tabindex="0" onclick="openTeamView('${esc(grp.from)}')">${esc(grp.from)}</span>
-    </div>
     ${grp.items.map(r => `<div class="trade-item" onclick="openPlayerDrawer('${esc(r.item)}')">${esc(r.item)}</div>`).join('')}
+    <div class="trade-receives-label${i > 0 ? ' trade-receives-label--gap' : ''}">
+      ${t('trade_from')}: <span class="clickable-team" tabindex="0" onclick="openTeamView('${esc(grp.from)}')">${esc(grp.from)}</span>
+    </div>
   `).join('');
 }
 
@@ -654,8 +653,8 @@ function renderTrades(data) {
       <div class="trade-body" style="grid-template-columns:repeat(${trade.sides.length},1fr)">
         ${trade.sides.map(side => `
           <div class="trade-side">
-            <div class="trade-team-label" style="display:flex;align-items:center;gap:8px">
-              ${teamLogo(side.team, 24)}<span class="clickable-team" tabindex="0" onclick="openTeamView('${esc(side.team)}')">${esc(side.team)}</span>
+            <div class="trade-team-label">
+              ${teamLogo(side.team, 20)}<span class="clickable-team" tabindex="0" onclick="openTeamView('${esc(side.team)}')">${esc(side.team)}</span>
             </div>
             ${tradeReceivesHTML(side.receives)}
           </div>`).join('')}
