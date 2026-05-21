@@ -1597,15 +1597,17 @@ function openTeamView(teamName, pushHistory = true) {
       <div class="tv-card-body">
         <div class="table-wrap"><table><thead><tr>
           <th>${t('coaches_col_new')}</th>
+          <th>${t('coaches_col_role')}</th>
           <th>${t('coaches_col_prev')}</th>
           <th>${t('coaches_col_date_hired')}</th>
         </tr></thead><tbody>` +
       coaches.map(d => {
         const rc = (d.role||'').toUpperCase().includes('HC') || (d.role||'').toUpperCase().includes('HEAD') ? 'badge-role-hc' : 'badge-role-gm';
-        const roleBadge = d.role ? ` <span class="badge ${rc}">${esc(d.role)}</span>` : '';
+        const roleCell = d.role ? `<span class="badge ${rc}">${esc(d.role)}</span>` : '—';
         const prevCell = d.prev ? `<span class="tv-coach-fired">${esc(d.prev)}</span>` : '—';
         return `<tr>
-          <td class="td-player tv-coach-cell">${esc(d.new)}${roleBadge}</td>
+          <td class="td-player">${esc(d.new)}</td>
+          <td>${roleCell}</td>
           <td class="td-muted">${prevCell}</td>
           <td class="td-muted">${fmtDate(d.dateHired)}</td>
         </tr>`;
