@@ -378,9 +378,9 @@
         <label class="filter-label" for="coaches-search" data-i18n="filter_search">Buscar</label>
         <input type="text" class="filter-input" id="coaches-search" oninput="filterCoaches()" data-i18n-ph="coaches_search_ph">
       </div>
-      <div class="filter-group">
-        <label class="filter-label" for="coaches-role" data-i18n="coaches_col_role">Rol</label>
-        <select class="filter-select" id="coaches-role" onchange="filterCoaches()"><option value="">—</option></select>
+      <div class="filter-group filter-group--btns">
+        <button type="button" class="filter-role-btn badge badge-role-hc" id="filter-coaches-hc" onclick="toggleCoachFilter('hc')" aria-pressed="false">Entrenadores</button>
+        <button type="button" class="filter-role-btn badge badge-role-gm" id="filter-coaches-gm" onclick="toggleCoachFilter('gm')" aria-pressed="false">Gerencia</button>
       </div>
       <div class="filter-group">
         <label class="filter-label" for="coaches-team" data-i18n="col_team">Equipo</label>

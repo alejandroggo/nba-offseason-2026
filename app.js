@@ -962,7 +962,6 @@ function processCoaches(rows) {
     source:     cell(r,6),
   }));
   document.getElementById('count-coaches').textContent = DATA.coaches.length;
-  populateSelect('coaches-role', [...new Set(DATA.coaches.map(d=>d.role).filter(Boolean))].sort());
   populateSelect('coaches-team', [...new Set(DATA.coaches.map(d=>d.team).filter(Boolean))].sort());
 }
 
@@ -984,22 +983,36 @@ function renderCoaches(data) {
   document.getElementById('coaches-count').innerHTML = `<span>${data.length}</span>&nbsp;${t('results')}`;
 }
 
+function toggleCoachFilter(type) {
+  const btn = document.getElementById(`filter-coaches-${type}`);
+  const active = btn.getAttribute('aria-pressed') === 'true';
+  btn.setAttribute('aria-pressed', String(!active));
+  filterCoaches();
+}
+
+function isHCRole(role) {
+  return (role||'').toUpperCase().includes('HC') || (role||'').toUpperCase().includes('HEAD');
+}
+
 function filterCoaches() {
-  const q = document.getElementById('coaches-search').value.toLowerCase();
-  const role = document.getElementById('coaches-role').value;
+  const q    = document.getElementById('coaches-search').value.toLowerCase();
   const team = document.getElementById('coaches-team').value;
-  FILTERED.coaches = DATA.coaches.filter(d =>
-    (!q || `${d.team} ${d.new} ${d.prev} ${d.role}`.toLowerCase().includes(q)) &&
-    (!role || d.role === role) &&
-    (!team || d.team === team)
-  );
+  const hcOn = document.getElementById('filter-coaches-hc').getAttribute('aria-pressed') === 'true';
+  const gmOn = document.getElementById('filter-coaches-gm').getAttribute('aria-pressed') === 'true';
+  FILTERED.coaches = DATA.coaches.filter(d => {
+    const hc = isHCRole(d.role);
+    const matchType = (!hcOn && !gmOn) || (hcOn && gmOn) || (hcOn && hc) || (gmOn && !hc);
+    return matchType &&
+      (!q    || `${d.team} ${d.new} ${d.prev} ${d.role}`.toLowerCase().includes(q)) &&
+      (!team || d.team === team);
+  });
   renderCoaches(FILTERED.coaches);
 }
 
 function resetCoaches() {
   document.getElementById('coaches-search').value = '';
-  document.getElementById('coaches-role').value = '';
   document.getElementById('coaches-team').value = '';
+  ['hc','gm'].forEach(t => document.getElementById(`filter-coaches-${t}`).setAttribute('aria-pressed','false'));
   filterCoaches();
 }
 
