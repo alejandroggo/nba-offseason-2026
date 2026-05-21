@@ -1321,25 +1321,13 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     html += `</div>`;
   }
 
-  // Draft
-  if (draftData.length) {
+  // Draft / Undrafted — mismo bloque, Pick muestra "UNDRAFTED" si no hay número
+  const allDraftData = [...draftData, ...undData];
+  if (allDraftData.length) {
     html += `<div class="drawer-section">
       <div class="drawer-section-title">${t('tab_draft')}</div>`;
-    const d = draftData[0];
-    if (d.pick)     html += drawerRow('Pick', esc(d.pick));
-    if (d.team)     html += drawerRow(t('col_team'), teamBadgeHTML(d.team, false));
-    if (d.pos)      html += drawerRow(t('draft_col_pos'), `<span class="pos-text">${esc(d.pos)}</span>`);
-    if (d.from)     html += drawerRow(t('draft_col_from'), esc(d.from));
-    if (d.contract) html += drawerRow(t('draft_col_contract'), esc(d.contract));
-    if (d.notes)    html += drawerRow(t('col_notes'), esc(d.notes), 'notes');
-    html += `</div>`;
-  }
-
-  // Undrafted
-  if (undData.length) {
-    html += `<div class="drawer-section">
-      <div class="drawer-section-title">${t('draft_undrafted_title')}</div>`;
-    const d = undData[0];
+    const d = allDraftData[0];
+    html += drawerRow('Pick', d.pick ? esc(d.pick) : 'UNDRAFTED');
     if (d.team)     html += drawerRow(t('col_team'), teamBadgeHTML(d.team, false));
     if (d.pos)      html += drawerRow(t('draft_col_pos'), `<span class="pos-text">${esc(d.pos)}</span>`);
     if (d.from)     html += drawerRow(t('draft_col_from'), esc(d.from));
@@ -1349,7 +1337,7 @@ function openPlayerDrawer(playerName, pushHistory = true) {
   }
 
   // Scouting Report (aplica a draft y undrafted; primer URL no vacío)
-  const scoutingUrl = [...draftData, ...undData].map(d => d.scouting).find(Boolean);
+  const scoutingUrl = allDraftData.map(d => d.scouting).find(Boolean);
   if (scoutingUrl) {
     const safeUrl = /^https?:\/\//i.test(scoutingUrl) ? scoutingUrl : `https://${scoutingUrl}`;
     html += `<div class="drawer-section">
@@ -1385,8 +1373,8 @@ function openPlayerDrawer(playerName, pushHistory = true) {
   if (faData.length) {
     if (faData[0].dest)   teamLinks.push({ label: t('drawer_view_team'),     team: faData[0].dest });
     if (faData[0].team25) teamLinks.push({ label: t('drawer_view_old_team'), team: faData[0].team25 });
-  } else if (draftData.length) {
-    if (draftData[0].team) teamLinks.push({ label: t('drawer_view_team'), team: draftData[0].team });
+  } else if (allDraftData.length) {
+    if (allDraftData[0].team) teamLinks.push({ label: t('drawer_view_team'), team: allDraftData[0].team });
   } else if (tradeData.length) {
     tradeData[0].sides.forEach(side => {
       const match = side.receives.find(r => tradeItemMatchesPlayer(r.item, playerName));
@@ -1397,9 +1385,12 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     });
   }
   if (teamLinks.length) {
-    const btnStyle = `background:none;border:1px solid var(--border);color:var(--text-muted);padding:8px 14px;border-radius:4px;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;transition:all 0.2s`;
-    html += `<div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:8px">` +
-      teamLinks.map(lk => `<button onclick="openTeamView('${esc(lk.team)}')" style="${btnStyle}" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">${esc(lk.label)}: ${esc(lk.team)} →</button>`).join('') +
+    html += `<div class="drawer-team-links">` +
+      teamLinks.map(lk => `
+        <button class="drawer-team-btn" onclick="openTeamView('${esc(lk.team)}')">
+          <span class="drawer-team-btn-label">${esc(lk.label)}</span>
+          <span class="drawer-team-btn-name">${teamLogo(lk.team, 16)}${esc(lk.team)}</span>
+        </button>`).join('') +
     `</div>`;
   }
 
