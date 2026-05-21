@@ -1591,6 +1591,13 @@ function openTeamView(teamName, pushHistory = true) {
     html += `<div style="margin-bottom:28px"></div>`;
   }
 
+  // ── LEYENDA DE COLORES ─────────────────────────
+  html += `<div class="tv-color-legend">
+    <span><i style="background:var(--signed)"></i>${t('legend_color_new')}</span>
+    <span><i style="background:var(--resign)"></i>${t('legend_color_resign')}</span>
+    <span><span class="badge-tw">TW</span>${t('legend_color_tw')}</span>
+  </div>`;
+
   // ── HC/GMs ────────────────────────────────────
   if (coaches.length) {
     html += `<div class="tv-section-title">${t('roster_section_coaches')}</div>
@@ -1616,13 +1623,6 @@ function openTeamView(teamName, pushHistory = true) {
       </div>
     </div>`;
   }
-
-  // ── LEYENDA DE COLORES ─────────────────────────
-  html += `<div class="tv-color-legend">
-    <span><i style="background:var(--signed)"></i>${t('legend_color_new')}</span>
-    <span><i style="background:var(--resign)"></i>${t('legend_color_resign')}</span>
-    <span><span class="badge-tw">TW</span>${t('legend_color_tw')}</span>
-  </div>`;
 
   html += `</div>`;
 
