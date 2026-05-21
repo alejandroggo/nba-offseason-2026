@@ -786,8 +786,9 @@ const SALIDA_REASON_MAP = {
 function parseSalidaReason(rawName) {
   const m = (rawName || '').match(/\(([^)]+)\)\s*$/);
   if (m) {
+    const nameWithoutTag = rawName.replace(/\s*\([^)]+\)\s*$/, '').trim();
     const key = SALIDA_REASON_MAP[m[1].trim().toLowerCase()];
-    if (key) return { name: rawName.replace(/\s*\([^)]+\)\s*$/, '').trim(), reasonKey: key };
+    return { name: nameWithoutTag, reasonKey: key || 'waived' };
   }
   return { name: (rawName || '').trim(), reasonKey: 'waived' };
 }
