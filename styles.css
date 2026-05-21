@@ -1447,6 +1447,9 @@
       height: 58px;
       z-index: 200;
       padding-bottom: env(safe-area-inset-bottom, 0);
+      transform: translateZ(0);
+      -webkit-transform: translateZ(0);
+      will-change: transform;
     }
 
     .mobile-tab {
@@ -1498,7 +1501,7 @@
   @media (max-width: 768px) {
     header { padding: 0 16px; height: 48px; }
     thead th { top: 0; }
-    main { padding: 20px 16px 78px; }
+    main { padding: 20px 16px calc(58px + env(safe-area-inset-bottom, 16px) + 16px); }
     .section-title { font-size: 28px; }
     .trade-body { grid-template-columns: 1fr; }
     .trade-side { border-right: none; border-bottom: 1px solid var(--border); padding: 12px 14px; }
