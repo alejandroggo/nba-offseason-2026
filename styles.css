@@ -1219,6 +1219,25 @@
     }
   }
 
+  @media (max-width: 768px) {
+    .ag-footer {
+      margin-top: 40px;
+    }
+    .ag-footer-inner {
+      grid-template-columns: 1fr;
+      padding: 20px 16px 16px;
+      gap: 12px;
+    }
+    .ag-footer-projects,
+    .ag-footer-pubs {
+      display: none;
+    }
+    .ag-footer-brand,
+    .ag-footer-meta {
+      grid-column: 1 / -1;
+    }
+  }
+
   /* HOME */
   #section-home {
     display: none;
