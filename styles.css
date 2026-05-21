@@ -309,16 +309,18 @@
   .filter-group--btns { flex-direction: row; align-items: center; gap: 8px; padding-top: 14px; }
   .filter-role-btn {
     cursor: pointer;
-    padding: 5px 14px;
-    font-size: 11px; font-weight: 600;
+    padding: var(--space-2) 16px;
+    min-height: 44px;
+    border-radius: var(--radius-md);
+    font-size: var(--font-sm); font-weight: 600;
     transition: background var(--transition), color var(--transition), border-color var(--transition);
   }
   /* inactivo: solo borde y texto, fondo transparente */
   .filter-role-btn.badge-role-hc { background: transparent; }
   .filter-role-btn.badge-role-gm { background: transparent; }
-  /* activo: relleno */
-  .filter-role-btn.badge-role-hc[aria-pressed="true"] { background: rgba(var(--accent-rgb), 0.15); }
-  .filter-role-btn.badge-role-gm[aria-pressed="true"] { background: rgba(255,107,53,0.15); }
+  /* activo: relleno sólido */
+  .filter-role-btn.badge-role-hc[aria-pressed="true"] { background: rgba(var(--accent-rgb), 0.25); border-color: rgba(var(--accent-rgb), 0.6); }
+  .filter-role-btn.badge-role-gm[aria-pressed="true"] { background: rgba(255,107,53,0.25); border-color: rgba(255,107,53,0.6); }
 
   .filter-label {
     font-family: 'DM Mono', monospace;
