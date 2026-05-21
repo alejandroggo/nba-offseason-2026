@@ -1025,7 +1025,7 @@
     color: var(--text-muted); min-width: 32px; text-align: left; flex-shrink: 0;
     letter-spacing: 0.5px;
   }
-  .tv-row-pick.undrafted { color: var(--text-dim); }
+  .tv-row-pick.undrafted { color: var(--text); }
   .tv-row.tv-row-tw .tv-row-name { color: var(--text-muted); }
   .tv-empty { padding: 16px; font-size: 12px; color: var(--text-dim); font-family: 'DM Mono', monospace; }
 
