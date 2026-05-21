@@ -370,9 +370,8 @@ function renderFA(data) {
         <td class="td-num">${esc(d.years) || '—'}</td>
         <td class="td-money">${d.aav ? '$'+esc(d.aav)+'M' : '—'}</td>
         <td class="td-muted">${esc(d.source)}</td>
-        <td class="td-notes">${esc(d.notes)}</td>
       </tr>`;}).join('')
-    : `<tr><td colspan="9"><div class="state-empty">${t('no_data')}</div></td></tr>`;
+    : `<tr><td colspan="8"><div class="state-empty">${t('no_data')}</div></td></tr>`;
 
   document.getElementById('fa-count').innerHTML = `<span>${signed.length}</span>&nbsp;${t('results')}`;
 }
