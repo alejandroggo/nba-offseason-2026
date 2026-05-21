@@ -1598,14 +1598,16 @@ function openTeamView(teamName, pushHistory = true) {
     html += trades.map(tr => `
       <div class="trade-card" style="margin-bottom:10px">
         <div class="trade-header">
-          <span class="td-muted" style="font-size:11px;font-family:'DM Mono',monospace">
+          <span class="trade-header-meta">
             ${tr.date ? fmtDate(tr.date) : ''}${tr.date && tr.source ? ' · ' : ''}${tr.source ? esc(tr.source) : ''}
           </span>
         </div>
         <div class="trade-body" style="grid-template-columns:repeat(${tr.sides.length},1fr)">
           ${tr.sides.map(side => `
             <div class="trade-side">
-              <div class="trade-team-label">${esc(side.team)}</div>
+              <div class="trade-team-label">
+                ${teamLogo(side.team, 20)}<span class="clickable-team" tabindex="0" onclick="openTeamView('${esc(side.team)}')">${esc(side.team)}</span><span class="trade-receives-word">${t('trade_receives')}</span>
+              </div>
               ${tradeReceivesHTML(side.receives)}
             </div>`).join('')}
         </div>
