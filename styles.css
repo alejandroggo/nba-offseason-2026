@@ -1540,7 +1540,7 @@
   .th-w-48 { width: 48px; }
   .th-w-160 { width: 160px; }
   .th-w-200 { width: 200px; }
-  .section-header--undrafted { margin-top: 48px; }
+  .section-header--undrafted { margin-top: 48px; display: flex; align-items: center; justify-content: space-between; }
   .section-title--small { font-size: 24px; }
   .tv-team-logo { height: 64px; display: flex; align-items: center; }
 

@@ -526,6 +526,7 @@ function renderDraft(data) {
 
 function renderUndrafted(data) {
   const tbody = document.getElementById('undrafted-tbody');
+  document.getElementById('undrafted-count').innerHTML = `<span>${data.length}</span>&nbsp;${t('results')}`;
   if (!data.length) { tbody.innerHTML = `<tr><td colspan="8"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
   tbody.innerHTML = data.map(d => `
     <tr>
