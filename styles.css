@@ -581,15 +581,14 @@
   }
 
   .trade-receives-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--accent);
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 600;
+    color: var(--text);
     margin-bottom: 6px;
   }
+  .trade-receives-label--gap { margin-top: 14px; }
 
-  .trade-item { font-size: 14px; font-weight: 600; color: var(--text); padding: 3px 0; cursor: pointer; }
+  .trade-item { font-size: 12px; font-weight: 400; color: var(--text-muted); padding: 2px 0; cursor: pointer; }
   .trade-item:hover { color: var(--accent); }
 
   /* PLANTILLAS */

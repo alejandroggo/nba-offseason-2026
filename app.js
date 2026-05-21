@@ -634,7 +634,10 @@ function tradeReceivesHTML(receives) {
     else byFrom.push({ from: r.from, items: [r] });
   });
   return byFrom.map((grp, i) => `
-    <div class="trade-receives-label" style="${i > 0 ? 'margin-top:14px' : ''}">← ${t('trade_from')}: <strong class="clickable-team" tabindex="0" onclick="openTeamView('${esc(grp.from)}')" style="cursor:pointer">${esc(grp.from)}</strong></div>
+    <div class="trade-receives-label${i > 0 ? ' trade-receives-label--gap' : ''}">
+      ${i === 0 ? teamLogo(grp.from, 16) : ''}
+      <span class="clickable-team" tabindex="0" onclick="openTeamView('${esc(grp.from)}')">${esc(grp.from)}</span>
+    </div>
     ${grp.items.map(r => `<div class="trade-item" onclick="openPlayerDrawer('${esc(r.item)}')">${esc(r.item)}</div>`).join('')}
   `).join('');
 }
