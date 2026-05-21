@@ -69,7 +69,7 @@ const i18n = {
     last_update: 'Actualizado',
     trade_label: 'Traspaso',
     teams_title: 'Equipos', teams_subtitle: 'Las 30 franquicias de la NBA',
-    drawer_view_team: 'Nuevo equipo', drawer_view_old_team: 'Ver equipo anterior',
+    drawer_view_team: 'Ver nuevo equipo', drawer_view_old_team: 'Ver equipo anterior',
     legend_rfa: 'Agente libre restringido', legend_to: 'Opción de equipo', legend_po: 'Opción de jugador',
     back_btn: 'Volver', end_of_lottery: 'FIN DE LA LOTERÍA', end_of_round1: 'FIN DE LA PRIMERA RONDA',
     drawer_old_team: 'Antiguo equipo', drawer_new_team: 'Nuevo equipo',
@@ -131,7 +131,7 @@ const i18n = {
     last_update: 'Updated',
     trade_label: 'Trade',
     teams_title: 'Teams', teams_subtitle: 'All 30 NBA franchises',
-    drawer_view_team: 'New team', drawer_view_old_team: 'View previous team',
+    drawer_view_team: 'View new team', drawer_view_old_team: 'View previous team',
     legend_rfa: 'Restricted free agent', legend_to: 'Team option', legend_po: 'Player option',
     back_btn: 'Back', end_of_lottery: 'END OF LOTTERY', end_of_round1: 'END OF ROUND 1',
     drawer_old_team: 'Old team', drawer_new_team: 'New team',
@@ -1324,8 +1324,7 @@ function openPlayerDrawer(playerName, pushHistory = true) {
   // Draft / Undrafted — mismo bloque, Pick muestra "UNDRAFTED" si no hay número
   const allDraftData = [...draftData, ...undData];
   if (allDraftData.length) {
-    html += `<div class="drawer-section">
-      <div class="drawer-section-title">${t('tab_draft')}</div>`;
+    html += `<div class="drawer-section">`;
     const d = allDraftData[0];
     html += drawerRow('Pick', d.pick ? esc(d.pick) : 'UNDRAFTED');
     if (d.team)     html += drawerRow(t('col_team'), teamBadgeHTML(d.team, false));
@@ -1340,7 +1339,7 @@ function openPlayerDrawer(playerName, pushHistory = true) {
   const scoutingUrls = allDraftData.flatMap(d => d.scouting ? d.scouting.split(',').map(s => s.trim()).filter(Boolean) : []);
   if (scoutingUrls.length) {
     html += `<div class="drawer-section">
-      <div class="drawer-section-title">${t('drawer_scouting')}</div>
+      <div class="drawer-scouting-title">${t('drawer_scouting')}</div>
       <ul class="drawer-scouting-list">` +
       scoutingUrls.map(raw => {
         const safeUrl = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;

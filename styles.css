@@ -908,6 +908,12 @@
     scrollbar-color: var(--border) transparent;
   }
   .drawer-section { margin-bottom: 28px; }
+  .drawer-scouting-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px; letter-spacing: 1px;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
   .drawer-scouting-list {
     list-style: none; padding: 0; margin: 0;
     display: flex; flex-direction: column; gap: 6px;
