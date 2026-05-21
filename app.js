@@ -1549,7 +1549,7 @@ function openTeamView(teamName, pushHistory = true) {
     ${tvCard(t('roster_salidas_fa'), faOut.length,
         faOut.length ? faOut.map(d => tvRow(esc(d.player), d.dest ? `→ ${esc(d.dest)}` : t(`roster_${d.reasonKey || 'waived'}`), '', d.player)).join('') : tvEmpty())}
     ${tvCard(t('roster_salidas_trade'), tradeOut.length,
-        tradeOut.length ? tradeOut.map(r => tvRow(itemPosTag(r.item, r.pos) + esc(r.item), `→ ${esc(r.to)}`)).join('') : tvEmpty())}
+        tradeOut.length ? tradeOut.map(r => tvRow(itemPosTag(r.item, r.pos) + esc(r.item), `→ ${esc(r.to)}`, '', r.item)).join('') : tvEmpty())}
     ${tvCard(t('roster_fa_pending'), faPending.length,
         faPending.length ? faPending.map(d => { const {name,badge} = faStatus(d.player); return tvRow(esc(name) + badge, '', '', d.player); }).join('') : tvEmpty())}
   </div>`;
