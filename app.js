@@ -1113,9 +1113,9 @@ function teamBadgeHTML(name, clickable = true) {
   if (!name) return '';
   const logo = teamLogo(name, 14);
   if (clickable) {
-    return `<span class="badge badge-team clickable-team" tabindex="0" onclick="openTeamView('${esc(name)}')">${logo}${esc(name)}</span>`;
+    return `<span class="team-inline clickable-team" tabindex="0" onclick="openTeamView('${esc(name)}')">${logo}${esc(name)}</span>`;
   }
-  return `<span class="badge badge-team">${logo}${esc(name)}</span>`;
+  return `<span class="team-inline">${logo}${esc(name)}</span>`;
 }
 
 function fmtDate(str) {
