@@ -963,9 +963,13 @@
   }
   .team-view-meta {
     font-family: 'DM Mono', monospace;
-    font-size: 11px; color: var(--text-muted); text-align: right; line-height: 1.8;
+    font-size: 11px; color: var(--text-muted); text-align: right;
+    display: flex; flex-direction: column; gap: 4px;
   }
-  .team-view-meta span { color: var(--accent); }
+  .tv-meta-role { color: var(--text-dim); }
+  .tv-meta-new { color: var(--signed); font-weight: 500; }
+  .tv-meta-fired { color: var(--danger); margin-left: 2px; }
+  .tv-coach-fired { color: var(--danger); }
 
   .team-view-grid {
     display: grid;

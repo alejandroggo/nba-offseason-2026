@@ -1429,7 +1429,10 @@ function openTeamView(teamName, pushHistory = true) {
   document.getElementById('tv-team-logo').innerHTML = teamLogo(teamName, 64);
 
   let meta = '';
-  coaches.forEach(c => { meta += `<span>${esc(c.role)}: <strong>${esc(c.new)}</strong></span>  `; });
+  coaches.forEach(c => {
+    const firedPart = c.prev ? ` <span class="tv-meta-fired">← ${esc(c.prev)}</span>` : '';
+    meta += `<div><span class="tv-meta-role">${esc(c.role)}:</span> <span class="tv-meta-new">${esc(c.new)}</span>${firedPart}</div>`;
+  });
   document.getElementById('tv-team-meta').innerHTML = meta;
 
   const tradeIn = [], tradeOut = [];
@@ -1593,9 +1596,10 @@ function openTeamView(teamName, pushHistory = true) {
       coaches.map(d => {
         const rc = (d.role||'').toUpperCase().includes('HC') || (d.role||'').toUpperCase().includes('HEAD') ? 'badge-role-hc' : 'badge-role-gm';
         const roleBadge = d.role ? ` <span class="badge ${rc}">${esc(d.role)}</span>` : '';
+        const prevCell = d.prev ? `<span class="tv-coach-fired">${esc(d.prev)}</span>` : '—';
         return `<tr>
           <td class="td-player">${esc(d.new)}${roleBadge}</td>
-          <td class="td-muted">${esc(d.prev)||'—'}</td>
+          <td class="td-muted">${prevCell}</td>
           <td class="td-muted">${fmtDate(d.dateHired)}</td>
         </tr>`;
       }).join('') + `</tbody></table></div>
