@@ -56,7 +56,7 @@ const i18n = {
     roster_stays: 'Plantilla', roster_arrivals: 'Llegadas', roster_departures: 'Salidas',
     roster_fa: 'FA', roster_draft: 'Draft', roster_trade: 'Vía Trade',
     roster_salidas_fa: 'FA', roster_salidas_trade: 'Vía Trade', roster_fa_pending: 'FA Pendientes', roster_waived: 'Cortado', roster_deceased: 'Fallecido', roster_retired: 'Retirado', roster_overseas: 'Otras ligas',
-    roster_section_trades: 'Traspasos', roster_section_coaches: 'Cuerpo técnico y dirección',
+    roster_section_trades: 'Traspasos', roster_section_coaches: 'Cuerpo técnico y gerencia',
     coaches_title: 'Entrenadores y General Managers', coaches_subtitle: 'Cambios en banquillos y gerencias',
     coaches_search_ph: 'Equipo, nombre…',
     coaches_col_new: 'Nuevo', coaches_col_role: 'Rol',
@@ -1605,7 +1605,7 @@ function openTeamView(teamName, pushHistory = true) {
         const roleBadge = d.role ? ` <span class="badge ${rc}">${esc(d.role)}</span>` : '';
         const prevCell = d.prev ? `<span class="tv-coach-fired">${esc(d.prev)}</span>` : '—';
         return `<tr>
-          <td class="td-player">${esc(d.new)}${roleBadge}</td>
+          <td class="td-player tv-coach-cell">${esc(d.new)}${roleBadge}</td>
           <td class="td-muted">${prevCell}</td>
           <td class="td-muted">${fmtDate(d.dateHired)}</td>
         </tr>`;

@@ -970,6 +970,7 @@
   .tv-meta-new { color: var(--signed); font-weight: 500; }
   .tv-meta-fired { color: var(--danger); margin-left: 2px; }
   .tv-coach-fired { color: var(--danger); }
+  .tv-coach-cell { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; }
   [data-theme="dark"] .tv-meta-new { color: var(--text); }
   [data-theme="dark"] .tv-card-header .tv-label { color: var(--text); }
 
