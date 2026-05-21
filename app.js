@@ -1525,7 +1525,7 @@ function openTeamView(teamName, pushHistory = true) {
       const renderDraftRow = d => {
         const { name, tw } = parseTW(d.player, d.contract);
         const pickCls = d.undrafted ? 'tv-row-pick undrafted' : 'tv-row-pick';
-        return `<div class="tv-row${tw ? ' tv-row-tw' : ''}" style="justify-content:flex-start;gap:14px">
+        return `<div class="tv-row${(tw && !d.undrafted) ? ' tv-row-tw' : ''}" style="justify-content:flex-start;gap:14px">
           <span class="${pickCls}">${esc(d.pick)}</span>
           <span class="tv-row-name" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(name)}${tw ? ' <span class="badge-tw">TW</span>' : ''}</span>
         </div>`;
