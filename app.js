@@ -718,7 +718,14 @@ function processRosters(rows1, rows2) {
   const signedNames = new Set(DATA.fa.filter(d => d.dest).map(d => stripTag(d.player)));
   DATA.rosters.forEach(team => {
     const key = team.team.trim().toLowerCase();
-    const salidasSet = new Set((team.salidas || []).map(p => stripTag(p.name)));
+    // Salidas definitivas: retirado, fallecido, overseas. Los cortados (waived)
+    // siguen siendo agentes libres y deben mantenerse en FA Pendientes.
+    const definitiveOut = new Set(
+      (team.salidas || [])
+        .filter(p => { const { reasonKey } = parseSalidaReason(p.name); return reasonKey !== 'waived'; })
+        .map(p => stripTag(parseSalidaReason(p.name).name))
+    );
+    const salidasSet = new Set((team.salidas || []).map(p => stripTag(parseSalidaReason(p.name).name)));
     const fromFA = DATA.fa.filter(d => d.team25.trim().toLowerCase() === key && !d.dest)
       .map(d => ({ player: d.player, pos: d.pos || '', team25: d.team25, notes: d.notes }));
     const seen = new Set(fromFA.map(d => stripTag(d.player)));
@@ -726,11 +733,13 @@ function processRosters(rows1, rows2) {
       .filter(p => !seen.has(stripTag(p.name)) && !signedNames.has(stripTag(p.name)))
       .map(p => ({ player: p.name, pos: p.pos || '', team25: team.team, notes: '' }));
     const allPending = [...fromFA, ...fromSheet];
-    // La card "FA Pendientes" del team view excluye a los cortados (col F,G).
-    // La lista global (pestaña FA → Pendientes) los conserva.
+    // La card de equipo excluye todos los que están en SALIDAS.
+    // La lista global excluye solo salidas definitivas (retirado/fallecido/overseas),
+    // pero conserva los cortados porque siguen siendo agentes libres.
     const teamPending = allPending.filter(d => !salidasSet.has(stripTag(d.player)));
+    const globalPending = allPending.filter(d => !definitiveOut.has(stripTag(d.player)));
     team.fa = teamPending.map(d => ({ name: d.player, pos: d.pos }));
-    pendingFromFA.push(...teamPending);
+    pendingFromFA.push(...globalPending);
   });
   DATA.faPending = pendingFromFA;
   FILTERED.faPending = [...DATA.faPending];
