@@ -70,6 +70,7 @@ const i18n = {
     trade_label: 'Traspaso',
     teams_title: 'Equipos', teams_subtitle: 'Las 30 franquicias de la NBA',
     drawer_view_team: 'Ver nuevo equipo', drawer_view_old_team: 'Ver equipo anterior',
+    drawer_trade_alongside: 'Junto con', drawer_trade_inexchange: 'A cambio de',
     legend_rfa: 'Agente libre restringido', legend_to: 'Opción de equipo', legend_po: 'Opción de jugador',
     back_btn: 'Volver', end_of_lottery: 'FIN DE LA LOTERÍA', end_of_round1: 'FIN DE LA PRIMERA RONDA',
     drawer_old_team: 'Antiguo equipo', drawer_new_team: 'Nuevo equipo',
@@ -132,6 +133,7 @@ const i18n = {
     trade_label: 'Trade',
     teams_title: 'Teams', teams_subtitle: 'All 30 NBA franchises',
     drawer_view_team: 'View new team', drawer_view_old_team: 'View previous team',
+    drawer_trade_alongside: 'Alongside', drawer_trade_inexchange: 'In exchange for',
     legend_rfa: 'Restricted free agent', legend_to: 'Team option', legend_po: 'Player option',
     back_btn: 'Back', end_of_lottery: 'END OF LOTTERY', end_of_round1: 'END OF ROUND 1',
     drawer_old_team: 'Old team', drawer_new_team: 'New team',
@@ -1366,6 +1368,10 @@ function openPlayerDrawer(playerName, pushHistory = true) {
           if (myReceive.from) html += drawerRow(t('drawer_old_team'), teamBadgeHTML(myReceive.from, false));
           const pos = validPos(myReceive.pos || lookupPos(playerName));
           if (pos) html += drawerRow(t('draft_col_pos'), `<span class="pos-text">${esc(pos)}</span>`);
+          const alongside = side.receives.filter(r => r.from === myReceive.from && !tradeItemMatchesPlayer(r.item, playerName));
+          if (alongside.length) html += drawerRow(t('drawer_trade_alongside'), alongside.map(r => esc(r.item)).join(', '));
+          const oldTeamSide = tr.sides.find(s => s.team === myReceive.from);
+          if (oldTeamSide && oldTeamSide.receives.length) html += drawerRow(t('drawer_trade_inexchange'), oldTeamSide.receives.map(r => esc(r.item)).join(', '));
         }
       });
     });
