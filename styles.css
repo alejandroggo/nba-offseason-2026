@@ -970,10 +970,8 @@
   .tv-meta-new { color: var(--signed); font-weight: 500; }
   .tv-meta-fired { color: var(--danger); margin-left: 2px; }
   .tv-coach-fired { color: var(--danger); }
-  [data-theme="dark"] .tv-meta-fired { color: var(--danger); }
   [data-theme="dark"] .tv-card-header .tv-label { color: var(--text); }
-  [data-theme="dark"] .badge-role-hc,
-  [data-theme="dark"] .badge-role-gm { color: var(--text); }
+  [data-theme="dark"] .tv-meta-role { color: var(--text); }
 
   .team-view-grid {
     display: grid;
