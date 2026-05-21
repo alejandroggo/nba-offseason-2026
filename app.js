@@ -866,7 +866,7 @@ function buildPlantilla(team) {
     .filter(d => norm(d.dest) === key)
     .filter(d => !stayingKeys.has(normPlayerKey(d.player)))
     .map(d => {
-      const {name,tw} = parseTW(d.player);
+      const {name,tw} = parseTW(d.player, d.notes, d.aav);
       const isResign = norm(d.team25) === key;
       return { name, pos: (d.pos || posLookup(name)).toUpperCase(), type: 'new', tw, resign: isResign };
     });
