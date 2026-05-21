@@ -219,7 +219,7 @@
 
   /* TABS */
   nav {
-    background: var(--surface);
+    background: var(--bg);
     padding: 0 32px;
     display: flex;
     gap: 0;
