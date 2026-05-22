@@ -256,7 +256,12 @@ function applyRawData(raw, ts) {
 
 function setDataDate(dateStr) {
   if (!dateStr) return;
-  const d = new Date(dateStr);
+  let d = new Date(dateStr);
+  if (isNaN(d)) {
+    // Intentar DD/MM/YYYY o DD-MM-YYYY
+    const m = dateStr.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})$/);
+    if (m) d = new Date(`${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`);
+  }
   if (isNaN(d)) return;
   const fmt = d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
   const iso = d.toISOString().split('T')[0];
