@@ -217,7 +217,7 @@
   }
 
   /* TABS */
-  nav {
+  nav:not(.ag-footer-projects):not(.ag-footer-pubs):not(.mobile-nav) {
     background: var(--bg);
     padding: 0 32px;
     display: flex;
@@ -229,7 +229,7 @@
     z-index: 99;
   }
 
-  nav::-webkit-scrollbar { display: none; }
+  nav:not(.ag-footer-projects):not(.ag-footer-pubs):not(.mobile-nav)::-webkit-scrollbar { display: none; }
 
   .tab {
     font-family: 'DM Mono', monospace;
