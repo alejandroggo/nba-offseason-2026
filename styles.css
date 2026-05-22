@@ -1441,6 +1441,14 @@
     transform: translate(4px, -2px);
   }
 
+  .home-row:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+    z-index: 1;
+  }
+
+  .home-row:active::before { transform: scaleX(1); }
+
   html:not([data-theme="dark"]) .home-row:hover .home-row-ordinal { color: rgba(255,255,255,0.2); }
 
   /* Ocultar nav cuando estamos en home */
@@ -1558,7 +1566,7 @@
     .home-row-ordinal { font-size: 44px; min-width: 56px; }
     .home-row-body { padding: 0 12px; }
     .home-row-stat { font-size: 24px; min-width: 48px; }
-    .home-row-arrow { display: none; }
+    .home-row-arrow { display: block; font-size: 16px; color: var(--text-muted); }
     .teams-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 16px; }
     .teams-grid-card { padding: 10px 6px; gap: 6px; }
     .teams-grid-name { font-size: 11px; letter-spacing: 0; }
