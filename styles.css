@@ -1268,19 +1268,19 @@
   @media (max-width: 768px) {
     .ag-footer {
       margin-top: 40px;
+      padding-bottom: calc(58px + env(safe-area-inset-bottom, 0px));
     }
     .ag-footer-inner {
-      grid-template-columns: 1fr;
-      padding: 20px 16px 16px;
-      gap: 12px;
-    }
-    .ag-footer-projects,
-    .ag-footer-pubs {
-      display: none;
+      grid-template-columns: 1fr 1fr;
+      padding: 24px 16px 20px;
+      gap: 24px 20px;
     }
     .ag-footer-brand,
     .ag-footer-meta {
       grid-column: 1 / -1;
+    }
+    .ag-footer-meta {
+      text-align: left;
     }
   }
 
