@@ -224,7 +224,6 @@ const DATA = { fa: [], draft: [], undrafted: [], trades: [], rosters: [], coache
 let fetchComplete = false;
 const FILTERED = { fa: [], draft: [], trades: [], coaches: [], rosters: [], faPending: [] };
 const SORT = { fa: {col:-1,asc:true}, draft: {col:-1,asc:true}, coaches: {col:-1,asc:true} };
-let loadedAt = null;
 
 // ─────────────────────────────────────────────
 // FETCH ALL
@@ -240,13 +239,6 @@ function applyRawData(raw, ts) {
   processRosters(parseCSV(raw.rosters1), parseCSV(raw.rosters2));
   processCoaches(parseCSV(raw.coaches));
   DATA._stamp = ts;
-
-  loadedAt = new Date(ts).toLocaleString(lang === 'es' ? 'es-ES' : 'en-US', {
-    day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
-  });
-  document.getElementById('lastUpdate').textContent = `${t('last_update')}: ${loadedAt}`;
-  const fup = document.getElementById('footer-updated');
-  if (fup) fup.textContent = `${t('last_update')}: ${loadedAt}`;
   rerenderAll();
   updateHomeCounts();
   ['fa-tbody','fa-pending-tbody','draft-tbody','undrafted-tbody','coaches-tbody','trades-container'].forEach(id => {
@@ -268,9 +260,8 @@ function setDataDate(dateStr) {
   const iso = d.toISOString().split('T')[0];
   const timeEl = document.getElementById('ag-last-update');
   if (timeEl) { timeEl.textContent = fmt; timeEl.setAttribute('datetime', iso); }
-  const badge = document.getElementById('ag-data-badge');
-  const badgeTime = document.getElementById('ag-data-badge-time');
-  if (badge && badgeTime) { badgeTime.textContent = fmt; badgeTime.setAttribute('datetime', iso); badge.hidden = false; }
+  const upd = document.getElementById('lastUpdate');
+  if (upd) upd.textContent = `${t('last_update')}: ${fmt}`;
 }
 
 async function fetchAll() {
