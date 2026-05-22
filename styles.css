@@ -276,7 +276,45 @@
   }
 
   /* SECTION HEADER */
-  .section-header { margin-bottom: 28px; }
+  .section-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .section-header-text { flex: 1; min-width: 0; }
+
+  .share-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 6px 10px;
+    transition: border-color var(--transition), color var(--transition);
+  }
+
+  .share-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .share-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .team-view-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .team-view-top .team-view-back { margin-bottom: 0; }
 
   .section-title {
     font-family: 'Bebas Neue', sans-serif;

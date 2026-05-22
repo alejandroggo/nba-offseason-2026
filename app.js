@@ -77,7 +77,7 @@ const i18n = {
     drawer_total: 'Total', drawer_years: 'Años',
     load_error: 'Error al cargar datos. Verifica las URLs del Sheet.',
     trade_from: 'De', trade_receives: 'recibe',
-    toast_updated: 'Datos actualizados', toast_error: 'Error al actualizar',
+    toast_updated: 'Datos actualizados', toast_error: 'Error al actualizar', toast_copied: 'URL copiada ✓',
     badge_resign: 'RENUEVA',
     drawer_scouting: 'Scouting Report', drawer_scouting_link: 'Ver informe',
     legend_color_new: 'Alta', legend_color_resign: 'Renovación', legend_color_tw: 'Two-way',
@@ -140,7 +140,7 @@ const i18n = {
     drawer_total: 'Total', drawer_years: 'Years',
     load_error: 'Failed to load data. Check the Sheet URLs.',
     trade_from: 'From', trade_receives: 'receives',
-    toast_updated: 'Data updated', toast_error: 'Update failed',
+    toast_updated: 'Data updated', toast_error: 'Update failed', toast_copied: 'URL copied ✓',
     badge_resign: 'RE-SIGNS',
     drawer_scouting: 'Scouting Report', drawer_scouting_link: 'View report',
     legend_color_new: 'Signing', legend_color_resign: 'Re-sign', legend_color_tw: 'Two-way',
@@ -1267,6 +1267,20 @@ function applyTheme() {
 // ─────────────────────────────────────────────
 // INIT
 // ─────────────────────────────────────────────
+
+// ─────────────────────────────────────────────
+// SHARE
+// ─────────────────────────────────────────────
+async function shareURL(title) {
+  const url = window.location.href;
+  if (navigator.share) {
+    try { await navigator.share({ title, url }); return; } catch(e) { if (e.name === 'AbortError') return; }
+  }
+  try {
+    await navigator.clipboard.writeText(url);
+    showToast(t('toast_copied') || 'URL copiada ✓', 'ok');
+  } catch(e) { showToast(url, 'ok'); }
+}
 
 // ─────────────────────────────────────────────
 // URL ROUTING
