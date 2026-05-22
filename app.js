@@ -221,6 +221,7 @@ function cell(row, i) { return (row[i] || '').trim(); }
 // DATA STORE
 // ─────────────────────────────────────────────
 const DATA = { fa: [], draft: [], undrafted: [], trades: [], rosters: [], coaches: [] };
+let fetchComplete = false;
 const FILTERED = { fa: [], draft: [], trades: [], coaches: [], rosters: [], faPending: [] };
 const SORT = { fa: {col:-1,asc:true}, draft: {col:-1,asc:true}, coaches: {col:-1,asc:true} };
 let loadedAt = null;
@@ -322,6 +323,7 @@ async function fetchAll() {
     const ts  = Date.now();
     try { localStorage.setItem(CACHE_KEY, JSON.stringify({ raw, ts, dataDate })); } catch(e) {}
 
+    fetchComplete = true;
     applyRawData(raw, ts);
     setDataDate(dataDate || new Date().toISOString());
   } catch(e) {
@@ -378,7 +380,7 @@ function renderFA(data) {
         <td class="td-money">${d.aav ? '$'+esc(d.aav)+'M' : '—'}</td>
         <td class="td-muted">${esc(d.source)}</td>
       </tr>`;}).join('')
-    : `<tr><td colspan="8"><div class="state-empty">${t('no_data')}</div></td></tr>`;
+    : (fetchComplete ? `<tr><td colspan="8"><div class="state-empty">${t('no_data')}</div></td></tr>` : '');
 
   document.getElementById('fa-count').innerHTML = `<span>${signed.length}</span>&nbsp;${t('results')}`;
 }
@@ -395,7 +397,7 @@ function renderFAPending(data) {
         <td>${teamBadgeHTML(d.team25)}</td>
         <td class="td-notes">${esc(d.notes)}</td>
       </tr>`;}).join('')
-    : `<tr><td colspan="4"><div class="state-empty">${t('no_data')}</div></td></tr>`;
+    : (fetchComplete ? `<tr><td colspan="4"><div class="state-empty">${t('no_data')}</div></td></tr>` : '');
   document.getElementById('fa-pending-count').innerHTML = `<span>${data.length}</span>&nbsp;${t('results')}`;
 }
 
@@ -499,7 +501,7 @@ function processDraft(rows) {
 
 function renderDraft(data) {
   const tbody = document.getElementById('draft-tbody');
-  if (!data.length) { tbody.innerHTML = `<tr><td colspan="9"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
+  if (!data.length) { if (!fetchComplete) return; tbody.innerHTML = `<tr><td colspan="9"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
   const rows = [];
   data.forEach((d, i) => {
     const n = parseInt(d.pick);
@@ -532,7 +534,7 @@ function renderDraft(data) {
 function renderUndrafted(data) {
   const tbody = document.getElementById('undrafted-tbody');
   document.getElementById('undrafted-count').innerHTML = `<span>${data.length}</span>&nbsp;${t('results')}`;
-  if (!data.length) { tbody.innerHTML = `<tr><td colspan="8"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
+  if (!data.length) { if (!fetchComplete) return; tbody.innerHTML = `<tr><td colspan="8"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
   tbody.innerHTML = data.map(d => `
     <tr>
       <td class="td-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</td>
@@ -652,7 +654,7 @@ function tradeReceivesHTML(receives) {
 
 function renderTrades(data) {
   const container = document.getElementById('trades-container');
-  if (!data.length) { container.innerHTML = `<div class="state-empty">${t('no_data')}</div>`; return; }
+  if (!data.length) { if (!fetchComplete) return; container.innerHTML = `<div class="state-empty">${t('no_data')}</div>`; return; }
   container.innerHTML = data.map(trade => `
     <div class="trade-card">
       <div class="trade-header">
@@ -928,7 +930,7 @@ function plantillaBlock(players) {
 
 function renderRosters(data) {
   const container = document.getElementById('rosters-container');
-  if (!data.length) { container.innerHTML = `<div class="state-empty">${t('no_data')}</div>`; return; }
+  if (!data.length) { if (!fetchComplete) return; container.innerHTML = `<div class="state-empty">${t('no_data')}</div>`; return; }
   container.innerHTML = data.map(team => `
     <div class="team-card">
       <div class="team-card-header">
@@ -989,7 +991,7 @@ function processCoaches(rows) {
 
 function renderCoaches(data) {
   const tbody = document.getElementById('coaches-tbody');
-  if (!data.length) { tbody.innerHTML = `<tr><td colspan="7"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
+  if (!data.length) { if (!fetchComplete) return; tbody.innerHTML = `<tr><td colspan="7"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
   tbody.innerHTML = data.map(d => {
     const roleCls = (d.role || '').toUpperCase().includes('HC') || (d.role || '').toUpperCase().includes('HEAD') ? 'badge-role-hc' : 'badge-role-gm';
     return `<tr>
