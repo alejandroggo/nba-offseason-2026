@@ -1287,15 +1287,10 @@ function applyTheme() {
 // ─────────────────────────────────────────────
 // SHARE
 // ─────────────────────────────────────────────
-async function shareURL(title) {
-  const url = window.location.href;
-  if (navigator.share) {
-    try { await navigator.share({ title, url }); return; } catch(e) { if (e.name === 'AbortError') return; }
-  }
-  try {
-    await navigator.clipboard.writeText(url);
-    showToast(t('toast_copied') || 'URL copiada ✓', 'ok');
-  } catch(e) { showToast(url, 'ok'); }
+function shareOnX(title) {
+  const text = encodeURIComponent(`${title} (via @alejandroggo)`);
+  const url = encodeURIComponent(window.location.href);
+  window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank', 'noopener,noreferrer,width=550,height=420');
 }
 
 // ─────────────────────────────────────────────
