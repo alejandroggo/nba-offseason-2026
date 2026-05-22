@@ -272,7 +272,7 @@ async function fetchAll() {
   let hadCache = false;
   try {
     const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
-    if (cached) { applyRawData(cached.raw, cached.ts); if (cached.dataDate) setDataDate(cached.dataDate); hadCache = true; }
+    if (cached) { applyRawData(cached.raw, cached.ts); setDataDate(cached.dataDate || new Date(cached.ts).toISOString()); hadCache = true; }
   } catch(e) { /* caché corrupta, ignorar */ }
 
   // Refrescar desde el Sheet en background — usar allSettled para tolerar
@@ -318,7 +318,7 @@ async function fetchAll() {
     try { localStorage.setItem(CACHE_KEY, JSON.stringify({ raw, ts, dataDate })); } catch(e) {}
 
     applyRawData(raw, ts);
-    setDataDate(dataDate);
+    setDataDate(dataDate || new Date().toISOString());
   } catch(e) {
     console.error(e);
     if (!localStorage.getItem(CACHE_KEY)) {
