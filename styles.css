@@ -1179,75 +1179,43 @@
     align-items: start;
   }
 
-  .ag-footer-brand {
+  .ag-footer-brand,
+  .ag-footer-projects,
+  .ag-footer-pubs,
+  .ag-footer-meta {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-  }
-
-  .ag-footer-brand strong {
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--text);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-
-  .ag-footer-brand span {
+    gap: 9px;
     font-family: 'DM Mono', monospace;
     font-size: 11px;
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    line-height: 1.6;
   }
 
   .ag-footer-label {
     font-family: 'DM Mono', monospace;
     font-size: 10px;
     font-weight: 700;
-    color: var(--text-muted);
+    color: var(--text);
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    margin-bottom: 14px;
+    margin-bottom: 6px;
     display: block;
     border-bottom: 1px solid var(--border);
     padding-bottom: 8px;
   }
 
-  .ag-footer-projects,
-  .ag-footer-pubs {
-    display: flex;
-    flex-direction: column;
-    gap: 9px;
-  }
-
   .ag-footer-projects a,
   .ag-footer-pubs a {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
     color: var(--accent);
     text-decoration: none;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
     transition: opacity var(--transition);
   }
 
   .ag-footer-projects a:hover,
   .ag-footer-pubs a:hover {
     opacity: 0.7;
-  }
-
-  .ag-footer-meta {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
   }
 
   /* tablet: 2×2 grid */
