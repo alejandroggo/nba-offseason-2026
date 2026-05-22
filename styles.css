@@ -1387,6 +1387,23 @@
   /* ── HOME ROWS ── */
   .home-rows { display: flex; flex-direction: column; flex: 1; }
 
+  .home-sources {
+    padding: 20px 48px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .home-sources p {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 0;
+    opacity: 0.6;
+  }
+
   .home-row {
     display: flex;
     align-items: center;
