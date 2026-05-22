@@ -1751,11 +1751,12 @@ applyTheme();
 if (lang !== 'es') setLang(lang);
 // A11y: add scope="col" a todos los th de cabecera
 document.querySelectorAll('thead th').forEach(th => { if (!th.hasAttribute('scope')) th.setAttribute('scope', 'col'); });
-if (window.innerWidth <= 768) {
-  showTab('fa', false);
-} else {
-  document.body.classList.add('on-home');
-}
+const { player: initPlayer, team: initTeam, tab: initTab } = readURL();
+if (initTeam) { openTeamView(decodeURIComponent(initTeam), false); }
+else if (initPlayer) { openPlayerDrawer(decodeURIComponent(initPlayer), false); }
+else if (initTab) { showTab(initTab, false); }
+else if (window.innerWidth <= 768) { showTab('fa', false); }
+else { document.body.classList.add('on-home'); updateOgImage('home'); }
 renderTeamsGrid();
 
 // Debug: escribe _debugTrades() en la consola del navegador para ver los datos
