@@ -248,14 +248,18 @@ function applyRawData(raw, ts) {
 }
 
 function setDataDate(dateStr) {
-  if (!dateStr) return;
-  let d = new Date(dateStr);
-  if (isNaN(d)) {
-    // Intentar DD/MM/YYYY o DD-MM-YYYY
+  let d = dateStr ? new Date(dateStr) : NaN;
+  if (isNaN(d) && dateStr) {
+    // DD/MM/YYYY o DD-MM-YYYY
     const m = dateStr.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})$/);
     if (m) d = new Date(`${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`);
   }
-  if (isNaN(d)) return;
+  if (isNaN(d) && dateStr) {
+    // Número serial de Excel/Sheets (días desde 1900-01-01)
+    const serial = parseInt(dateStr, 10);
+    if (!isNaN(serial) && serial > 40000) d = new Date((serial - 25569) * 86400000);
+  }
+  if (isNaN(d)) d = new Date(); // fallback: hoy
   const fmt = d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
   const iso = d.toISOString().split('T')[0];
   const timeEl = document.getElementById('ag-last-update');
