@@ -1288,7 +1288,7 @@ function applyTheme() {
 // SHARE
 // ─────────────────────────────────────────────
 function shareOnX(title) {
-  const text = encodeURIComponent(`${title} (via @alejandroggo)`);
+  const text = encodeURIComponent(`${title} (vía @alejandroggo)`);
   const url = encodeURIComponent(window.location.href);
   window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank', 'noopener,noreferrer,width=550,height=420');
 }
