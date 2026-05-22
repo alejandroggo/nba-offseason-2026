@@ -181,8 +181,7 @@ function applyTranslations() {
     const key = el.getAttribute('data-i18n-ph');
     el.placeholder = t(key);
   });
-  const upd = document.getElementById('lastUpdate');
-  if (loadedAt) upd.textContent = `${t('last_update')}: ${loadedAt}`;
+  // #lastUpdate se actualiza desde setDataDate
 }
 
 // ─────────────────────────────────────────────
@@ -319,7 +318,7 @@ async function fetchAll() {
     try { localStorage.setItem(CACHE_KEY, JSON.stringify({ raw, ts, dataDate })); } catch(e) {}
 
     fetchComplete = true;
-    applyRawData(raw, ts);
+    try { applyRawData(raw, ts); } catch(e) { console.error('applyRawData:', e); }
     setDataDate(dataDate || new Date().toISOString());
   } catch(e) {
     console.error(e);
