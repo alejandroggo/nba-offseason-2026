@@ -1072,7 +1072,13 @@ function sortSection(section, col) {
     let av = getter(a)[col] || '';
     let bv = getter(b)[col] || '';
     const an = parseFloat(av), bn = parseFloat(bv);
-    const cmp = (!isNaN(an) && !isNaN(bn)) ? an - bn : av.localeCompare(bv);
+    let cmp;
+    if (!isNaN(an) && !isNaN(bn)) {
+      cmp = an - bn;
+    } else {
+      const da = new Date(av), db = new Date(bv);
+      cmp = (!isNaN(da) && !isNaN(db)) ? da - db : av.localeCompare(bv);
+    }
     return s.asc ? cmp : -cmp;
   });
 
