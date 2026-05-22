@@ -28,7 +28,7 @@ const i18n = {
     home_trades_desc: 'Traspasos confirmados entre franquicias',
     home_rosters_desc: 'Los 30 equipos con altas, bajas y continuidades',
     home_coaches_desc: 'Cambios en banquillos y gerencias',
-    home_teams_desc: 'Las 30 franquicias — movimientos y plantilla',
+    home_teams_desc: 'Las 30 franquicias: movimientos y plantilla',
     fa_event_date_label: 'Apertura agencia libre',
     draft_event_date_label: 'Fecha del draft',
     home_records: 'registros',
