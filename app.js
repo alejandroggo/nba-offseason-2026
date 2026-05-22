@@ -1576,7 +1576,7 @@ function openTeamView(teamName, pushHistory = true) {
     ${tvCard(t('roster_fa_pending'), faPending.length,
         faPending.length ? faPending.map(d => { const {name,badge} = faStatus(d.player); return tvRow(esc(name) + badge, '', '', d.player); }).join('') : tvEmpty())}
   </div>
-  ${faPending.some(d => faStatus(d.player).badge) ? `<div class="legend-row" style="margin-top:-16px;margin-bottom:28px">
+  ${faPending.some(d => faStatus(d.player).badge) ? `<div class="legend-row" style="margin-top:-16px;margin-bottom:28px;justify-content:flex-end">
     <span class="legend-item"><span class="badge badge-rfa">RFA</span><span class="legend-text">${t('legend_rfa')}</span></span>
     <span class="legend-item"><span class="badge badge-to">TO</span><span class="legend-text">${t('legend_to')}</span></span>
     <span class="legend-item"><span class="badge badge-po">PO</span><span class="legend-text">${t('legend_po')}</span></span>
