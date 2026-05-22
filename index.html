@@ -174,7 +174,7 @@
         <label class="filter-label" for="fa-pos" data-i18n="draft_col_pos">Posición</label>
         <select class="filter-select" id="fa-pos" onchange="filterFA()"><option value="">—</option></select>
       </div>
-      <button type="button" class="btn-reset" onclick="resetFA()" data-i18n="btn_reset">Limpiar</button>
+      <button type="button" class="btn-reset" id="fa-filter-clear" onclick="resetFA()" hidden>Limpiar <span class="filter-badge"></span></button>
       <span class="results-count" id="fa-count" aria-live="polite"></span>
     </div>
     <div class="table-wrap">
@@ -222,7 +222,7 @@
           <button type="button" class="badge badge-po badge-toggle"  id="filter-btn-po"  onclick="togglePendingType('PO')"  aria-pressed="false">PO</button>
         </div>
       </div>
-      <button type="button" class="btn-reset" onclick="resetFAPending()" data-i18n="btn_reset">Limpiar</button>
+      <button type="button" class="btn-reset" id="fa-pending-filter-clear" onclick="resetFAPending()" hidden>Limpiar <span class="filter-badge"></span></button>
       <span class="results-count" id="fa-pending-count" aria-live="polite"></span>
     </div>
     <div class="table-wrap">
@@ -273,7 +273,7 @@
         <label class="filter-label" for="draft-team" data-i18n="col_team">Equipo</label>
         <select class="filter-select" id="draft-team" onchange="filterDraft()"><option value="">—</option></select>
       </div>
-      <button type="button" class="btn-reset" onclick="resetDraft()" data-i18n="btn_reset">Limpiar</button>
+      <button type="button" class="btn-reset" id="draft-filter-clear" onclick="resetDraft()" hidden>Limpiar <span class="filter-badge"></span></button>
       <span class="results-count" id="draft-count" aria-live="polite"></span>
     </div>
     <div class="table-wrap">
@@ -350,7 +350,7 @@
         <label class="filter-label" for="trades-team" data-i18n="col_team">Equipo</label>
         <select class="filter-select" id="trades-team" onchange="filterTrades()"><option value="">—</option></select>
       </div>
-      <button type="button" class="btn-reset" onclick="resetTrades()" data-i18n="btn_reset">Limpiar</button>
+      <button type="button" class="btn-reset" id="trades-filter-clear" onclick="resetTrades()" hidden>Limpiar <span class="filter-badge"></span></button>
       <span class="results-count" id="trades-count" aria-live="polite"></span>
     </div>
     <div id="trades-container" aria-live="polite" aria-busy="true">
@@ -382,7 +382,7 @@
         <button type="button" class="filter-role-btn badge badge-role-hc" id="filter-coaches-hc" onclick="toggleCoachFilter('hc')" aria-pressed="false">Entrenadores</button>
         <button type="button" class="filter-role-btn badge badge-role-gm" id="filter-coaches-gm" onclick="toggleCoachFilter('gm')" aria-pressed="false">Gerencia</button>
       </div>
-      <button type="button" class="btn-reset" onclick="resetCoaches()" data-i18n="btn_reset">Limpiar</button>
+      <button type="button" class="btn-reset" id="coaches-filter-clear" onclick="resetCoaches()" hidden>Limpiar <span class="filter-badge"></span></button>
       <span class="results-count" id="coaches-count" aria-live="polite"></span>
     </div>
     <div class="table-wrap">

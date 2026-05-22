@@ -413,6 +413,22 @@
 
   .btn-reset:hover { border-color: var(--accent); color: var(--accent); }
 
+  .filter-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    color: var(--accent-contrast, #fff);
+    font-size: 9px;
+    font-weight: 700;
+    border-radius: 999px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    margin-left: 4px;
+    vertical-align: middle;
+  }
+
   .results-count {
     font-family: 'DM Mono', monospace;
     font-size: 11px;

@@ -427,6 +427,16 @@ function filterFAPending() {
     return true;
   });
   renderFAPending(FILTERED.faPending);
+  updateFilterBadge(['fa-pending-search','fa-pending-team','fa-pending-pos'], 'fa-pending-filter-clear');
+}
+
+function updateFilterBadge(inputIds, clearBtnId) {
+  const active = inputIds.filter(id => { const el = document.getElementById(id); return el && el.value !== ''; }).length;
+  const btn = document.getElementById(clearBtnId);
+  if (!btn) return;
+  btn.hidden = active === 0;
+  const badge = btn.querySelector('.filter-badge');
+  if (badge) badge.textContent = active;
 }
 
 function resetFAPending() {
@@ -454,6 +464,7 @@ function filterFA() {
     (!pos || d.pos === pos)
   );
   renderFA(FILTERED.fa);
+  updateFilterBadge(['fa-search','fa-team25','fa-dest','fa-pos'], 'fa-filter-clear');
 }
 
 function resetFA() {
@@ -562,6 +573,7 @@ function filterDraft() {
   );
   renderDraft(FILTERED.draft);
   renderUndrafted(filteredUndrafted);
+  updateFilterBadge(['draft-search','draft-pos','draft-team'], 'draft-filter-clear');
 }
 
 function resetDraft() {
@@ -683,6 +695,7 @@ function filterTrades() {
     return (!q || text.includes(q)) && (!team || trade.sides.some(s => s.team === team));
   });
   renderTrades(FILTERED.trades);
+  updateFilterBadge(['trades-search','trades-team'], 'trades-filter-clear');
 }
 
 function resetTrades() {
@@ -1031,6 +1044,7 @@ function filterCoaches() {
       (!team || d.team === team);
   });
   renderCoaches(FILTERED.coaches);
+  updateFilterBadge(['coaches-search','coaches-team'], 'coaches-filter-clear');
 }
 
 function resetCoaches() {
