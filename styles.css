@@ -1329,6 +1329,7 @@
     letter-spacing: 3px;
     line-height: 0.95;
     color: var(--text);
+    white-space: nowrap;
   }
 
   .home-masthead-title em {
