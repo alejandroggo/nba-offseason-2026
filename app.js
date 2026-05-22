@@ -1096,9 +1096,19 @@ function sortSection(section, col) {
 // ─────────────────────────────────────────────
 // TABS
 // ─────────────────────────────────────────────
+const OG_BASE = 'https://alejandroggo.github.io/nba-offseason-2026/';
+const OG_IMAGES = { fa: 'img/2.png', draft: 'img/3.png', trades: 'img/4.png', teams: 'img/5.png' };
+
+function updateOgImage(tab) {
+  const img = OG_BASE + (OG_IMAGES[tab] || 'img/1.png');
+  document.querySelector('meta[property="og:image"]')?.setAttribute('content', img);
+  document.querySelector('meta[name="twitter:image"]')?.setAttribute('content', img);
+}
+
 function showTab(name, pushHistory = true) {
   if (!document.getElementById(`section-${name}`)) { showTab('home', pushHistory); return; }
   window.scrollTo(0, 0);
+  updateOgImage(name);
   // Cerrar drawer si está abierto al cambiar de pestaña
   const drawer = document.getElementById('player-drawer');
   if (drawer && drawer.classList.contains('open')) closeDrawer(false);
