@@ -887,6 +887,23 @@
     border-left: 1px solid var(--border);
   }
 
+  .btn-retry {
+    margin-top: 12px;
+    display: inline-block;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 6px 12px;
+    transition: border-color var(--transition), color var(--transition);
+  }
+  .btn-retry:hover { border-color: var(--accent); color: var(--accent); }
+
   .state-empty {
     padding: 48px;
     text-align: center;

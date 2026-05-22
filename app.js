@@ -76,6 +76,7 @@ const i18n = {
     drawer_old_team: 'Antiguo equipo', drawer_new_team: 'Nuevo equipo',
     drawer_total: 'Total', drawer_years: 'Años',
     load_error: 'Error al cargar datos. Verifica las URLs del Sheet.',
+    retry: 'Reintentar',
     trade_from: 'De', trade_receives: 'recibe',
     toast_updated: 'Datos actualizados', toast_error: 'Error al actualizar', toast_copied: 'URL copiada ✓',
     badge_resign: 'RENUEVA',
@@ -139,6 +140,7 @@ const i18n = {
     drawer_old_team: 'Old team', drawer_new_team: 'New team',
     drawer_total: 'Total', drawer_years: 'Years',
     load_error: 'Failed to load data. Check the Sheet URLs.',
+    retry: 'Retry',
     trade_from: 'From', trade_receives: 'receives',
     toast_updated: 'Data updated', toast_error: 'Update failed', toast_copied: 'URL copied ✓',
     badge_resign: 'RE-SIGNS',
@@ -322,10 +324,13 @@ async function fetchAll() {
     setDataDate(dataDate || new Date().toISOString());
   } catch(e) {
     console.error(e);
+    fetchComplete = true;
     if (!localStorage.getItem(CACHE_KEY)) {
-      ['fa-tbody','draft-tbody','coaches-tbody'].forEach(id => {
+      const errHTML = `<div class="state-empty">${t('load_error')} <button type="button" class="btn-retry" onclick="refreshData()">${t('retry')}</button></div>`;
+      [['fa-tbody',8],['draft-tbody',4],['trades-container',0],['coaches-tbody',7],['fa-pending-tbody',2]].forEach(([id, cols]) => {
         const el = document.getElementById(id);
-        if (el) el.innerHTML = `<tr><td colspan="8"><div class="state-empty">${t('load_error')}</div></td></tr>`;
+        if (!el) return;
+        el.innerHTML = cols ? `<tr><td colspan="${cols}">${errHTML}</td></tr>` : errHTML;
       });
     }
   }
