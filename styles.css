@@ -1533,7 +1533,7 @@
   .mobile-nav { display: none; }
 
   @media (max-width: 768px) {
-    nav:not(.mobile-nav) { display: none; }
+    nav:not(.ag-footer-projects):not(.ag-footer-pubs):not(.mobile-nav) { display: none; }
 
     header { position: relative; top: auto; }
     main {
@@ -1552,6 +1552,8 @@
       height: calc(58px + env(safe-area-inset-bottom, 0px));
       padding-bottom: env(safe-area-inset-bottom, 0);
       z-index: 200;
+      -webkit-transform: translate3d(0, 0, 0);
+      transform: translate3d(0, 0, 0);
     }
 
     .mobile-tab {
