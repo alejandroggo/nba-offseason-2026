@@ -787,6 +787,52 @@
 
   @keyframes spin { to { transform: rotate(360deg); } }
 
+  /* Skeleton loader */
+  .sk {
+    display: block;
+    background: linear-gradient(90deg, var(--surface-2) 0%, var(--border) 50%, var(--surface-2) 100%);
+    background-size: 200% 100%;
+    animation: sk-shimmer 1.4s ease infinite;
+    border-radius: 3px;
+    height: 12px;
+  }
+  .sk-s { width: 35%; }
+  .sk-m { width: 60%; }
+  .sk-l { width: 85%; }
+  .sk-f { width: 100%; }
+  @keyframes sk-shimmer {
+    0%   { background-position:  200% 0; }
+    100% { background-position: -200% 0; }
+  }
+  tr.sk-row td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sk-card {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .sk-card-head {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+  }
+  .sk-card-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .sk-card-side {
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .sk-card-side + .sk-card-side {
+    border-left: 1px solid var(--border);
+  }
+
   .state-empty {
     padding: 48px;
     text-align: center;
