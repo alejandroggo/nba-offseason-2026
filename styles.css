@@ -1,3 +1,19 @@
+  .skip-link {
+    position: absolute;
+    top: -100%;
+    left: 16px;
+    z-index: 9999;
+    background: var(--accent, #2d7a3a);
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 0 0 6px 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    text-decoration: none;
+    transition: top 0.15s;
+  }
+  .skip-link:focus { top: 0; }
+
   :root {
     /* Colores base — modo claro */
     --bg:             #f4f4ef;
