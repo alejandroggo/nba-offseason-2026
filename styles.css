@@ -1166,7 +1166,6 @@
     font-size: 11px; color: var(--text-muted); text-align: right;
     display: flex; flex-direction: column; gap: 4px;
   }
-  .tv-meta-role { color: var(--text-dim); }
   .tv-meta-new { color: var(--signed); font-weight: 500; }
   .tv-meta-fired { color: var(--danger); margin-left: 2px; }
   .tv-coach-fired { color: var(--danger); }
@@ -1568,6 +1567,7 @@
 
   @media (max-width: 768px) {
     nav:not(.ag-footer-projects):not(.ag-footer-pubs):not(.mobile-nav) { display: none; }
+    .team-view-meta { text-align: left; }
 
     header { position: relative; top: auto; }
     main {
