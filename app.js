@@ -1547,7 +1547,7 @@ function openTeamView(teamName, pushHistory = true) {
 
   let meta = '';
   coaches.forEach(c => {
-    const firedPart = c.prev ? ` <span class="tv-meta-fired">← ${esc(c.prev)}</span>` : '';
+    const firedPart = c.prev ? ` <span class="tv-meta-fired">(prev. ${esc(c.prev)})</span>` : '';
     meta += `<div><span class="tv-meta-role">${esc(c.role)}:</span> <span class="tv-meta-new">${esc(c.new)}</span>${firedPart}</div>`;
   });
   document.getElementById('tv-team-meta').innerHTML = meta;
