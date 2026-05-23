@@ -1316,6 +1316,41 @@
     font-size: 0.75rem;
   }
 
+  .ag-footer-toggle {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: none;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    padding: 0 0 12px 0;
+    margin-bottom: 4px;
+    cursor: pointer;
+    width: 100%;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .ag-footer-toggle:hover { color: var(--text); }
+  .ag-footer-toggle-icon {
+    transition: transform 0.25s ease;
+    flex-shrink: 0;
+  }
+  .ag-footer-toggle[aria-expanded="false"] .ag-footer-toggle-icon {
+    transform: rotate(180deg);
+  }
+
+  .ag-footer-body {
+    display: contents;
+    overflow: hidden;
+  }
+  .ag-footer-body.collapsed {
+    display: none;
+  }
+
   @media (max-width: 700px) {
     .ag-footer {
       grid-template-columns: 1fr;

@@ -1332,6 +1332,16 @@ function applyTheme() {
 // ─────────────────────────────────────────────
 
 // ─────────────────────────────────────────────
+// FOOTER TOGGLE
+// ─────────────────────────────────────────────
+function toggleFooter() {
+  const body = document.getElementById('ag-footer-body');
+  const btn  = document.querySelector('.ag-footer-toggle');
+  if (!body || !btn) return;
+  const collapsed = body.classList.toggle('collapsed');
+  btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+}
+
 // SHARE
 // ─────────────────────────────────────────────
 function shareOnX(title) {

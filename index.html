@@ -472,27 +472,33 @@
   </section>
 
   <footer class="ag-footer">
-    <div class="ag-footer-brand">
-      <strong>Alejandro Gaitán</strong>
-      <span>Periodismo NBA en español</span>
-    </div>
-    <nav class="ag-footer-projects" aria-label="Otros proyectos">
-      <span class="ag-footer-col-title">Proyectos web</span>
-      <a href="https://alejandroggo.github.io/nba-rankings/" target="_blank" rel="noopener noreferrer">Rankings NBA</a>
-      <!-- <a href="https://alejandroggo.github.io/espanoles-nba/" target="_blank" rel="noopener noreferrer">Españoles en la NBA</a> -->
-      <a href="https://alejandroggo.github.io/NBA-espanol/" target="_blank" rel="noopener noreferrer">NBA en Español</a>
-      <a href="https://alejandroggo.github.io/nba-premios/" target="_blank" rel="noopener noreferrer">Premios NBA</a>
-      <a href="https://alejandroggo.github.io/portfolio/" target="_blank" rel="noopener noreferrer">Portfolio</a>
-    </nav>
-    <nav class="ag-footer-pubs" aria-label="Publicaciones">
-      <span class="ag-footer-col-title">Artículos</span>
-      <a href="https://alejandroggo.substack.com" target="_blank" rel="noopener noreferrer">Substack</a>
-      <a href="https://www.gigantes.com/author/alejandrogaitan/" target="_blank" rel="noopener noreferrer">Gigantes</a>
-      <a href="https://alejandrogaitan.com" target="_blank" rel="noopener noreferrer">alejandrogaitan.com</a>
-    </nav>
-    <div class="ag-footer-meta">
-      <span>@alejandroggo</span>
-      <span>Última actualización: <time id="ag-last-update" datetime=""></time></span>
+    <button type="button" class="ag-footer-toggle" onclick="toggleFooter()" aria-expanded="true" aria-controls="ag-footer-body">
+      <span class="ag-footer-toggle-label">Alejandro Gaitán</span>
+      <svg class="ag-footer-toggle-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"/></svg>
+    </button>
+    <div id="ag-footer-body" class="ag-footer-body">
+      <div class="ag-footer-brand">
+        <strong>Alejandro Gaitán</strong>
+        <span>Periodismo NBA en español</span>
+      </div>
+      <nav class="ag-footer-projects" aria-label="Otros proyectos">
+        <span class="ag-footer-col-title">Proyectos web</span>
+        <a href="https://alejandroggo.github.io/nba-rankings/" target="_blank" rel="noopener noreferrer">Rankings NBA</a>
+        <!-- <a href="https://alejandroggo.github.io/espanoles-nba/" target="_blank" rel="noopener noreferrer">Españoles en la NBA</a> -->
+        <a href="https://alejandroggo.github.io/NBA-espanol/" target="_blank" rel="noopener noreferrer">NBA en Español</a>
+        <a href="https://alejandroggo.github.io/nba-premios/" target="_blank" rel="noopener noreferrer">Premios NBA</a>
+        <a href="https://alejandroggo.github.io/portfolio/" target="_blank" rel="noopener noreferrer">Portfolio</a>
+      </nav>
+      <nav class="ag-footer-pubs" aria-label="Publicaciones">
+        <span class="ag-footer-col-title">Artículos</span>
+        <a href="https://alejandroggo.substack.com" target="_blank" rel="noopener noreferrer">Substack</a>
+        <a href="https://www.gigantes.com/author/alejandrogaitan/" target="_blank" rel="noopener noreferrer">Gigantes</a>
+        <a href="https://alejandrogaitan.com" target="_blank" rel="noopener noreferrer">alejandrogaitan.com</a>
+      </nav>
+      <div class="ag-footer-meta">
+        <span>@alejandroggo</span>
+        <span>Última actualización: <time id="ag-last-update" datetime=""></time></span>
+      </div>
     </div>
   </footer>
 
