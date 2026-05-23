@@ -1120,8 +1120,8 @@ const OG_DESCS   = {
 const OG_DEFAULT_TITLE = 'NBA Off-Season 2026 — Dashboard';
 const OG_DEFAULT_DESC  = 'Todos los movimientos de la temporada 2025-26: agencia libre, draft, traspasos, plantillas y cambios en banquillos.';
 
-function updateOgImage(tab) {
-  const img   = OG_BASE + (OG_IMAGES[tab]  || 'img/1.png');
+function updateOgImage(tab, directUrl) {
+  const img   = directUrl || OG_BASE + (OG_IMAGES[tab]  || 'img/1.png');
   const title = OG_TITLES[tab]  || OG_DEFAULT_TITLE;
   const desc  = OG_DESCS[tab]   || OG_DEFAULT_DESC;
   const url   = OG_BASE + (tab && tab !== 'home' ? `?tab=${tab}` : '');
@@ -1542,6 +1542,8 @@ function openTeamView(teamName, pushHistory = true) {
 
   document.getElementById('tv-team-name').textContent = teamName;
   document.getElementById('tv-team-logo').innerHTML = teamLogo(teamName, 64);
+  const abbrev = TEAM_LOGOS[teamName];
+  if (abbrev) updateOgImage(null, `https://a.espncdn.com/i/teamlogos/nba/500/${abbrev}.png`);
 
   let meta = '';
   coaches.forEach(c => {
