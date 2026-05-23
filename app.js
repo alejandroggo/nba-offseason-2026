@@ -1102,12 +1102,39 @@ function sortSection(section, col) {
 // TABS
 // ─────────────────────────────────────────────
 const OG_BASE = 'https://alejandroggo.github.io/nba-offseason-2026/';
-const OG_IMAGES = { fa: 'img/2.png', draft: 'img/3.png', trades: 'img/4.png', teams: 'img/5.png' };
+const OG_IMAGES  = { fa: 'img/2.png', draft: 'img/3.png', trades: 'img/4.png', teams: 'img/5.png' };
+const OG_TITLES  = {
+  fa:     'NBA Off-Season 2026: Agencia Libre',
+  draft:  'NBA Off-Season 2026: Draft 2026',
+  trades: 'NBA Off-Season 2026: Traspasos',
+  coaches:'NBA Off-Season 2026: HC / GMs',
+  teams:  'NBA Off-Season 2026: Equipos',
+};
+const OG_DESCS   = {
+  fa:     'Todos los movimientos de la agencia libre NBA 2026.',
+  draft:  'Todas las elecciones del draft y jugadores undrafted al detalle.',
+  trades: 'Cada traspaso de la NBA confirmado.',
+  coaches:'Cambios en banquillos y gerencias de la NBA.',
+  teams:  'Las 30 franquicias de la NBA: movimientos y plantilla.',
+};
+const OG_DEFAULT_TITLE = 'NBA Off-Season 2026 — Dashboard';
+const OG_DEFAULT_DESC  = 'Todos los movimientos de la temporada 2025-26: agencia libre, draft, traspasos, plantillas y cambios en banquillos.';
 
 function updateOgImage(tab) {
-  const img = OG_BASE + (OG_IMAGES[tab] || 'img/1.png');
+  const img   = OG_BASE + (OG_IMAGES[tab]  || 'img/1.png');
+  const title = OG_TITLES[tab]  || OG_DEFAULT_TITLE;
+  const desc  = OG_DESCS[tab]   || OG_DEFAULT_DESC;
+  const url   = OG_BASE + (tab && tab !== 'home' ? `?tab=${tab}` : '');
+
   document.querySelector('meta[property="og:image"]')?.setAttribute('content', img);
   document.querySelector('meta[name="twitter:image"]')?.setAttribute('content', img);
+  document.querySelector('meta[property="og:title"]')?.setAttribute('content', title);
+  document.querySelector('meta[name="twitter:title"]')?.setAttribute('content', title);
+  document.querySelector('meta[property="og:description"]')?.setAttribute('content', desc);
+  document.querySelector('meta[name="twitter:description"]')?.setAttribute('content', desc);
+  document.querySelector('meta[property="og:url"]')?.setAttribute('content', url);
+  document.querySelector('link[rel="canonical"]')?.setAttribute('href', url);
+  document.title = title;
 }
 
 function showTab(name, pushHistory = true) {
