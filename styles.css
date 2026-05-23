@@ -1568,6 +1568,7 @@
   @media (max-width: 768px) {
     nav:not(.ag-footer-projects):not(.ag-footer-pubs):not(.mobile-nav) { display: none; }
     .team-view-meta { text-align: left; }
+    .legend-row--team { justify-content: flex-start !important; flex-direction: column; gap: 8px; }
 
     header { position: relative; top: auto; }
     main {
