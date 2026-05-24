@@ -543,10 +543,10 @@ function renderDraft(data) {
       ${playerCell}
       <td style="text-align:center" title="${esc(d.country)}">${flag(d.country)}</td>
       <td>${teamBadgeHTML(d.team)}</td>
-      <td><span class="pos-text">${esc(d.pos)}</span></td>
-      <td class="td-muted">${esc(d.from)}</td>
-      <td>${chk}</td>
-      <td class="td-muted">${esc(d.contract)}</td>
+      <td style="text-align:center"><span class="pos-text">${esc(d.pos)}</span></td>
+      <td>${esc(d.from)}</td>
+      <td style="text-align:center">${chk}</td>
+      <td style="text-align:center" class="td-muted">${esc(d.contract)}</td>
       <td class="td-notes">${esc(d.notes)}</td>
     </tr>`);
   });
@@ -563,10 +563,10 @@ function renderUndrafted(data) {
       <td class="td-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</td>
       <td style="font-size:18px;text-align:center" title="${esc(d.country)}">${flag(d.country)}</td>
       <td>${d.team ? teamBadgeHTML(d.team) : '<span class="td-muted">—</span>'}</td>
-      <td><span class="pos-text">${esc(d.pos) || '—'}</span></td>
+      <td style="text-align:center"><span class="pos-text">${esc(d.pos) || '—'}</span></td>
       <td class="td-muted">${esc(d.from) || '—'}</td>
       <td style="text-align:center">${d.check ? `<span class="badge badge-check">${esc(d.check)}</span>` : '—'}</td>
-      <td class="td-muted">${esc(d.contract) || '—'}</td>
+      <td style="text-align:center" class="td-muted">${esc(d.contract) || '—'}</td>
       <td class="td-notes">${esc(d.notes)}</td>
     </tr>`).join('');
 }
