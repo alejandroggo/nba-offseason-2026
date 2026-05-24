@@ -1583,7 +1583,9 @@ function openTeamView(teamName, pushHistory = true) {
   const tradeIn = [], tradeOut = [];
   trades.forEach(tr => {
     const mySide = tr.sides.find(s => norm2(s.team) === tKey);
-    if (mySide) mySide.receives.forEach(r => tradeIn.push({ item: r.item, pos: r.pos }));
+    if (mySide) mySide.receives
+      .filter(r => !/pick|cash/i.test(r.item))
+      .forEach(r => tradeIn.push({ item: r.item, pos: r.pos }));
     // Salidas: activos donde from === este equipo (cualquier número de equipos)
     tr.sides.forEach(side => side.receives.filter(r => norm2(r.from) === tKey && !isNonPlayerAsset(r.item)).forEach(r => tradeOut.push({item: r.item, to: side.team, pos: r.pos})));
   });
