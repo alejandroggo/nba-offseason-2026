@@ -1252,7 +1252,7 @@ function rerenderAll() {
   updateHomeCounts();
   applyTranslations();
   const currentTeam = document.getElementById('tv-team-name')?.textContent?.trim();
-  const teamSection = document.getElementById('section-teams');
+  const teamSection = document.getElementById('section-team');
   if (currentTeam && teamSection?.classList.contains('active')) {
     openTeamView(currentTeam, false);
   }
