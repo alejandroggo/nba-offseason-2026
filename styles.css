@@ -466,6 +466,8 @@
     border-radius: 8px;
   }
 
+  .table-wrap--pending { max-height: 420px; }
+
   table { width: 100%; border-collapse: collapse; }
 
   thead th {
