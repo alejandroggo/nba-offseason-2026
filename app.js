@@ -221,6 +221,7 @@ function parseCSV(text) {
 }
 
 function cell(row, i) { return (row[i] || '').trim(); }
+function setText(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
 
 // ─────────────────────────────────────────────
 // DATA STORE
@@ -366,7 +367,7 @@ function processFA(rows) {
     notes:  cell(r,8),
     date:   cell(r,9),
   }));
-  document.getElementById('count-fa').textContent = DATA.fa.filter(d => d.dest).length;
+  setText('count-fa', DATA.fa.filter(d => d.dest).length);
   populateSelect('fa-team25', [...new Set(DATA.fa.map(d=>d.team25).filter(Boolean))].sort());
   populateSelect('fa-dest',   [...new Set(DATA.fa.map(d=>d.dest).filter(Boolean))].sort());
   populateSelect('fa-pos',    [...new Set(DATA.fa.map(d=>d.pos).filter(Boolean))].sort());
@@ -516,7 +517,7 @@ function processDraft(rows) {
     notes:    cell(r,8),
     scouting: cell(r,9),
   }));
-  document.getElementById('count-draft').textContent = DATA.draft.length;
+  setText('count-draft', DATA.draft.length);
   populateSelect('draft-pos',  [...new Set(DATA.draft.map(d=>d.pos).filter(Boolean))].sort());
   populateSelect('draft-team', [...new Set(DATA.draft.map(d=>d.team).filter(Boolean))].sort());
 }
@@ -650,7 +651,7 @@ function processTrades(rows) {
   });
 
   DATA.trades = trades;
-  document.getElementById('count-trades').textContent = DATA.trades.length;
+  setText('count-trades', DATA.trades.length);
 
   const allTeams = [...new Set(DATA.trades.flatMap(tr => tr.sides.map(s => s.team)).filter(Boolean))].sort();
   populateSelect('trades-team', allTeams);
@@ -1009,7 +1010,7 @@ function processCoaches(rows) {
     dateFired:  cell(r,5),
     source:     cell(r,6),
   }));
-  document.getElementById('count-coaches').textContent = DATA.coaches.length;
+  setText('count-coaches', DATA.coaches.length);
   populateSelect('coaches-team', [...new Set(DATA.coaches.map(d=>d.team).filter(Boolean))].sort());
 }
 
@@ -1277,11 +1278,11 @@ function updateHomeCounts() {
   const coachCount   = DATA.coaches.length;
   const total = faCount + draftCount + tradesCount;
 
-  document.getElementById('home-count-fa').textContent      = faCount     || '—';
-  document.getElementById('home-count-draft').textContent   = draftCount  || '—';
-  document.getElementById('home-count-trades').textContent  = tradesCount || '—';
-  document.getElementById('home-count-coaches').textContent = coachCount  || '—';
-  document.getElementById('home-total-moves').textContent   = total       || '—';
+  setText('home-count-fa', faCount     || '—');
+  setText('home-count-draft', draftCount  || '—');
+  setText('home-count-trades', tradesCount || '—');
+  setText('home-count-coaches', coachCount  || '—');
+  setText('home-total-moves', total       || '—');
 }
 
 // ─────────────────────────────────────────────
