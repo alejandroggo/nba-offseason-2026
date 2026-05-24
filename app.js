@@ -190,29 +190,33 @@ function applyTranslations() {
 // CSV PARSER
 // ─────────────────────────────────────────────
 function parseCSV(text) {
-  // Strip BOM (Google Sheets a veces lo añade)
   if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+  text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+
   const rows = [];
-  const lines = text.split('\n');
-  for (let i = 0; i < lines.length; i++) {
-    const row = [];
-    const line = lines[i];
-    let cur = '', inQ = false;
-    for (let j = 0; j < line.length; j++) {
-      const c = line[j];
-      if (c === '"') {
-        // Comilla escapada: dos comillas consecutivas dentro de un campo entrecomillado
-        if (inQ && line[j+1] === '"') { cur += '"'; j++; continue; }
-        inQ = !inQ; continue;
-      }
-      if (c === ',' && !inQ) { row.push(cur.trim()); cur = ''; continue; }
-      cur += c;
+  let row = [], cur = '', inQ = false;
+
+  const pushRow = () => {
+    row.push(cur.trim()); cur = '';
+    if (row.length > 1 || row[0]) rows.push(row);
+    row = [];
+  };
+
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQ) {
+      if (c === '"' && text[i + 1] === '"') { cur += '"'; i++; }
+      else if (c === '"') { inQ = false; }
+      else { cur += c; }
+    } else {
+      if      (c === '"') { inQ = true; }
+      else if (c === ',') { row.push(cur.trim()); cur = ''; }
+      else if (c === '\n') { pushRow(); }
+      else { cur += c; }
     }
-    row.push(cur.trim());
-    // Incluir filas con comas (separadores vacíos de trades) aunque todas las celdas estén vacías;
-    // descartar solo líneas completamente en blanco (sin comas ni contenido)
-    if (line.includes(',') || row.some(c => c)) rows.push(row);
   }
+  pushRow();
+
   return rows;
 }
 
