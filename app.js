@@ -1456,7 +1456,7 @@ function openPlayerDrawer(playerName, pushHistory = true) {
         let host = '';
         try { host = new URL(safeUrl).hostname.replace(/^www\./, ''); } catch(e) { host = raw; }
         let label;
-        if (/esperandomarzo/i.test(host))     label = 'vía Esperando Marzo, Bryan García';
+        if (/esperandomarzo/i.test(host))     label = 'vía Bryan García';
         else if (/youtube|youtu\.be/i.test(host) || /draftlab|draft-lab/i.test(host)) label = 'vía Javier Molero';
         else label = 'vía ' + host;
         return `<li><a class="drawer-scouting-link" href="${esc(safeUrl)}" target="_blank" rel="noopener noreferrer">${esc(label)} →</a></li>`;
