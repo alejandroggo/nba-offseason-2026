@@ -1191,7 +1191,7 @@
   .tv-row {
     padding: 9px 16px; border-bottom: 1px solid var(--border);
     display: flex; align-items: center; justify-content: space-between; gap: 12px;
-    min-height: 40px; box-sizing: border-box;
+    min-height: 44px; box-sizing: border-box;
   }
   .tv-row:last-child { border-bottom: none; }
   .tv-row-name { font-size: 13px; font-weight: 500; color: var(--text); cursor: pointer; flex: 1; min-width: 0; }
