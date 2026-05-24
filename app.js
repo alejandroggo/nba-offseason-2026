@@ -229,7 +229,7 @@ function setText(id, val) { const el = document.getElementById(id); if (el) el.t
 const DATA = { fa: [], draft: [], undrafted: [], trades: [], rosters: [], coaches: [] };
 let fetchComplete = false;
 const FILTERED = { fa: [], draft: [], trades: [], coaches: [], rosters: [], faPending: [] };
-const SORT = { fa: {col:-1,asc:true}, draft: {col:-1,asc:true}, coaches: {col:-1,asc:true} };
+const SORT = { fa: {col:-1,asc:true}, draft: {col:-1,asc:true}, coaches: {col:-1,asc:true}, faPending: {col:-1,asc:true} };
 
 // ─────────────────────────────────────────────
 // FETCH ALL
@@ -1072,7 +1072,8 @@ function resetCoaches() {
 const GETTERS = {
   fa:     d => [d.player, d.pos, d.dest, d.team25, d.money, d.years, d.aav, d.source, d.notes],
   draft:  d => [d.pick, d.player, d.team, d.pos, d.from, d.check, d.contract, d.notes],
-  coaches:d => [d.new, d.team, d.role, d.dateHired, d.prev, d.dateFired, d.source],
+  coaches:   d => [d.new, d.team, d.role, d.dateHired, d.prev, d.dateFired, d.source],
+  faPending: d => [d.player, d.pos, d.team25, d.notes],
 };
 
 function sortSection(section, col) {
@@ -1102,8 +1103,10 @@ function sortSection(section, col) {
   if (section === 'fa') renderFA(src);
   else if (section === 'draft') renderDraft(src);
   else if (section === 'coaches') renderCoaches(src);
+  else if (section === 'faPending') renderFAPending(src);
 
-  document.querySelectorAll(`#section-${section === 'coaches' ? 'coaches' : section} thead th`).forEach((th, i) => {
+  const theadSel = section === 'faPending' ? '#fa-pending-thead th' : `#section-${section === 'coaches' ? 'coaches' : section} thead th`;
+  document.querySelectorAll(theadSel).forEach((th, i) => {
     th.classList.toggle('sorted', i === col);
     if (th.hasAttribute('aria-sort')) {
       th.setAttribute('aria-sort', i === col ? (s.asc ? 'ascending' : 'descending') : 'none');

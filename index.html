@@ -261,11 +261,11 @@
     </div>
     <div class="table-wrap">
       <table>
-        <thead>
+        <thead id="fa-pending-thead">
           <tr>
-            <th class="th-w-200"><span data-i18n="fa_col_player">Jugador</span></th>
-            <th class="th-w-48 th-center"><span data-i18n="draft_col_pos">Pos</span></th>
-            <th class="th-w-160"><span data-i18n="fa_col_team25">Equipo</span></th>
+            <th class="th-w-200 sortable" aria-sort="none" onclick="sortSection('faPending',0)"><span data-i18n="fa_col_player">Jugador</span></th>
+            <th class="th-w-48 th-center sortable" aria-sort="none" onclick="sortSection('faPending',1)"><span data-i18n="draft_col_pos">Pos</span></th>
+            <th class="th-w-160 sortable" aria-sort="none" onclick="sortSection('faPending',2)"><span data-i18n="fa_col_team25">Equipo</span></th>
             <th><span data-i18n="col_notes">Notas</span></th>
           </tr>
         </thead>
