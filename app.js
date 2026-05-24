@@ -253,22 +253,30 @@ function applyRawData(raw, ts) {
 }
 
 function setDataDate(dateStr) {
-  let d = dateStr ? new Date(dateStr) : NaN;
-  if (isNaN(d) && dateStr) {
+  let d = null;
+  if (dateStr) {
+    // YYYY-MM-DD — parsear como local para evitar UTC offset
+    const iso = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (iso) d = new Date(+iso[1], +iso[2] - 1, +iso[3]);
+  }
+  if (!d && dateStr) {
     // DD/MM/YYYY o DD-MM-YYYY
     const m = dateStr.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})$/);
-    if (m) d = new Date(`${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`);
+    if (m) d = new Date(+m[3], +m[2] - 1, +m[1]);
   }
-  if (isNaN(d) && dateStr) {
-    // Número serial de Excel/Sheets (días desde 1900-01-01)
+  if (!d && dateStr) {
+    // Número serial de Excel/Sheets
     const serial = parseInt(dateStr, 10);
-    if (!isNaN(serial) && serial > 40000) d = new Date((serial - 25569) * 86400000);
+    if (!isNaN(serial) && serial > 40000) {
+      const utc = new Date((serial - 25569) * 86400000);
+      d = new Date(utc.getUTCFullYear(), utc.getUTCMonth(), utc.getUTCDate());
+    }
   }
-  if (isNaN(d)) d = new Date(); // fallback: hoy
+  if (!d) d = new Date();
   const fmt = d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
-  const iso = d.toISOString().split('T')[0];
+  const isoStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   const timeEl = document.getElementById('ag-last-update');
-  if (timeEl) { timeEl.textContent = fmt; timeEl.setAttribute('datetime', iso); }
+  if (timeEl) { timeEl.textContent = fmt; timeEl.setAttribute('datetime', isoStr); }
   const upd = document.getElementById('lastUpdate');
   if (upd) upd.textContent = `${t('last_update')}: ${fmt}`;
 }
