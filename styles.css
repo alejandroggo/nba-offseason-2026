@@ -719,20 +719,20 @@
     font-family: 'DM Mono', monospace;
     font-size: 9px;
     letter-spacing: 0.5px;
-    color: var(--text-dim);
+    color: var(--text);
     display: inline-block;
     min-width: 22px;
     margin-right: 4px;
   }
 
   .roster-player-new { color: var(--signed); }
-  .roster-player-new .roster-pos-tag { color: var(--signed); opacity: 0.6; }
+  .roster-player-new .roster-pos-tag { color: var(--text); }
 
   .roster-player-resign { color: var(--resign); }
-  .roster-player-resign .roster-pos-tag { color: var(--resign); opacity: 0.6; }
+  .roster-player-resign .roster-pos-tag { color: var(--text); }
 
   .roster-player-tw { color: var(--accent2); }
-  .roster-player-tw .roster-pos-tag { color: var(--accent2); opacity: 0.6; }
+  .roster-player-tw .roster-pos-tag { color: var(--text); }
 
   .badge-resign {
     font-family: 'DM Mono', monospace;
@@ -1201,7 +1201,7 @@
     letter-spacing: 0.5px;
   }
   .tv-row .roster-pos-tag {
-    font-size: 11px; font-weight: 600; color: var(--text-muted);
+    font-size: 11px; font-weight: 600; color: var(--text);
     min-width: 32px; margin-right: 6px;
   }
   .tv-row-pick.undrafted { color: var(--text); }
