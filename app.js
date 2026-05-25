@@ -1721,7 +1721,7 @@ function openTeamView(teamName, pushHistory = true) {
                        : '';
           const cls = color ? ` style="color:${color}"` : '';
           const twBadge = p.tw ? ' <span class="badge-tw">TW</span>' : '';
-          return `<span${cls}>${esc(p.name)}</span>${twBadge}`;
+          return `<span class="clickable-player"${cls} tabindex="0" onclick="openPlayerDrawer('${esc(p.name)}')" onkeydown="if(event.key==='Enter'||event.key===' '){openPlayerDrawer('${esc(p.name)}')}">${esc(p.name)}</span>${twBadge}`;
         }).join(', ');
         return [`<div class="tv-row" style="align-items:baseline;gap:10px;justify-content:flex-start">
           <span class="pos-text" style="min-width:30px;flex-shrink:0">${label}</span>
