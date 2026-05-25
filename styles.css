@@ -1020,11 +1020,11 @@
     color: var(--text);
   }
   .drawer-player-type {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 0.12em;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
     color: var(--accent);
-    margin-top: 4px;
+    margin-top: 6px;
   }
   .drawer-close {
     background: none; border: 1px solid var(--border);

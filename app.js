@@ -1423,9 +1423,11 @@ function openPlayerDrawer(playerName, pushHistory = true) {
   const { name: cleanName } = faStatus(playerName);
   document.getElementById('drawer-player-name').textContent = cleanName || playerName;
 
-  const typeLabel = faData.length ? t('tab_fa')
-    : (draftData.length || undData.length) ? t('tab_draft')
-    : tradeData.length ? t('tab_trades')
+  const typeLabel = faData.length ? (lang === 'en' ? 'FREE AGENT' : 'AGENTE LIBRE')
+    : (draftData.length || undData.length) ? (lang === 'en' ? 'DRAFT' : 'DRAFT')
+    : tradeData.length ? (lang === 'en' ? 'TRADED' : 'TRASPASADO')
+    : pendingData.length ? (lang === 'en' ? 'PENDING FA' : 'AGENTE LIBRE')
+    : rosterEntry ? (lang === 'en' ? 'ROSTER' : 'PLANTILLA')
     : '';
   setText('drawer-player-type', typeLabel);
 
