@@ -1422,8 +1422,8 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     html += `<div class="drawer-section">
       <div class="drawer-section-title">${t('tab_fa')}</div>`;
     faData.forEach(d => {
-      if (d.team25) html += drawerRow(t('drawer_old_team'), teamBadgeHTML(d.team25, false));
       if (d.dest)   html += drawerRow(t('drawer_new_team'), teamBadgeHTML(d.dest, false));
+      if (d.team25) html += drawerRow(t('drawer_old_team'), teamBadgeHTML(d.team25, false));
       if (d.money)  html += drawerRow(t('drawer_total'), `$${esc(d.money)}M`, 'money');
       if (d.years)  html += drawerRow(t('drawer_years'), esc(d.years));
       if (d.aav)    html += drawerRow('AAV', `$${esc(d.aav)}M`, 'money');
