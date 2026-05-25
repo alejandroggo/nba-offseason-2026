@@ -1495,7 +1495,7 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     const pd = pendingData[0];
     const { badge: pdBadge } = faStatus(pd.player);
     html += `<div class="drawer-section"><div class="drawer-section-title">${t('fa_pending_title')}</div>`;
-    if (pdBadge)  html += drawerRow('Estado', pdBadge);
+    html += drawerRow('Estado', `Agente libre${pdBadge}`);
     if (pd.pos)   html += drawerRow(t('draft_col_pos'), `<span class="pos-text">${esc(pd.pos)}</span>`);
     if (pd.team25) html += drawerRow(t('fa_col_team25'), teamBadgeHTML(pd.team25, false));
     if (pd.notes) html += drawerRow(t('col_notes'), esc(pd.notes), 'notes');
