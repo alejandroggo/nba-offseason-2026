@@ -1485,8 +1485,7 @@ function openPlayerDrawer(playerName, pushHistory = true) {
 
   // Trades
   if (tradeData.length) {
-    html += `<div class="drawer-section">
-      <div class="drawer-section-title">${t('tab_trades')}</div>`;
+    html += `<div class="drawer-section">`;
     tradeData.forEach(tr => {
       tr.sides.forEach(side => {
         const myReceive = side.receives.find(r => tradeItemMatchesPlayer(r.item, playerName));
@@ -1517,7 +1516,7 @@ function openPlayerDrawer(playerName, pushHistory = true) {
   if (pendingData.length) {
     const pd = pendingData[0];
     const { badge: pdBadge } = faStatus(pd.player);
-    html += `<div class="drawer-section"><div class="drawer-section-title">${t('fa_pending_title')}</div>`;
+    html += `<div class="drawer-section">`;
     html += drawerRow('Estado', `Agente libre${pdBadge}`);
     if (pd.pos)   html += drawerRow(t('draft_col_pos'), `<span class="pos-text">${esc(pd.pos)}</span>`);
     if (pd.team25) html += drawerRow(t('fa_col_team25'), teamBadgeHTML(pd.team25, false));
