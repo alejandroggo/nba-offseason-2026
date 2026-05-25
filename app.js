@@ -1402,12 +1402,14 @@ window.addEventListener('popstate', () => {
 // ─────────────────────────────────────────────
 function openPlayerDrawer(playerName, pushHistory = true) {
   // Recopilar todos los datos del jugador en todas las pestañas
-  const faData    = DATA.fa.filter(d => d.player === playerName);
-  const draftData = DATA.draft.filter(d => d.player === playerName);
-  const undData   = DATA.undrafted ? DATA.undrafted.filter(d => d.player === playerName) : [];
-  const tradeData = DATA.trades.filter(tr => tr.sides.some(s => s.receives.some(r => tradeItemMatchesPlayer(r.item, playerName))));
+  const faData      = DATA.fa.filter(d => d.player === playerName);
+  const draftData   = DATA.draft.filter(d => d.player === playerName);
+  const undData     = DATA.undrafted ? DATA.undrafted.filter(d => d.player === playerName) : [];
+  const tradeData   = DATA.trades.filter(tr => tr.sides.some(s => s.receives.some(r => tradeItemMatchesPlayer(r.item, playerName))));
+  const pendingData = (DATA.faPending || []).filter(d => d.player === playerName);
 
-  document.getElementById('drawer-player-name').textContent = playerName;
+  const { name: cleanName } = faStatus(playerName);
+  document.getElementById('drawer-player-name').textContent = cleanName || playerName;
 
   const typeLabel = faData.length ? t('tab_fa')
     : (draftData.length || undData.length) ? t('tab_draft')
@@ -1488,6 +1490,18 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     html += `</div>`;
   }
 
+  // FA Pending
+  if (pendingData.length) {
+    const pd = pendingData[0];
+    const { badge: pdBadge } = faStatus(pd.player);
+    html += `<div class="drawer-section"><div class="drawer-section-title">${t('fa_pending_title')}</div>`;
+    if (pdBadge)  html += drawerRow('Estado', pdBadge);
+    if (pd.pos)   html += drawerRow(t('draft_col_pos'), `<span class="pos-text">${esc(pd.pos)}</span>`);
+    if (pd.team25) html += drawerRow(t('fa_col_team25'), teamBadgeHTML(pd.team25, false));
+    if (pd.notes) html += drawerRow(t('col_notes'), esc(pd.notes), 'notes');
+    html += `</div>`;
+  }
+
   if (!html) {
     html = `<div class="drawer-empty">${t('no_data')}</div>`;
   }
@@ -1507,6 +1521,8 @@ function openPlayerDrawer(playerName, pushHistory = true) {
         if (match.from) teamLinks.push({ label: t('drawer_view_old_team'), team: match.from });
       }
     });
+  } else if (pendingData.length && pendingData[0].team25) {
+    teamLinks.push({ label: t('drawer_view_old_team'), team: pendingData[0].team25 });
   }
   if (teamLinks.length) {
     html += `<div class="drawer-team-links">` +
