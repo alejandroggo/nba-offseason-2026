@@ -1201,7 +1201,7 @@ const TEAM_LOGOS = {
 function teamLogo(name, size = 40) {
   const abbrev = TEAM_LOGOS[name];
   if (!abbrev) return '';
-  return `<img src="/nba-offseason-2026/img/logos/${abbrev}.png" width="${size}" height="${size}" alt="" style="object-fit:contain;vertical-align:middle" onerror="this.style.display='none'">`;
+  return `<img src="https://a.espncdn.com/i/teamlogos/nba/500/${abbrev}.png" width="${size}" height="${size}" alt="" style="object-fit:contain;vertical-align:middle" onerror="this.style.display='none'">`;
 }
 
 function teamBadgeHTML(name, clickable = true) {
