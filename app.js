@@ -1640,7 +1640,7 @@ function openTeamView(teamName, pushHistory = true) {
             ? `<span style="color:var(--resign)">${esc(name)}</span><span class="badge-resign">${t('badge_resign')}</span>`
             : esc(name);
           const nameHTML = baseHTML + (tw ? ' <span class="badge-tw">TW</span>' : '');
-          return tvRow(nameHTML, '', d.money ? `$${esc(d.money)}M/${esc(d.years)}y` : '');
+          return tvRow(nameHTML, '', d.money ? `$${esc(d.money)}M/${esc(d.years)}y` : '', d.player);
         }).join('') : tvEmpty())}
     ${tvCard(t('roster_trade'), tradeIn.length,
         tradeIn.length ? tradeIn.map(r => {
