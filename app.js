@@ -1414,7 +1414,7 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     : (draftData.length || undData.length) ? t('tab_draft')
     : tradeData.length ? t('tab_trades')
     : '';
-  document.getElementById('drawer-player-type').textContent = typeLabel;
+  setText('drawer-player-type', typeLabel);
 
   let html = '';
 
