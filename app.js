@@ -1408,6 +1408,18 @@ function openPlayerDrawer(playerName, pushHistory = true) {
   const tradeData   = DATA.trades.filter(tr => tr.sides.some(s => s.receives.some(r => tradeItemMatchesPlayer(r.item, playerName))));
   const pendingData = (DATA.faPending || []).filter(d => d.player === playerName);
 
+  let rosterEntry = null;
+  for (const team of (DATA.rosters || [])) {
+    for (const p of (team.siguen || [])) {
+      const { name: pn, tw } = parseTW(p.name);
+      if (normPlayerKey(pn) === normPlayerKey(playerName)) {
+        rosterEntry = { team: team.team, tw };
+        break;
+      }
+    }
+    if (rosterEntry) break;
+  }
+
   const { name: cleanName } = faStatus(playerName);
   document.getElementById('drawer-player-name').textContent = cleanName || playerName;
 
@@ -1490,6 +1502,14 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     html += `</div>`;
   }
 
+  // Plantilla (jugador que se queda, sin datos en FA/trade/draft)
+  if (rosterEntry && !faData.length && !tradeData.length && !draftData.length && !undData.length && !pendingData.length) {
+    const twBadge = rosterEntry.tw ? ' <span class="badge-tw">TW</span>' : '';
+    html += `<div class="drawer-section">`;
+    html += drawerRow('Contrato', teamBadgeHTML(rosterEntry.team, false) + twBadge);
+    html += `</div>`;
+  }
+
   // FA Pending
   if (pendingData.length) {
     const pd = pendingData[0];
@@ -1523,6 +1543,8 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     });
   } else if (pendingData.length && pendingData[0].team25) {
     teamLinks.push({ label: t('drawer_view_old_team'), team: pendingData[0].team25 });
+  } else if (rosterEntry) {
+    teamLinks.push({ label: t('drawer_view_team'), team: rosterEntry.team });
   }
   if (teamLinks.length) {
     html += `<div class="drawer-team-links">` +
