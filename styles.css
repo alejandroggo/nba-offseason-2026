@@ -375,7 +375,7 @@
   .filter-role-btn.badge-role-gm[aria-pressed="true"] { background: rgba(255,107,53,0.25); border-color: rgba(255,107,53,0.6); }
 
   .filter-label {
-    font-family: 'DM Mono', monospace;
+    font-family: 'Inter', sans-serif;
     font-size: 9px;
     text-transform: uppercase;
     letter-spacing: 1.5px;
@@ -419,7 +419,7 @@
     padding: 8px 14px;
     border-radius: 4px;
     cursor: pointer;
-    font-family: 'DM Mono', monospace;
+    font-family: 'Inter', sans-serif;
     font-size: 10px;
     letter-spacing: 1px;
     text-transform: uppercase;
@@ -446,7 +446,7 @@
   }
 
   .results-count {
-    font-family: 'DM Mono', monospace;
+    font-family: 'Inter', sans-serif;
     font-size: 11px;
     color: var(--text-muted);
     height: 36px;
@@ -519,7 +519,7 @@
   .fa-subsection-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
   .td-money { font-family: 'Inter', sans-serif; color: var(--accent); font-size: 11px; text-align: center; width: 70px; white-space: nowrap; }
-  .td-num   { text-align: center; font-size: 11px; color: var(--text-muted); font-family: 'DM Mono', monospace; width: 50px; white-space: nowrap; }
+  .td-num   { text-align: center; font-size: 11px; color: var(--text-muted); font-family: 'Inter', sans-serif; width: 50px; white-space: nowrap; }
   .td-muted { color: var(--text-muted); font-size: 12px; }
   .td-notes { white-space: normal; font-size: 12px; color: var(--text-muted); line-height: 1.5; max-width: 360px; word-break: break-word; }
 
@@ -568,7 +568,7 @@
   .badge-warning { background: var(--warning-light);  color: var(--warning); }
   .badge-neutral { background: var(--surface-2);      color: var(--text-muted); }
 
-  .pos-text { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 700; color: var(--text); letter-spacing: 0.5px; }
+  .pos-text { font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700; color: var(--text); letter-spacing: 0.5px; }
   .badge-check { background: rgba(var(--accent-rgb),0.12); color: var(--accent); border: 1px solid rgba(var(--accent-rgb),0.25); }
   .badge-pending-c { background: rgba(255,159,0,0.12); color: var(--pending); border: 1px solid rgba(255,159,0,0.25); }
   .badge-role-hc { background: rgba(var(--accent-rgb),0.08); color: var(--accent); border: 1px solid rgba(var(--accent-rgb),0.2); }
@@ -628,7 +628,7 @@
   }
 
   .trade-idx {
-    font-family: 'DM Mono', monospace;
+    font-family: 'Inter', sans-serif;
     font-size: 10px;
     color: var(--text-muted);
     letter-spacing: 1px;
@@ -704,7 +704,7 @@
   .roster-block { }
 
   .roster-label {
-    font-family: 'DM Mono', monospace;
+    font-family: 'Inter', sans-serif;
     font-size: 9px;
     text-transform: uppercase;
     letter-spacing: 1.5px;
@@ -718,7 +718,7 @@
   .roster-label.fa        { color: var(--pending); }
 
   .roster-pos-tag {
-    font-family: 'DM Mono', monospace;
+    font-family: 'Inter', sans-serif;
     font-size: 9px;
     letter-spacing: 0.5px;
     color: var(--text);
@@ -771,7 +771,7 @@
   .roster-section:last-child { border-bottom: none; }
 
   .roster-section-title {
-    font-family: 'DM Mono', monospace;
+    font-family: 'Inter', sans-serif;
     font-size: 9px;
     text-transform: uppercase;
     letter-spacing: 1.5px;
@@ -790,7 +790,7 @@
   }
 
   .roster-subcol-label {
-    font-family: 'DM Mono', monospace;
+    font-family: 'Inter', sans-serif;
     font-size: 8px;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -1141,7 +1141,7 @@
 
   .team-view-back {
     display: inline-flex; align-items: center; gap: 8px;
-    font-family: 'DM Mono', monospace; font-size: 11px;
+    font-family: 'Inter', sans-serif; font-size: 11px;
     text-transform: uppercase; letter-spacing: 1.5px;
     color: var(--text-muted); cursor: pointer;
     background: none; border: none;
@@ -1164,7 +1164,7 @@
     letter-spacing: 3px; line-height: 1; color: var(--text);
   }
   .team-view-meta {
-    font-family: 'DM Mono', monospace;
+    font-family: 'Inter', sans-serif;
     font-size: 11px; color: var(--text-muted); text-align: right;
     display: flex; flex-direction: column; gap: 4px;
   }
@@ -1182,7 +1182,7 @@
   .tv-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
   .tv-card-header {
     background: var(--surface-2); padding: 10px 16px; border-bottom: 1px solid var(--border);
-    font-family: 'DM Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px;
+    font-family: 'Inter', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px;
     display: flex; align-items: center; justify-content: space-between;
   }
   .tv-card-header .tv-label { color: var(--text-muted); }
@@ -1197,10 +1197,10 @@
   .tv-row-main { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; }
   .tv-row-name { font-size: 13px; font-weight: 500; color: var(--text); cursor: pointer; white-space: nowrap; }
   .tv-row-name:hover { color: var(--accent); text-decoration: underline; }
-  .tv-row-detail { font-size: 11px; color: var(--text-muted); font-family: 'DM Mono', monospace; white-space: nowrap; }
+  .tv-row-detail { font-size: 11px; color: var(--text-muted); font-family: 'Inter', sans-serif; white-space: nowrap; }
   .tv-row-money { font-size: 12px; color: var(--accent); font-family: 'Inter', sans-serif; }
   .tv-row-pick {
-    font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 600;
+    font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600;
     color: var(--text-muted); min-width: 32px; text-align: left; flex-shrink: 0;
     letter-spacing: 0.5px;
   }
@@ -1210,7 +1210,7 @@
   }
   .tv-row-pick.undrafted { color: var(--text); }
   .tv-row.tv-row-tw .tv-row-name { color: var(--text-muted); }
-  .tv-empty { padding: 16px; font-size: 12px; color: var(--text-dim); font-family: 'DM Mono', monospace; }
+  .tv-empty { padding: 16px; font-size: 12px; color: var(--text-dim); font-family: 'Inter', sans-serif; }
 
   .tv-color-legend {
     display: flex; flex-wrap: wrap; gap: 18px;
@@ -1232,7 +1232,7 @@
   }
   .tv-section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
   .tv-section-count {
-    font-size: 11px; font-weight: 400; font-family: 'DM Mono', monospace;
+    font-size: 11px; font-weight: 400; font-family: 'Inter', sans-serif;
     color: var(--text-dim); letter-spacing: 0; margin-left: -4px;
   }
 
@@ -1337,7 +1337,7 @@
     cursor: pointer;
     width: 100%;
     color: var(--text-muted);
-    font-family: 'DM Mono', monospace;
+    font-family: 'Inter', sans-serif;
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -1670,7 +1670,7 @@
     }
 
     .mobile-tab-label {
-      font-family: 'DM Mono', monospace;
+      font-family: 'Inter', sans-serif;
       font-size: 8px;
       font-weight: 600;
       text-transform: uppercase;
