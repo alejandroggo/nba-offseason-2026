@@ -524,7 +524,7 @@ function processDraft(rows) {
 
 function renderDraft(data) {
   const tbody = document.getElementById('draft-tbody');
-  if (!data.length) { if (!fetchComplete) return; tbody.innerHTML = `<tr><td colspan="9"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
+  if (!data.length) { if (!fetchComplete) return; tbody.innerHTML = `<tr><td colspan="8"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
   const rows = [];
   data.forEach((d, i) => {
     const n = parseInt(d.pick);
@@ -536,7 +536,7 @@ function renderDraft(data) {
     const prev = i > 0 ? parseInt(data[i-1].pick) : null;
     if (prev === 14 || prev === 30) {
       const label = prev === 14 ? t('end_of_lottery') : t('end_of_round1');
-      rows.push(`<tr><td colspan="9" style="padding:8px 12px;border:none;background:var(--surface-2);text-align:center"><span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted)">${label}</span></td></tr>`);
+      rows.push(`<tr><td colspan="8" style="padding:8px 12px;border:none;background:var(--surface-2);text-align:center"><span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted)">${label}</span></td></tr>`);
     }
     rows.push(`<tr>
       <td><span class="pick-num ${cls}">${esc(d.pick)}</span></td>
@@ -547,7 +547,6 @@ function renderDraft(data) {
       <td>${esc(d.from)}</td>
       <td style="text-align:center">${chk}</td>
       <td style="text-align:center" class="td-muted">${esc(d.contract)}</td>
-      <td class="td-notes">${esc(d.notes)}</td>
     </tr>`);
   });
   tbody.innerHTML = rows.join('');
