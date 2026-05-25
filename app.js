@@ -1619,8 +1619,11 @@ function openTeamView(teamName, pushHistory = true) {
 
   const tvRow = (name, detail = '', money = '', playerName = '') => `
     <div class="tv-row">
-      <span class="tv-row-name"${playerName ? ` onclick="openPlayerDrawer('${playerName}')"` : ''}>${name}</span>
-      ${money ? `<span class="tv-row-money">${money}</span>` : detail ? `<span class="tv-row-detail">${detail}</span>` : ''}
+      <div class="tv-row-main">
+        <span class="tv-row-name"${playerName ? ` onclick="openPlayerDrawer('${playerName}')"` : ''}>${name}</span>
+        ${detail ? `<span class="tv-row-detail">${detail}</span>` : ''}
+      </div>
+      ${money ? `<span class="tv-row-money">${money}</span>` : ''}
     </div>`;
 
   const tvEmpty = () => `<div class="tv-empty">—</div>`;
