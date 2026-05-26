@@ -1240,9 +1240,9 @@ function teamArticleHTML(teamName) {
     <div class="tv-article-icon">✍</div>
     <div class="tv-video-info">
       <div class="tv-video-title-row">
-        <span class="tv-article-title"></span>
+        <span class="tv-article-title">Previa del verano de 2026</span>
       </div>
-      <span class="tv-article-author"></span>
+      <span class="tv-article-author">NBA con Contexto</span>
     </div>
     <span class="tv-article-arrow">→</span>
   </a>`;
@@ -1287,12 +1287,8 @@ async function loadArticleMeta() {
       const res = await fetch(`https://api.microlink.io/?url=${encodeURIComponent(url)}`);
       if (!res.ok) continue;
       const { data } = await res.json();
-      const titleEl = el.querySelector('.tv-article-title');
-      const authorEl = el.querySelector('.tv-article-author');
-      const thumbEl  = el.querySelector('.tv-article-thumb');
-      const iconEl   = el.querySelector('.tv-article-icon');
-      if (titleEl)  titleEl.textContent  = data.title || '';
-      if (authorEl) authorEl.textContent = data.author || data.publisher || '';
+      const thumbEl = el.querySelector('.tv-article-thumb');
+      const iconEl  = el.querySelector('.tv-article-icon');
       if (thumbEl && data.image?.url) {
         thumbEl.src = data.image.url;
         thumbEl.style.display = '';
