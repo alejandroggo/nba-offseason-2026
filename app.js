@@ -1225,20 +1225,20 @@ const TEAM_ARTICLES = {
 function teamArticleHTML(teamName) {
   const url = TEAM_ARTICLES[teamName];
   if (!url) return '';
-  const domain = new URL(url).hostname.replace('www.', '');
-  return `<a class="tv-video-link tv-article-link" href="${url}" target="_blank" rel="noopener noreferrer">
+  return `<a class="tv-video-link tv-article-link" href="${url}" target="_blank" rel="noopener noreferrer" data-article-url="${url}">
+    <img class="tv-video-thumb tv-article-thumb" src="" alt="" loading="lazy" style="display:none">
     <div class="tv-article-icon">✍</div>
     <div class="tv-video-info">
       <div class="tv-video-title-row">
-        <span class="tv-video-title">Previa escrita</span>
+        <span class="tv-article-title"></span>
       </div>
-      <span class="tv-video-channel">${domain}</span>
+      <span class="tv-article-author"></span>
     </div>
     <span class="tv-article-arrow">→</span>
   </a>`;
 }
 
-
+function teamVideoHTML(teamName) {
   const id = TEAM_VIDEOS[teamName];
   if (!id) return '';
   const thumb = `https://img.youtube.com/vi/${id}/mqdefault.jpg`;
@@ -1266,6 +1266,28 @@ async function loadVideoMeta() {
       const chanEl  = el.querySelector('.tv-video-channel');
       if (titleEl) titleEl.textContent = data.title || '';
       if (chanEl)  chanEl.textContent  = data.author_name || '';
+    } catch {}
+  }
+}
+
+async function loadArticleMeta() {
+  for (const el of document.querySelectorAll('[data-article-url]')) {
+    const url = el.dataset.articleUrl;
+    try {
+      const res = await fetch(`https://api.microlink.io/?url=${encodeURIComponent(url)}`);
+      if (!res.ok) continue;
+      const { data } = await res.json();
+      const titleEl = el.querySelector('.tv-article-title');
+      const authorEl = el.querySelector('.tv-article-author');
+      const thumbEl  = el.querySelector('.tv-article-thumb');
+      const iconEl   = el.querySelector('.tv-article-icon');
+      if (titleEl)  titleEl.textContent  = data.title || '';
+      if (authorEl) authorEl.textContent = data.author || data.publisher || '';
+      if (thumbEl && data.image?.url) {
+        thumbEl.src = data.image.url;
+        thumbEl.style.display = '';
+        if (iconEl) iconEl.style.display = 'none';
+      }
     } catch {}
   }
 }
@@ -1901,6 +1923,7 @@ function openTeamView(teamName, pushHistory = true) {
 
   document.getElementById('tv-content').innerHTML = html;
   loadVideoMeta();
+  loadArticleMeta();
 
   document.getElementById('team-back-btn').textContent = '← ' + t('back_btn');
 
