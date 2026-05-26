@@ -1200,10 +1200,15 @@ const TEAM_LOGOS = {
 
 const TEAM_VIDEOS = {
   'Atlanta Hawks':          '5g8IDnxvo4U',
+  'Boston Celtics':         '8QEXixUJWIQ',
   'Cleveland Cavaliers':    'Doqe2iGG4-k',
   'Detroit Pistons':        'bOe8WgFbJs4',
+  'Houston Rockets':        'XGwta0gez3Q',
   'Los Angeles Lakers':     'z006hUGp8NM',
   'Minnesota Timberwolves': 'fTF5W_3apRA',
+  'Orlando Magic':          'F9tE6p-ud1c',
+  'Portland Trail Blazers': 'yYvlTb0St6s',
+  'Toronto Raptors':        'anJG6fARuuw',
   'Washington Wizards':     '8NRZRBJ7_kc',
 };
 
