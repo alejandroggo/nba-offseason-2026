@@ -1218,8 +1218,18 @@ const TEAM_VIDEOS = {
 };
 
 const TEAM_ARTICLES = {
+  'Brooklyn Nets':          'https://www.nbaconcontexto.com/p/brooklyn-nets-previa-del-verano-de',
+  'Chicago Bulls':          'https://www.nbaconcontexto.com/p/chicago-bulls-previa-del-verano-de',
+  'Dallas Mavericks':       'https://www.nbaconcontexto.com/p/dallas-mavericks-previa-del-verano',
   'Golden State Warriors':  'https://www.nbaconcontexto.com/p/golden-state-warriors-previa-del',
+  'Indiana Pacers':         'https://www.nbaconcontexto.com/p/indiana-pacers-previa-del-verano',
   'Los Angeles Clippers':   'https://www.nbaconcontexto.com/p/los-angeles-clippers-previa-del-verano',
+  'Memphis Grizzlies':      'https://www.nbaconcontexto.com/p/memphis-grizzlies-previa-del-verano',
+  'Milwaukee Bucks':        'https://www.nbaconcontexto.com/p/milwaukee-bucks-previa-del-verano',
+  'New Orleans Pelicans':   'https://www.nbaconcontexto.com/p/new-orleans-pelicans-previa-del-verano',
+  'Sacramento Kings':       'https://www.nbaconcontexto.com/p/sacramento-kings-previa-del-verano',
+  'Utah Jazz':              'https://www.nbaconcontexto.com/p/utah-jazz-previa-del-verano-de-2026',
+  'Washington Wizards':     'https://www.nbaconcontexto.com/p/washington-wizards-previa-del-verano',
 };
 
 function teamArticleHTML(teamName) {
