@@ -1207,11 +1207,29 @@ function teamVideoHTML(teamName) {
   if (!id) return '';
   const thumb = `https://img.youtube.com/vi/${id}/mqdefault.jpg`;
   const url   = `https://www.youtube.com/watch?v=${id}`;
-  return `<a class="tv-video-link" href="${url}" target="_blank" rel="noopener noreferrer">
+  return `<a class="tv-video-link" href="${url}" target="_blank" rel="noopener noreferrer" data-yt-id="${id}">
     <img class="tv-video-thumb" src="${thumb}" alt="" loading="lazy">
+    <div class="tv-video-info">
+      <span class="tv-video-title"></span>
+      <span class="tv-video-channel"></span>
+    </div>
     <span class="tv-video-play">▶</span>
-    <span class="tv-video-label">Ver en YouTube</span>
   </a>`;
+}
+
+async function loadVideoMeta() {
+  for (const el of document.querySelectorAll('[data-yt-id]')) {
+    const id = el.dataset.ytId;
+    try {
+      const res = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`);
+      if (!res.ok) continue;
+      const data = await res.json();
+      const titleEl = el.querySelector('.tv-video-title');
+      const chanEl  = el.querySelector('.tv-video-channel');
+      if (titleEl) titleEl.textContent = data.title || '';
+      if (chanEl)  chanEl.textContent  = data.author_name || '';
+    } catch {}
+  }
 }
 
 function teamLogo(name, size = 40) {
@@ -1838,6 +1856,7 @@ function openTeamView(teamName, pushHistory = true) {
   html += `</div>`;
 
   document.getElementById('tv-content').innerHTML = html;
+  loadVideoMeta();
 
   document.getElementById('team-back-btn').textContent = '← ' + t('back_btn');
 

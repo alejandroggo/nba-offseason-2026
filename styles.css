@@ -1251,8 +1251,15 @@
   .tv-video-play {
     font-size: 18px; color: var(--accent); flex-shrink: 0;
   }
-  .tv-video-label {
+  .tv-video-info {
+    flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px;
+  }
+  .tv-video-title {
     font-size: 13px; font-weight: 500; color: var(--text);
+    overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  }
+  .tv-video-channel {
+    font-size: 11px; color: var(--text-muted);
   }
 
   .clickable-player { cursor: pointer; transition: color 0.15s; }
