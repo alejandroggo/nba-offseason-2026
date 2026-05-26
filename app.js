@@ -1738,6 +1738,9 @@ function openTeamView(teamName, pushHistory = true) {
     <span class="legend-item"><span class="badge badge-po">PO</span><span class="legend-text">${t('legend_po')}</span></span>
   </div>` : ''}`;
 
+  const videoHTML = teamVideoHTML(teamName);
+  if (videoHTML) html += `<div style="margin-bottom:28px">${videoHTML}</div>`;
+
   // ── PLANTILLA (siguen + altas, agrupadas por posición) ────
   const POS_LIST = ['PG','SG','SF','PF','C'];
   if (roster) {
@@ -1781,8 +1784,6 @@ function openTeamView(teamName, pushHistory = true) {
         <span><span class="badge-tw">TW</span>${t('legend_color_tw')}</span>
       </div>`;
     }
-    const videoHTML = teamVideoHTML(teamName);
-    if (videoHTML) html += `<div style="margin-bottom:28px">${videoHTML}</div>`;
   }
 
   // ── TRASPASOS ─────────────────────────────────
