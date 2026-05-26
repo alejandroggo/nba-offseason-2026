@@ -1199,7 +1199,12 @@ const TEAM_LOGOS = {
 };
 
 const TEAM_VIDEOS = {
-  'Los Angeles Lakers': 'z006hUGp8NM',
+  'Atlanta Hawks':          '5g8IDnxvo4U',
+  'Cleveland Cavaliers':    'Doqe2iGG4-k',
+  'Detroit Pistons':        'bOe8WgFbJs4',
+  'Los Angeles Lakers':     'z006hUGp8NM',
+  'Minnesota Timberwolves': 'fTF5W_3apRA',
+  'Washington Wizards':     '8NRZRBJ7_kc',
 };
 
 function teamVideoHTML(teamName) {
