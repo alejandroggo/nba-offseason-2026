@@ -1236,6 +1236,25 @@
     color: var(--text-dim); letter-spacing: 0; margin-left: -4px;
   }
 
+  .tv-video-link {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 14px;
+    text-decoration: none; color: var(--text);
+    transition: border-color 0.2s;
+  }
+  .tv-video-link:hover { border-color: rgba(var(--accent-rgb), 0.4); }
+  .tv-video-thumb {
+    width: 80px; height: 45px; object-fit: cover;
+    border-radius: 4px; flex-shrink: 0;
+  }
+  .tv-video-play {
+    font-size: 18px; color: var(--accent); flex-shrink: 0;
+  }
+  .tv-video-label {
+    font-size: 13px; font-weight: 500; color: var(--text);
+  }
+
   .clickable-player { cursor: pointer; transition: color 0.15s; }
   .clickable-player:hover { color: var(--accent); text-decoration: underline; }
   .clickable-team { cursor: pointer; transition: opacity 0.15s; }

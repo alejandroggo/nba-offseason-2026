@@ -1198,6 +1198,22 @@ const TEAM_LOGOS = {
   'Toronto Raptors': 'tor', 'Utah Jazz': 'utah', 'Washington Wizards': 'wsh',
 };
 
+const TEAM_VIDEOS = {
+  'Los Angeles Lakers': 'z006hUGp8NM',
+};
+
+function teamVideoHTML(teamName) {
+  const id = TEAM_VIDEOS[teamName];
+  if (!id) return '';
+  const thumb = `https://img.youtube.com/vi/${id}/mqdefault.jpg`;
+  const url   = `https://www.youtube.com/watch?v=${id}`;
+  return `<a class="tv-video-link" href="${url}" target="_blank" rel="noopener noreferrer">
+    <img class="tv-video-thumb" src="${thumb}" alt="" loading="lazy">
+    <span class="tv-video-play">▶</span>
+    <span class="tv-video-label">Ver en YouTube</span>
+  </a>`;
+}
+
 function teamLogo(name, size = 40) {
   const abbrev = TEAM_LOGOS[name];
   if (!abbrev) return '';
@@ -1765,6 +1781,8 @@ function openTeamView(teamName, pushHistory = true) {
         <span><span class="badge-tw">TW</span>${t('legend_color_tw')}</span>
       </div>`;
     }
+    const videoHTML = teamVideoHTML(teamName);
+    if (videoHTML) html += `<div style="margin-bottom:28px">${videoHTML}</div>`;
   }
 
   // ── TRASPASOS ─────────────────────────────────
