@@ -1210,10 +1210,12 @@ function teamVideoHTML(teamName) {
   return `<a class="tv-video-link" href="${url}" target="_blank" rel="noopener noreferrer" data-yt-id="${id}">
     <img class="tv-video-thumb" src="${thumb}" alt="" loading="lazy">
     <div class="tv-video-info">
-      <span class="tv-video-title"></span>
+      <div class="tv-video-title-row">
+        <span class="tv-video-play">▶</span>
+        <span class="tv-video-title"></span>
+      </div>
       <span class="tv-video-channel"></span>
     </div>
-    <span class="tv-video-play">▶</span>
   </a>`;
 }
 
