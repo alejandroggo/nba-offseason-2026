@@ -1240,9 +1240,9 @@ function teamArticleHTML(teamName) {
     <div class="tv-article-icon">✍</div>
     <div class="tv-video-info">
       <div class="tv-video-title-row">
-        <span class="tv-article-title">Previa del verano de 2026</span>
+        <span class="tv-article-title">${esc(teamName)}: Previa del verano de 2026</span>
       </div>
-      <span class="tv-article-author">NBA con Contexto</span>
+      <span class="tv-article-author">Kike García</span>
     </div>
     <span class="tv-article-arrow">→</span>
   </a>`;
