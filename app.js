@@ -1217,7 +1217,28 @@ const TEAM_VIDEOS = {
   'Washington Wizards':     '8NRZRBJ7_kc',
 };
 
-function teamVideoHTML(teamName) {
+const TEAM_ARTICLES = {
+  'Golden State Warriors':  'https://www.nbaconcontexto.com/p/golden-state-warriors-previa-del',
+  'Los Angeles Clippers':   'https://www.nbaconcontexto.com/p/los-angeles-clippers-previa-del-verano',
+};
+
+function teamArticleHTML(teamName) {
+  const url = TEAM_ARTICLES[teamName];
+  if (!url) return '';
+  const domain = new URL(url).hostname.replace('www.', '');
+  return `<a class="tv-video-link tv-article-link" href="${url}" target="_blank" rel="noopener noreferrer">
+    <div class="tv-article-icon">✍</div>
+    <div class="tv-video-info">
+      <div class="tv-video-title-row">
+        <span class="tv-video-title">Previa escrita</span>
+      </div>
+      <span class="tv-video-channel">${domain}</span>
+    </div>
+    <span class="tv-article-arrow">→</span>
+  </a>`;
+}
+
+
   const id = TEAM_VIDEOS[teamName];
   if (!id) return '';
   const thumb = `https://img.youtube.com/vi/${id}/mqdefault.jpg`;
@@ -1773,8 +1794,14 @@ function openTeamView(teamName, pushHistory = true) {
     <span class="legend-item"><span class="badge badge-po">PO</span><span class="legend-text">${t('legend_po')}</span></span>
   </div>` : ''}`;
 
-  const videoHTML = teamVideoHTML(teamName);
-  if (videoHTML) html += `<div style="margin-bottom:28px">${videoHTML}</div>`;
+  const videoHTML   = teamVideoHTML(teamName);
+  const articleHTML = teamArticleHTML(teamName);
+  if (videoHTML || articleHTML) {
+    html += `<div style="margin-bottom:28px;display:flex;flex-direction:column;gap:8px">`;
+    if (videoHTML)   html += videoHTML;
+    if (articleHTML) html += articleHTML;
+    html += `</div>`;
+  }
 
   // ── PLANTILLA (siguen + altas, agrupadas por posición) ────
   const POS_LIST = ['PG','SG','SF','PF','C'];
