@@ -1225,6 +1225,7 @@ const TEAM_ARTICLES = {
   'Indiana Pacers':         'https://www.nbaconcontexto.com/p/indiana-pacers-previa-del-verano',
   'Los Angeles Clippers':   'https://www.nbaconcontexto.com/p/los-angeles-clippers-previa-del-verano',
   'Memphis Grizzlies':      'https://www.nbaconcontexto.com/p/memphis-grizzlies-previa-del-verano',
+  'Miami Heat':             'https://www.nbaconcontexto.com/p/miami-heat-previa-del-verano-de-2026',
   'Milwaukee Bucks':        'https://www.nbaconcontexto.com/p/milwaukee-bucks-previa-del-verano',
   'New Orleans Pelicans':   'https://www.nbaconcontexto.com/p/new-orleans-pelicans-previa-del-verano',
   'Sacramento Kings':       'https://www.nbaconcontexto.com/p/sacramento-kings-previa-del-verano',
