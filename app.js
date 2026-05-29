@@ -1202,6 +1202,7 @@ const TEAM_VIDEOS = {
   'Atlanta Hawks':          '5g8IDnxvo4U',
   'Boston Celtics':         '8QEXixUJWIQ',
   'Charlotte Hornets':      '--YBKpG7JO8',
+  'Chicago Bulls':          'pYari-6txaM',
   'Cleveland Cavaliers':    'Doqe2iGG4-k',
   'Denver Nuggets':         'gpzyfVt9v80',
   'Detroit Pistons':        'bOe8WgFbJs4',
