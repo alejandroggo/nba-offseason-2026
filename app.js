@@ -1781,7 +1781,7 @@ function openTeamView(teamName, pushHistory = true) {
           const baseHTML = isResign
             ? `<span style="color:var(--resign)">${esc(name)}</span><span class="badge-resign">${t('badge_resign')}</span>`
             : esc(name);
-          const nameHTML = baseHTML + (tw ? ' <span class="badge-tw">TW</span>' : '');
+          const nameHTML = itemPosTag(name, d.pos) + baseHTML + (tw ? ' <span class="badge-tw">TW</span>' : '');
           return tvRow(nameHTML, '', d.money ? `$${esc(d.money)}M/${esc(d.years)}y` : '', d.player);
         }).join('') : tvEmpty())}
     ${tvCard(t('roster_trade'), tradeIn.length,
@@ -1812,7 +1812,7 @@ function openTeamView(teamName, pushHistory = true) {
   html += `<div class="tv-section-title" style="color:var(--gone)">${t('roster_departures')}</div>
   <div class="team-view-grid" style="margin-bottom:28px">
     ${tvCard(t('roster_salidas_fa'), faOut.length,
-        faOut.length ? faOut.map(d => tvRow(esc(d.player), d.dest ? `→ ${esc(d.dest)}` : t(`roster_${d.reasonKey || 'waived'}`), '', d.player)).join('') : tvEmpty())}
+        faOut.length ? faOut.map(d => tvRow(itemPosTag(d.player, d.pos) + esc(d.player), d.dest ? `→ ${esc(d.dest)}` : t(`roster_${d.reasonKey || 'waived'}`), '', d.player)).join('') : tvEmpty())}
     ${tvCard(t('roster_salidas_trade'), tradeOut.length,
         tradeOut.length ? tradeOut.map(r => tvRow(itemPosTag(r.item, r.pos) + esc(r.item), `→ ${esc(r.to)}`, '', r.item)).join('') : tvEmpty())}
     ${tvCard(t('roster_fa_pending'), faPending.length,
