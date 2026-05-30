@@ -374,8 +374,8 @@ function processFA(rows) {
 }
 
 function renderFA(data) {
-  const signed  = data.filter(d => d.dest);
-  const pending = data.filter(d => !d.dest);
+  const signed  = data.filter(d => d.dest).sort((a, b) => (parseFloat(b.aav) || 0) - (parseFloat(a.aav) || 0));
+  const pending = data.filter(d => !d.dest).sort((a, b) => a.player.localeCompare(b.player));
 
   const tbody = document.getElementById('fa-tbody');
   tbody.innerHTML = signed.length
