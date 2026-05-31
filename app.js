@@ -1211,9 +1211,11 @@ const TEAM_VIDEOS = {
   'Miami Heat':             'IaolLBaNPmQ',
   'Minnesota Timberwolves': 'fTF5W_3apRA',
   'New Orleans Pelicans':   'BaZcLGxrZI8',
+  'Oklahoma City Thunder':  '1pWjBYV1BIc',
   'Orlando Magic':          'F9tE6p-ud1c',
   'Phoenix Suns':           'HwM8u920JcI',
   'Portland Trail Blazers': 'yYvlTb0St6s',
+  'Sacramento Kings':       'VV4gDWEHbEY',
   'Toronto Raptors':        'anJG6fARuuw',
   'Washington Wizards':     '8NRZRBJ7_kc',
 };
