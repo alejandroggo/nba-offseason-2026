@@ -2088,7 +2088,7 @@ function quizMatchTeam(input, correctTeam) {
 }
 
 async function fetchLeaderboard() {
-  const res = await fetchWithTimeout(`${SCRIPT_URL}?action=get_leaderboard`, 10000);
+  const res = await fetchWithTimeout(`${SCRIPT_URL}?action=get_leaderboard`, 15000);
   const csv = res.text.trim();
   if (!csv) return [];
   return csv.split('\n').filter(Boolean).map((line, i) => {
@@ -2141,7 +2141,7 @@ function renderQuiz() {
   if (!container) return;
 
   // ── Leaderboard standalone ───────────────────
-  if (quizState?.showingLeaderboard && !quizState?.mode) {
+  if (quizState?.showingLeaderboard) {
     container.innerHTML = `
       <div class="quiz-wrap">
         <h2 class="quiz-title">🏆 Ranking Infinito</h2>
