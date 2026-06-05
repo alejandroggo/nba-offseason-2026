@@ -1907,3 +1907,17 @@
     .quiz-options { grid-template-columns: 1fr; }
     .quiz-player-name { font-size: 20px; }
   }
+  .quiz-scoring {
+    width: 100%; border: 1px solid var(--border); border-radius: 10px;
+    overflow: hidden; margin-bottom: 20px; text-align: left;
+  }
+  .quiz-scoring-row {
+    display: grid; grid-template-columns: 80px 1fr auto;
+    align-items: center; gap: 12px;
+    padding: 10px 16px; border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .quiz-scoring-row:last-child { border-bottom: none; }
+  .quiz-scoring-round { font-weight: 700; }
+  .quiz-scoring-pts { color: var(--text-muted); }
+  .quiz-scoring-max { font-weight: 600; color: var(--text); white-space: nowrap; }

@@ -2109,6 +2109,11 @@ function renderQuiz() {
             <span class="quiz-mode-desc">Escribe el equipo</span>
           </button>
         </div>
+        <div class="quiz-scoring">
+          <div class="quiz-scoring-row"><span class="quiz-scoring-round" style="color:var(--signed)">Fácil</span><span class="quiz-scoring-pts">1 pto por respuesta</span><span class="quiz-scoring-max">máx. 5 pts</span></div>
+          <div class="quiz-scoring-row"><span class="quiz-scoring-round" style="color:var(--accent)">Medio</span><span class="quiz-scoring-pts">2 ptos por respuesta</span><span class="quiz-scoring-max">máx. 10 pts</span></div>
+          <div class="quiz-scoring-row"><span class="quiz-scoring-round" style="color:var(--gone)">Difícil</span><span class="quiz-scoring-pts">3 ptos por respuesta</span><span class="quiz-scoring-max">máx. 15 pts</span></div>
+        </div>
         <p class="quiz-meta">3 rondas · 5 preguntas cada una · 30 puntos</p>
       </div>`;
     return;
