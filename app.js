@@ -2001,6 +2001,256 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
+// ─────────────────────────────────────────────
+// QUIZ
+// ─────────────────────────────────────────────
+let quizState = null;
+
+function buildQuizPool() {
+  const easy = [], medium = [], hard = [];
+  const seen = new Set();
+
+  function add(player, team, level) {
+    const key = player.toLowerCase().trim();
+    if (!player || !team || seen.has(key)) return;
+    seen.add(key);
+    if (level === 'easy') easy.push({ player, team });
+    else if (level === 'hard') hard.push({ player, team });
+    else medium.push({ player, team });
+  }
+
+  (DATA.fa||[]).filter(d => d.dest).forEach(d => {
+    const { name } = faStatus(d.player);
+    const aav = parseFloat(d.aav) || 0;
+    add(name, d.dest, aav >= 15 ? 'easy' : aav >= 5 ? 'medium' : 'hard');
+  });
+  (DATA.draft||[]).filter(d => d.team && d.player).forEach(d => {
+    const pick = parseInt(d.pick) || 99;
+    add(d.player, d.team, pick <= 10 ? 'easy' : pick <= 30 ? 'medium' : 'hard');
+  });
+  (DATA.undrafted||[]).filter(d => d.team && d.player).forEach(d => add(d.player, d.team, 'hard'));
+  (DATA.trades||[]).forEach(tr => {
+    tr.sides.forEach(side => {
+      (side.receives||[]).filter(r => !isNonPlayerAsset(r.item)).forEach(r => {
+        const { name } = parseTW(r.item);
+        add(name, side.team, 'medium');
+      });
+    });
+  });
+
+  return { easy, medium, hard };
+}
+
+function quizPickEntry(pool, used) {
+  const available = pool.filter(e => !used.has(e.player.toLowerCase()));
+  if (!available.length) return null;
+  return available[Math.floor(Math.random() * available.length)];
+}
+
+function quizGetEntry() {
+  const { round, pool, used } = quizState;
+  const levels = ['easy', 'medium', 'hard'];
+  return quizPickEntry(pool[levels[round]], used)
+      || quizPickEntry([...pool.easy, ...pool.medium, ...pool.hard], used);
+}
+
+function quizGetOptions(correctTeam) {
+  const all = Object.keys(TEAM_LOGOS).filter(t => t !== correctTeam);
+  for (let i = all.length - 1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [all[i],all[j]]=[all[j],all[i]]; }
+  const opts = [correctTeam, ...all.slice(0, 3)];
+  for (let i = opts.length - 1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [opts[i],opts[j]]=[opts[j],opts[i]]; }
+  return opts;
+}
+
+function quizNorm(s) {
+  return (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,'');
+}
+
+function quizMatchTeam(input, correctTeam) {
+  const inp = quizNorm(input.trim());
+  if (!inp || inp.length < 3) return false;
+  const full  = quizNorm(correctTeam);
+  const words = correctTeam.split(' ').map(quizNorm);
+  const nick  = words[words.length - 1];
+  const abbr  = quizNorm(TEAM_LOGOS[correctTeam] || '');
+  return inp === full || inp === nick || inp === abbr || (inp.length >= 5 && full.includes(inp));
+}
+
+function renderQuiz() {
+  const container = document.getElementById('quiz-container');
+  if (!container) return;
+
+  if (!quizState) {
+    container.innerHTML = `
+      <div class="quiz-wrap quiz-start">
+        <div class="quiz-icon">🏀</div>
+        <h2 class="quiz-title">Quiz NBA 2026</h2>
+        <p class="quiz-subtitle">¿A qué equipo fue el jugador?</p>
+        <div class="quiz-modes">
+          <button class="quiz-mode-btn" onclick="startQuiz('hints')">
+            <span class="quiz-mode-icon">💡</span>
+            <span class="quiz-mode-name">Con Pistas</span>
+            <span class="quiz-mode-desc">4 opciones de equipo</span>
+          </button>
+          <button class="quiz-mode-btn" onclick="startQuiz('nohints')">
+            <span class="quiz-mode-icon">✏</span>
+            <span class="quiz-mode-name">Sin Pistas</span>
+            <span class="quiz-mode-desc">Escribe el equipo</span>
+          </button>
+        </div>
+        <p class="quiz-meta">3 rondas · 5 preguntas cada una · 15 puntos</p>
+      </div>`;
+    return;
+  }
+
+  const { round, roundAnswers, scores, mode, current, answered, lastCorrect, selectedTeam } = quizState;
+
+  if (round >= 3) {
+    const total = scores.reduce((a, b) => a + b, 0);
+    const emoji = total >= 13 ? '🏆' : total >= 10 ? '🎯' : total >= 6 ? '👏' : '📚';
+    const roundNames = ['Fácil','Medio','Difícil'];
+    container.innerHTML = `
+      <div class="quiz-wrap quiz-results">
+        <div class="quiz-icon">${emoji}</div>
+        <h2 class="quiz-title">¡Partida terminada!</h2>
+        <div class="quiz-total-score">${total}<span> / 15</span></div>
+        <div class="quiz-round-scores">
+          ${scores.map((s, i) => `
+            <div class="quiz-round-score-item">
+              <span class="quiz-round-score-label">${roundNames[i]}</span>
+              <span class="quiz-round-score-pts">${s}/5</span>
+            </div>`).join('')}
+        </div>
+        <button class="quiz-btn-primary" onclick="quizState=null;renderQuiz()">Jugar de nuevo</button>
+      </div>`;
+    return;
+  }
+
+  if (!current) {
+    const roundNames = ['Fácil','Medio','Difícil'];
+    const roundColors = ['var(--signed)','var(--accent)','var(--gone)'];
+    const roundDescs = [
+      'Jugadores con contratos grandes y picks de lotería',
+      'Agentes libres, picks del draft y traspasos',
+      'Jugadores no drafteados, contratos mínimos y picks tardíos'
+    ];
+    container.innerHTML = `
+      <div class="quiz-wrap quiz-round-intro">
+        <div class="quiz-round-pill" style="color:${roundColors[round]};border-color:${roundColors[round]}">Ronda ${round+1} de 3</div>
+        <h2 class="quiz-title" style="color:${roundColors[round]}">${roundNames[round]}</h2>
+        <p class="quiz-subtitle">${roundDescs[round]}</p>
+        <p class="quiz-meta">5 preguntas</p>
+        <button class="quiz-btn-primary" onclick="quizNextQuestion()">Empezar</button>
+      </div>`;
+    return;
+  }
+
+  const roundNames  = ['Fácil','Medio','Difícil'];
+  const roundColors = ['var(--signed)','var(--accent)','var(--gone)'];
+  const totalScore  = scores.reduce((a, b) => a + b, 0);
+  const qNum        = answered ? roundAnswers.length : roundAnswers.length + 1;
+
+  const dotsHTML = Array.from({length:5}, (_, i) => {
+    let cls = 'quiz-dot';
+    const limit = roundAnswers.length;
+    if (i < limit) cls += roundAnswers[i] ? ' correct' : ' wrong';
+    else if (i === limit && !answered) cls += ' active';
+    return `<span class="${cls}"></span>`;
+  }).join('');
+
+  let answerHTML = '';
+  if (mode === 'hints') {
+    answerHTML = `<div class="quiz-options">
+      ${(quizState.options||[]).map(team => {
+        let cls = 'quiz-option';
+        if (answered) cls += team === current.team ? ' correct' : team === selectedTeam ? ' wrong' : ' dimmed';
+        return `<button class="${cls}" onclick="quizAnswer('${esc(team)}')" ${answered?'disabled':''}>
+          ${teamLogo(team, 16)}<span>${esc(team)}</span>
+        </button>`;
+      }).join('')}
+    </div>`;
+  } else {
+    answerHTML = `<div class="quiz-input-row">
+      <input class="quiz-input" id="quiz-input" type="text" placeholder="Nombre del equipo..." autocomplete="off"
+        ${answered?'disabled':''} onkeydown="if(event.key==='Enter')quizSubmitText()">
+      <button class="quiz-btn-confirm" onclick="quizSubmitText()" ${answered?'disabled':''}>OK</button>
+    </div>`;
+  }
+
+  const feedbackHTML = !answered ? '' : lastCorrect
+    ? `<div class="quiz-feedback correct">✓ ¡Correcto!</div>`
+    : `<div class="quiz-feedback wrong">✗ Era: ${teamLogo(current.team,14)} <strong>${esc(current.team)}</strong></div>`;
+
+  const isRoundOver = answered && roundAnswers.length >= 5;
+  const nextLabel   = isRoundOver ? (round >= 2 ? 'Ver resultados' : 'Siguiente ronda') : 'Siguiente';
+
+  container.innerHTML = `
+    <div class="quiz-wrap quiz-game">
+      <div class="quiz-header">
+        <span class="quiz-round-chip" style="color:${roundColors[round]}">Ronda ${round+1} · ${roundNames[round]}</span>
+        <span class="quiz-progress">${qNum} / 5</span>
+        <span class="quiz-score-chip">✓ ${totalScore}</span>
+      </div>
+      <div class="quiz-dots">${dotsHTML}</div>
+      <p class="quiz-question">¿En qué equipo juega...</p>
+      <div class="quiz-player-name">${esc(current.player)}</div>
+      ${answerHTML}
+      ${feedbackHTML}
+      ${answered ? `<button class="quiz-btn-primary" onclick="quizNextQuestion()">${nextLabel}</button>` : ''}
+    </div>`;
+
+  if (mode === 'nohints' && !answered) setTimeout(() => document.getElementById('quiz-input')?.focus(), 50);
+}
+
+function startQuiz(mode) {
+  quizState = { mode, round: 0, scores: [0,0,0], pool: buildQuizPool(),
+    used: new Set(), current: null, options: [],
+    answered: false, lastCorrect: false, selectedTeam: null, roundAnswers: [] };
+  renderQuiz();
+}
+
+function quizNextQuestion() {
+  if (!quizState) return;
+  quizState.answered = false;
+  quizState.selectedTeam = null;
+
+  if (quizState.roundAnswers.length >= 5) {
+    quizState.round++;
+    quizState.roundAnswers = [];
+    quizState.current = null;
+    renderQuiz();
+    return;
+  }
+
+  const entry = quizGetEntry();
+  if (!entry) { quizState.round++; quizState.roundAnswers = []; quizState.current = null; renderQuiz(); return; }
+
+  quizState.current = entry;
+  quizState.used.add(entry.player.toLowerCase());
+  if (quizState.mode === 'hints') quizState.options = quizGetOptions(entry.team);
+  renderQuiz();
+}
+
+function quizAnswer(team) {
+  if (!quizState || quizState.answered) return;
+  const correct = team === quizState.current.team;
+  quizState.answered = true; quizState.lastCorrect = correct; quizState.selectedTeam = team;
+  quizState.roundAnswers.push(correct);
+  if (correct) quizState.scores[quizState.round]++;
+  renderQuiz();
+}
+
+function quizSubmitText() {
+  if (!quizState || quizState.answered) return;
+  const input = document.getElementById('quiz-input');
+  if (!input || !input.value.trim()) return;
+  const correct = quizMatchTeam(input.value, quizState.current.team);
+  quizState.answered = true; quizState.lastCorrect = correct;
+  quizState.roundAnswers.push(correct);
+  if (correct) quizState.scores[quizState.round]++;
+  renderQuiz();
+}
+
 fetchAll();
 
 // Auto-refresh cada 5 minutos (silencioso, sin toast)

@@ -110,6 +110,9 @@
   <button type="button" role="tab" class="tab" onclick="showTab('teams')" id="tab-teams" aria-selected="false" aria-controls="section-teams">
     <span data-i18n="tab_teams">Equipos</span>
   </button>
+  <button type="button" role="tab" class="tab" onclick="showTab('quiz')" id="tab-quiz" aria-selected="false" aria-controls="section-quiz">
+    <span>Quiz</span>
+  </button>
 </nav>
 
 <main id="main-content">
@@ -461,6 +464,11 @@
     <div id="teams-grid" class="teams-grid"></div>
   </section>
 
+  <!-- QUIZ -->
+  <section class="section" id="section-quiz" role="tabpanel" aria-labelledby="tab-quiz">
+    <div id="quiz-container"></div>
+  </section>
+
   <!-- TEAM VIEW -->
   <section class="section" id="section-team" aria-labelledby="tv-team-name">
     <div class="team-view-top">
@@ -542,6 +550,12 @@
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
     </span>
     <span class="mobile-tab-label" data-i18n="tab_teams">EQUIPOS</span>
+  </button>
+  <button type="button" class="mobile-tab" onclick="showTab('quiz')" id="mtab-quiz" aria-controls="section-quiz">
+    <span class="mobile-tab-icon" aria-hidden="true">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </span>
+    <span class="mobile-tab-label">QUIZ</span>
   </button>
 </nav>
 
