@@ -2157,7 +2157,8 @@ function renderQuiz() {
         <div class="quiz-icon">🏀</div>
         <h2 class="quiz-title">Quiz NBA 2026</h2>
         <p class="quiz-subtitle">¿A qué equipo fue el jugador?</p>
-        <div class="quiz-modes">
+
+        <div class="quiz-modes-grid">
           <button class="quiz-mode-btn" onclick="startQuiz('hints')">
             <span class="quiz-mode-icon">💡</span>
             <span class="quiz-mode-name">Con Pistas</span>
@@ -2168,19 +2169,22 @@ function renderQuiz() {
             <span class="quiz-mode-name">Sin Pistas</span>
             <span class="quiz-mode-desc">Escribe el equipo · 3 rondas</span>
           </button>
-          <button class="quiz-mode-btn quiz-mode-infinite" onclick="startQuiz('infinite')">
-            <span class="quiz-mode-icon">∞</span>
-            <span class="quiz-mode-name">Infinito</span>
-            <span class="quiz-mode-desc">Sin pistas · hasta fallar</span>
-          </button>
         </div>
         <div class="quiz-scoring">
           <div class="quiz-scoring-row"><span class="quiz-scoring-round" style="color:var(--signed)">Fácil</span><span class="quiz-scoring-pts">1 pto por respuesta</span><span class="quiz-scoring-max">máx. 5 pts</span></div>
           <div class="quiz-scoring-row"><span class="quiz-scoring-round" style="color:var(--accent)">Medio</span><span class="quiz-scoring-pts">2 ptos por respuesta</span><span class="quiz-scoring-max">máx. 10 pts</span></div>
           <div class="quiz-scoring-row"><span class="quiz-scoring-round" style="color:var(--gone)">Difícil</span><span class="quiz-scoring-pts">3 ptos por respuesta</span><span class="quiz-scoring-max">máx. 15 pts</span></div>
-          <div class="quiz-scoring-row"><span class="quiz-scoring-round" style="color:var(--accent)">∞ Infinito</span><span class="quiz-scoring-pts">1 pto · hasta fallar</span><span class="quiz-scoring-max">ranking global</span></div>
         </div>
-        <p class="quiz-meta">
+
+        <div class="quiz-infinite-sep"></div>
+
+        <button class="quiz-mode-btn quiz-mode-infinite quiz-mode-solo" onclick="startQuiz('infinite')">
+          <span class="quiz-mode-icon">∞</span>
+          <span class="quiz-mode-name">Infinito</span>
+          <span class="quiz-mode-desc">Sin pistas · hasta fallar</span>
+        </button>
+        <p class="quiz-meta">Sin límite de preguntas · 1 fallo = fin · ranking global</p>
+        <p class="quiz-meta" style="margin-top:4px">
           <button class="quiz-link-btn" onclick="quizShowLeaderboard()">🏆 Ver ranking infinito</button>
         </p>
       </div>`;
