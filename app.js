@@ -1982,7 +1982,7 @@ function renderTeamsGrid() {
     </div>`).join('');
 }
 
-let quizState = null;
+var quizState = null;
 
 applyTheme();
 if (lang !== 'es') setLang(lang);
