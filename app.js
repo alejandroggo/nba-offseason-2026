@@ -1176,6 +1176,7 @@ function showTab(name, pushHistory = true) {
     if (mobileTab) mobileTab.classList.add('active');
     document.body.classList.remove('on-home');
     if (pushHistory) pushURL({ tab: name, team: null, player: null });
+    if (name === 'quiz') renderQuiz();
   } else {
     document.body.classList.add('on-home');
     if (pushHistory) pushURL({ tab: null, team: null, player: null });
