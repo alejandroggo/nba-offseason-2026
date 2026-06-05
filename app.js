@@ -295,10 +295,16 @@ async function fetchAll() {
   try {
     const dataKeys = ['fa', 'draft', 'trades', 'rosters1', 'rosters2', 'coaches'];
     const allKeys  = [...dataKeys, 'fecha'];
-    const settled = await Promise.allSettled(allKeys.map(k => fetch(URLS[k]).then(async r => ({
-      text: await r.text(),
-      lastModified: r.headers.get('Last-Modified'),
-    }))));
+
+    function fetchWithTimeout(url, ms = 12000) {
+      const controller = new AbortController();
+      const tid = setTimeout(() => controller.abort(), ms);
+      return fetch(url, { signal: controller.signal })
+        .then(async r => { clearTimeout(tid); return { text: await r.text(), lastModified: r.headers.get('Last-Modified') }; })
+        .catch(e => { clearTimeout(tid); throw e; });
+    }
+
+    const settled = await Promise.allSettled(allKeys.map(k => fetchWithTimeout(URLS[k])));
     let dataDate = null;
     const failed = [];
     const raw = {};
@@ -338,14 +344,18 @@ async function fetchAll() {
   } catch(e) {
     console.error(e);
     fetchComplete = true;
-    if (!localStorage.getItem(CACHE_KEY)) {
-      const errHTML = `<div class="state-empty">${t('load_error')} <button type="button" class="btn-retry" onclick="refreshData()">${t('retry')}</button></div>`;
-      [['fa-tbody',8],['draft-tbody',4],['trades-container',0],['coaches-tbody',7],['fa-pending-tbody',2]].forEach(([id, cols]) => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        el.innerHTML = cols ? `<tr><td colspan="${cols}">${errHTML}</td></tr>` : errHTML;
-      });
-    }
+    const isTimeout = e?.name === 'AbortError';
+    const msg = isTimeout ? 'La carga tardó demasiado. Comprueba tu conexión e inténtalo de nuevo.' : t('load_error');
+    const errHTML = `<div class="state-empty" style="padding:24px;text-align:center">
+      <div style="font-size:32px;margin-bottom:12px">⚠️</div>
+      <div style="margin-bottom:14px;color:var(--text-muted)">${msg}</div>
+      <button type="button" class="btn-retry" onclick="refreshData()" style="font-size:14px;padding:10px 24px">${t('retry')}</button>
+    </div>`;
+    [['fa-tbody',8],['draft-tbody',4],['trades-container',0],['coaches-tbody',7],['fa-pending-tbody',2]].forEach(([id, cols]) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.innerHTML = cols ? `<tr><td colspan="${cols}">${errHTML}</td></tr>` : errHTML;
+    });
   }
 }
 
