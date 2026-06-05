@@ -2087,9 +2087,69 @@ function quizMatchTeam(input, correctTeam) {
   return inp === full || inp === nick || inp === abbr || (inp.length >= 5 && full.includes(inp));
 }
 
+async function fetchLeaderboard() {
+  const res = await fetchWithTimeout(`${SCRIPT_URL}?action=get_leaderboard`, 10000);
+  const csv = res.text.trim();
+  if (!csv) return [];
+  return csv.split('\n').filter(Boolean).map((line, i) => {
+    const cols = line.split(',').map(c => c.replace(/^"|"$/g,'').replace(/""/g,'"'));
+    return { rank: i+1, name: cols[0]||'—', score: parseInt(cols[1])||0, date: cols[2]||'' };
+  });
+}
+
+async function quizSubmitScore() {
+  const nameEl = document.getElementById('quiz-infinite-name');
+  const name   = (nameEl?.value||'').trim() || 'Anónimo';
+  const score  = quizState.streak;
+  const btn    = document.getElementById('quiz-submit-score-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Enviando...'; }
+  try { await fetchWithTimeout(`${SCRIPT_URL}?action=add_score&name=${encodeURIComponent(name)}&score=${score}`, 8000); } catch(e) {}
+  quizState.submittedName = name;
+  quizState.leaderboardData = null;
+  renderQuiz();
+  try { quizState.leaderboardData = await fetchLeaderboard(); } catch(e) { quizState.leaderboardData = []; }
+  renderQuiz();
+}
+
+async function quizShowLeaderboard() {
+  quizState = quizState || {};
+  quizState.showingLeaderboard = true;
+  quizState.leaderboardData = null;
+  renderQuiz();
+  try { quizState.leaderboardData = await fetchLeaderboard(); } catch(e) { quizState.leaderboardData = []; }
+  renderQuiz();
+}
+
+function renderLeaderboardHTML(data, highlightName) {
+  if (!data) return `<div class="quiz-lb-loading">Cargando ranking...</div>`;
+  if (!data.length) return `<div class="quiz-lb-loading">Aún no hay puntuaciones.</div>`;
+  const medals = ['🥇','🥈','🥉'];
+  return `<div class="quiz-lb-table">
+    ${data.map(r => {
+      const isMine = highlightName && r.name.toLowerCase() === highlightName.toLowerCase();
+      return `<div class="quiz-lb-row${isMine?' mine':''}">
+        <span class="quiz-lb-rank">${medals[r.rank-1]||r.rank}</span>
+        <span class="quiz-lb-name">${esc(r.name)}</span>
+        <span class="quiz-lb-score">${r.score}</span>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
 function renderQuiz() {
   const container = document.getElementById('quiz-container');
   if (!container) return;
+
+  // ── Leaderboard standalone ───────────────────
+  if (quizState?.showingLeaderboard && !quizState?.mode) {
+    container.innerHTML = `
+      <div class="quiz-wrap">
+        <h2 class="quiz-title">🏆 Ranking Infinito</h2>
+        ${renderLeaderboardHTML(quizState.leaderboardData, null)}
+        <button class="quiz-btn-primary" onclick="quizState=null;renderQuiz()" style="margin-top:20px">← Volver</button>
+      </div>`;
+    return;
+  }
 
   if (!quizState) {
     container.innerHTML = `
@@ -2101,25 +2161,96 @@ function renderQuiz() {
           <button class="quiz-mode-btn" onclick="startQuiz('hints')">
             <span class="quiz-mode-icon">💡</span>
             <span class="quiz-mode-name">Con Pistas</span>
-            <span class="quiz-mode-desc">4 opciones de equipo</span>
+            <span class="quiz-mode-desc">4 opciones · 3 rondas</span>
           </button>
           <button class="quiz-mode-btn" onclick="startQuiz('nohints')">
             <span class="quiz-mode-icon">✏</span>
             <span class="quiz-mode-name">Sin Pistas</span>
-            <span class="quiz-mode-desc">Escribe el equipo</span>
+            <span class="quiz-mode-desc">Escribe el equipo · 3 rondas</span>
+          </button>
+          <button class="quiz-mode-btn quiz-mode-infinite" onclick="startQuiz('infinite')">
+            <span class="quiz-mode-icon">∞</span>
+            <span class="quiz-mode-name">Infinito</span>
+            <span class="quiz-mode-desc">Sin pistas · hasta fallar</span>
           </button>
         </div>
         <div class="quiz-scoring">
           <div class="quiz-scoring-row"><span class="quiz-scoring-round" style="color:var(--signed)">Fácil</span><span class="quiz-scoring-pts">1 pto por respuesta</span><span class="quiz-scoring-max">máx. 5 pts</span></div>
           <div class="quiz-scoring-row"><span class="quiz-scoring-round" style="color:var(--accent)">Medio</span><span class="quiz-scoring-pts">2 ptos por respuesta</span><span class="quiz-scoring-max">máx. 10 pts</span></div>
           <div class="quiz-scoring-row"><span class="quiz-scoring-round" style="color:var(--gone)">Difícil</span><span class="quiz-scoring-pts">3 ptos por respuesta</span><span class="quiz-scoring-max">máx. 15 pts</span></div>
+          <div class="quiz-scoring-row"><span class="quiz-scoring-round" style="color:var(--accent)">∞ Infinito</span><span class="quiz-scoring-pts">1 pto · hasta fallar</span><span class="quiz-scoring-max">ranking global</span></div>
         </div>
-        <p class="quiz-meta">3 rondas · 5 preguntas cada una · 30 puntos</p>
+        <p class="quiz-meta">
+          <button class="quiz-link-btn" onclick="quizShowLeaderboard()">🏆 Ver ranking infinito</button>
+        </p>
       </div>`;
     return;
   }
 
   const { round, roundAnswers, scores, mode, current, answered, lastCorrect, selectedTeam } = quizState;
+
+  // ── MODO INFINITO ────────────────────────────
+  if (mode === 'infinite') {
+    const { streak, gameOver, leaderboardData, submittedName } = quizState;
+
+    // Leaderboard post-envío
+    if (gameOver && submittedName !== undefined) {
+      container.innerHTML = `
+        <div class="quiz-wrap">
+          <h2 class="quiz-title">🏆 Ranking Infinito</h2>
+          <p class="quiz-subtitle" style="margin-bottom:16px">Tu puntuación: <strong>${streak}</strong></p>
+          ${renderLeaderboardHTML(leaderboardData, submittedName)}
+          <button class="quiz-btn-primary" onclick="quizState=null;renderQuiz()" style="margin-top:20px">Jugar de nuevo</button>
+        </div>`;
+      return;
+    }
+
+    // Game over — pedir nombre
+    if (gameOver) {
+      const teamOptions = Object.keys(TEAM_LOGOS).map(t => `<option value="${esc(t)}">`).join('');
+      container.innerHTML = `
+        <div class="quiz-wrap quiz-results">
+          <div class="quiz-icon">🚫</div>
+          <h2 class="quiz-title">Oh! Blocked by James!</h2>
+          <p class="quiz-subtitle">La respuesta era: ${teamLogo(current.team,16)} <strong>${esc(current.team)}</strong></p>
+          <div class="quiz-total-score">${streak}<span> preguntas</span></div>
+          <p class="quiz-subtitle" style="margin-bottom:8px">Introduce tu nombre para el ranking:</p>
+          <div class="quiz-input-row" style="max-width:320px;margin:0 auto 12px">
+            <input class="quiz-input" id="quiz-infinite-name" type="text" placeholder="Tu nombre..." maxlength="30"
+              onkeydown="if(event.key==='Enter')quizSubmitScore()">
+            <button class="quiz-btn-confirm" id="quiz-submit-score-btn" onclick="quizSubmitScore()">Enviar</button>
+          </div>
+          <button class="quiz-link-btn" onclick="quizShowLeaderboard()" style="display:block;margin:8px auto">Solo ver ranking</button>
+          <button class="quiz-btn-primary" onclick="quizState=null;renderQuiz()" style="margin-top:8px">Jugar de nuevo</button>
+        </div>`;
+      setTimeout(() => document.getElementById('quiz-infinite-name')?.focus(), 50);
+      return;
+    }
+
+    // Pregunta
+    const teamOptions = Object.keys(TEAM_LOGOS).map(t => `<option value="${esc(t)}">`).join('');
+    const feedbackHTML = !answered ? '' : `<div class="quiz-feedback correct">BANG! 🏀</div>`;
+    container.innerHTML = `
+      <div class="quiz-wrap quiz-game">
+        <div class="quiz-header">
+          <span class="quiz-round-chip" style="color:var(--accent)">∞ Infinito</span>
+          <span class="quiz-score-chip" style="font-size:20px;font-weight:900">${streak}</span>
+        </div>
+        <p class="quiz-question">¿En qué equipo juega...</p>
+        <div class="quiz-player-name">${esc(current.player)}</div>
+        <datalist id="quiz-teams-inf">${teamOptions}</datalist>
+        <div class="quiz-input-row">
+          <input class="quiz-input" id="quiz-input" type="text" placeholder="Nombre del equipo..."
+            list="quiz-teams-inf" autocomplete="off"
+            ${answered?'disabled':''} onkeydown="if(event.key==='Enter')quizSubmitText()">
+          <button class="quiz-btn-confirm" onclick="quizSubmitText()" ${answered?'disabled':''}>OK</button>
+        </div>
+        ${feedbackHTML}
+        ${answered ? `<button class="quiz-btn-primary" onclick="quizInfiniteNext()">Siguiente</button>` : ''}
+      </div>`;
+    if (!answered) setTimeout(() => document.getElementById('quiz-input')?.focus(), 50);
+    return;
+  }
 
   if (round >= 3) {
     const total = scores.reduce((a, b) => a + b, 0);
@@ -2222,9 +2353,29 @@ function renderQuiz() {
 }
 
 function startQuiz(mode) {
-  quizState = { mode, round: 0, scores: [0,0,0], pool: buildQuizPool(),
+  const pool = buildQuizPool();
+  if (mode === 'infinite') {
+    const all = [...pool.easy, ...pool.medium, ...pool.hard];
+    for (let i = all.length-1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [all[i],all[j]]=[all[j],all[i]]; }
+    quizState = { mode, streak: 0, pool: all, used: new Set(),
+      current: null, answered: false, lastCorrect: false, gameOver: false };
+    quizInfiniteNext();
+    return;
+  }
+  quizState = { mode, round: 0, scores: [0,0,0], pool,
     used: new Set(), current: null, options: [],
     answered: false, lastCorrect: false, selectedTeam: null, roundAnswers: [] };
+  renderQuiz();
+}
+
+function quizInfiniteNext() {
+  if (!quizState || quizState.mode !== 'infinite') return;
+  quizState.answered = false;
+  const available = quizState.pool.filter(e => !quizState.used.has(e.player.toLowerCase()));
+  if (!available.length) { quizState.gameOver = true; renderQuiz(); return; }
+  const entry = available[Math.floor(Math.random() * available.length)];
+  quizState.current = entry;
+  quizState.used.add(entry.player.toLowerCase());
   renderQuiz();
 }
 
@@ -2254,8 +2405,13 @@ function quizAnswer(team) {
   if (!quizState || quizState.answered) return;
   const correct = team === quizState.current.team;
   quizState.answered = true; quizState.lastCorrect = correct; quizState.selectedTeam = team;
-  quizState.roundAnswers.push(correct);
-  if (correct) quizState.scores[quizState.round] += [1, 2, 3][quizState.round];
+  if (quizState.mode === 'infinite') {
+    if (correct) quizState.streak++;
+    else quizState.gameOver = true;
+  } else {
+    quizState.roundAnswers.push(correct);
+    if (correct) quizState.scores[quizState.round] += [1, 2, 3][quizState.round];
+  }
   renderQuiz();
 }
 
@@ -2265,8 +2421,13 @@ function quizSubmitText() {
   if (!input || !input.value.trim()) return;
   const correct = quizMatchTeam(input.value, quizState.current.team);
   quizState.answered = true; quizState.lastCorrect = correct;
-  quizState.roundAnswers.push(correct);
-  if (correct) quizState.scores[quizState.round] += [1, 2, 3][quizState.round];
+  if (quizState.mode === 'infinite') {
+    if (correct) quizState.streak++;
+    else quizState.gameOver = true;
+  } else {
+    quizState.roundAnswers.push(correct);
+    if (correct) quizState.scores[quizState.round] += [1, 2, 3][quizState.round];
+  }
   renderQuiz();
 }
 

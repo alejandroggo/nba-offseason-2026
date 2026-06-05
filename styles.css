@@ -1921,3 +1921,25 @@
   .quiz-scoring-round { font-weight: 700; }
   .quiz-scoring-pts { color: var(--text-muted); }
   .quiz-scoring-max { font-weight: 600; color: var(--text); white-space: nowrap; }
+
+  .quiz-mode-infinite { border-color: var(--accent); }
+  .quiz-mode-infinite .quiz-mode-icon { color: var(--accent); }
+
+  .quiz-link-btn {
+    background: none; border: none; color: var(--accent); font-size: 13px;
+    cursor: pointer; text-decoration: underline; padding: 4px;
+  }
+  .quiz-link-btn:hover { opacity: 0.75; }
+
+  .quiz-lb-loading { color: var(--text-muted); font-size: 14px; padding: 24px 0; }
+  .quiz-lb-table { width: 100%; margin: 8px 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .quiz-lb-row {
+    display: grid; grid-template-columns: 40px 1fr 50px;
+    align-items: center; padding: 10px 16px;
+    border-bottom: 1px solid var(--border); font-size: 14px;
+  }
+  .quiz-lb-row:last-child { border-bottom: none; }
+  .quiz-lb-row.mine { background: rgba(var(--accent-rgb),0.08); font-weight: 700; }
+  .quiz-lb-rank { font-size: 18px; text-align: center; }
+  .quiz-lb-name { color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .quiz-lb-score { text-align: right; font-weight: 700; color: var(--accent); }
