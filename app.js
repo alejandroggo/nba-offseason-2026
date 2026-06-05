@@ -1982,6 +1982,8 @@ function renderTeamsGrid() {
     </div>`).join('');
 }
 
+let quizState = null;
+
 applyTheme();
 if (lang !== 'es') setLang(lang);
 // A11y: add scope="col" a todos los th de cabecera
@@ -2015,8 +2017,6 @@ document.addEventListener('keydown', function(e) {
 // ─────────────────────────────────────────────
 // QUIZ
 // ─────────────────────────────────────────────
-let quizState = null;
-
 function buildQuizPool() {
   const easy = [], medium = [], hard = [];
   const seen = new Set();
