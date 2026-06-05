@@ -2109,7 +2109,7 @@ function renderQuiz() {
             <span class="quiz-mode-desc">Escribe el equipo</span>
           </button>
         </div>
-        <p class="quiz-meta">3 rondas · 5 preguntas cada una · 15 puntos</p>
+        <p class="quiz-meta">3 rondas · 5 preguntas cada una · 30 puntos</p>
       </div>`;
     return;
   }
@@ -2118,18 +2118,18 @@ function renderQuiz() {
 
   if (round >= 3) {
     const total = scores.reduce((a, b) => a + b, 0);
-    const emoji = total >= 13 ? '🏆' : total >= 10 ? '🎯' : total >= 6 ? '👏' : '📚';
+    const emoji = total >= 26 ? '🏆' : total >= 20 ? '🎯' : total >= 12 ? '👏' : '📚';
     const roundNames = ['Fácil','Medio','Difícil'];
     container.innerHTML = `
       <div class="quiz-wrap quiz-results">
         <div class="quiz-icon">${emoji}</div>
         <h2 class="quiz-title">¡Partida terminada!</h2>
-        <div class="quiz-total-score">${total}<span> / 15</span></div>
+        <div class="quiz-total-score">${total}<span> / 30</span></div>
         <div class="quiz-round-scores">
           ${scores.map((s, i) => `
             <div class="quiz-round-score-item">
               <span class="quiz-round-score-label">${roundNames[i]}</span>
-              <span class="quiz-round-score-pts">${s}/5</span>
+              <span class="quiz-round-score-pts">${s}/${[5,10,15][i]}</span>
             </div>`).join('')}
         </div>
         <button class="quiz-btn-primary" onclick="quizState=null;renderQuiz()">Jugar de nuevo</button>
@@ -2250,7 +2250,7 @@ function quizAnswer(team) {
   const correct = team === quizState.current.team;
   quizState.answered = true; quizState.lastCorrect = correct; quizState.selectedTeam = team;
   quizState.roundAnswers.push(correct);
-  if (correct) quizState.scores[quizState.round]++;
+  if (correct) quizState.scores[quizState.round] += [1, 2, 3][quizState.round];
   renderQuiz();
 }
 
@@ -2261,7 +2261,7 @@ function quizSubmitText() {
   const correct = quizMatchTeam(input.value, quizState.current.team);
   quizState.answered = true; quizState.lastCorrect = correct;
   quizState.roundAnswers.push(correct);
-  if (correct) quizState.scores[quizState.round]++;
+  if (correct) quizState.scores[quizState.round] += [1, 2, 3][quizState.round];
   renderQuiz();
 }
 
