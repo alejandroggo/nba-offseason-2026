@@ -2137,6 +2137,7 @@ function renderLeaderboardHTML(data, highlightName) {
 }
 
 function renderQuiz() {
+  if (impostorState !== null) { renderImpostor(); return; }
   const container = document.getElementById('quiz-container');
   if (!container) return;
 
@@ -2187,6 +2188,15 @@ function renderQuiz() {
         <p class="quiz-meta" style="margin-top:4px">
           <button class="quiz-link-btn" onclick="quizShowLeaderboard()">🏆 Ver ranking infinito</button>
         </p>
+
+        <div class="quiz-infinite-sep"></div>
+        <div style="display:flex;justify-content:center">
+          <button class="quiz-mode-btn" style="max-width:240px" onclick="startImpostor()">
+            <span class="quiz-mode-icon">🕵️</span>
+            <span class="quiz-mode-name">El Impostor</span>
+            <span class="quiz-mode-desc">¿Quién no encaja? · uno a uno</span>
+          </button>
+        </div>
       </div>`;
     return;
   }
@@ -2433,6 +2443,165 @@ function quizSubmitText() {
     if (correct) quizState.scores[quizState.round] += [1, 2, 3][quizState.round];
   }
   renderQuiz();
+}
+
+// ─────────────────────────────────────────────
+// EL IMPOSTOR
+// ─────────────────────────────────────────────
+var impostorState = null;
+
+function imp_shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+
+function buildImpostorPool() {
+  const questions = [];
+  const cleanName = n => { const { name } = parseTW((n||'').replace(/\s*\((?:RFA|TO|PO)\)\s*/gi, '')); return name.trim(); };
+
+  // Map: team → all current players (siguen + llegadas)
+  const teamRoster = {};
+  DATA.rosters.forEach(team => {
+    const players = [
+      ...(team.siguen  || []).map(p => cleanName(p.name)),
+      ...(team.llegadas|| []).map(p => cleanName(p.name))
+    ].filter(Boolean);
+    if (players.length >= 4) teamRoster[team.team] = players;
+  });
+  const allTeams = Object.keys(teamRoster);
+
+  // Category A: Plantilla — 4 del equipo, 2 de otros
+  allTeams.forEach(teamName => {
+    const correct4 = imp_shuffle(teamRoster[teamName]).slice(0, 4);
+    const impostors = imp_shuffle(
+      allTeams.filter(t => t !== teamName).flatMap(t => teamRoster[t])
+    ).slice(0, 2);
+    if (impostors.length < 2) return;
+    questions.push({
+      type: 'plantilla',
+      team: teamName,
+      question: `¿Cuáles están en la plantilla de los ${teamName}?`,
+      reveal: `Los 4 son jugadores de los ${teamName}`,
+      players: imp_shuffle([...correct4, ...impostors]),
+      correctSet: new Set(correct4)
+    });
+  });
+
+  // Category B: Cambios — 4 que llegaron (llegadas), 2 que se quedaron (siguen)
+  const arrivals = [], staying = [];
+  DATA.rosters.forEach(team => {
+    (team.llegadas || []).forEach(p => { const n = cleanName(p.name); if (n) arrivals.push(n); });
+    (team.siguen   || []).forEach(p => { const n = cleanName(p.name); if (n) staying.push(n); });
+  });
+  const arrS = imp_shuffle(arrivals), staS = imp_shuffle(staying);
+  for (let i = 0; i + 4 <= arrS.length; i += 4) {
+    const correct4 = arrS.slice(i, i + 4);
+    const impostors = staS.slice((i / 4) * 2, (i / 4) * 2 + 2);
+    if (impostors.length < 2) break;
+    questions.push({
+      type: 'cambios',
+      question: '¿Cuáles de estos jugadores cambiaron de equipo este verano?',
+      reveal: 'Los 4 cambiaron de equipo este verano',
+      players: imp_shuffle([...correct4, ...impostors]),
+      correctSet: new Set(correct4)
+    });
+  }
+
+  return imp_shuffle(questions);
+}
+
+function startImpostor() {
+  const pool = buildImpostorPool();
+  if (!pool.length) return;
+  quizState = null;
+  impostorState = { pool, qIdx: 0, streak: 0, selected: new Set(), gameOver: false, wrongPlayer: null, transitioning: false };
+  renderQuiz();
+}
+
+function impostorClick(playerName) {
+  if (!impostorState || impostorState.gameOver || impostorState.transitioning) return;
+  const q = impostorState.pool[impostorState.qIdx];
+  if (impostorState.selected.has(playerName)) return;
+  impostorState.selected.add(playerName);
+
+  if (q.correctSet.has(playerName)) {
+    if (impostorState.selected.size === q.correctSet.size) {
+      impostorState.transitioning = true;
+      renderQuiz();
+      setTimeout(() => {
+        impostorState.streak++;
+        impostorState.qIdx++;
+        impostorState.selected = new Set();
+        impostorState.transitioning = false;
+        if (impostorState.qIdx >= impostorState.pool.length) impostorState.gameOver = true;
+        renderQuiz();
+      }, 900);
+    } else {
+      renderQuiz();
+    }
+  } else {
+    impostorState.gameOver = true;
+    impostorState.wrongPlayer = playerName;
+    renderQuiz();
+  }
+}
+
+function renderImpostor() {
+  const container = document.getElementById('quiz-container');
+  if (!container || !impostorState) return;
+  const { pool, qIdx, streak, gameOver, selected, transitioning, wrongPlayer } = impostorState;
+
+  // Game over or all questions done
+  if (gameOver) {
+    const q = pool[Math.min(qIdx, pool.length - 1)];
+    const isFinished = !wrongPlayer; // completed all questions
+    const revealHTML = q.players.map(p => {
+      const isCorrect = q.correctSet.has(p);
+      const wasSelected = selected.has(p);
+      let cls = 'imp-card';
+      if (wrongPlayer === p) cls += ' imp-wrong';
+      else if (isCorrect) cls += ' imp-correct-reveal';
+      else cls += ' imp-impostor-reveal';
+      return `<div class="${cls}">${esc(p)}</div>`;
+    }).join('');
+    container.innerHTML = `
+      <div class="quiz-wrap">
+        <div class="quiz-icon">${isFinished ? '🏆' : '🚫'}</div>
+        <h2 class="quiz-title">${isFinished ? '¡Completado!' : '¡Impostor!'}</h2>
+        ${wrongPlayer ? `<p class="quiz-subtitle"><strong>${esc(wrongPlayer)}</strong> no estaba en la lista</p>` : ''}
+        <div class="quiz-total-score">${streak}<span> ronda${streak !== 1 ? 's' : ''}</span></div>
+        ${!isFinished ? `<p class="quiz-subtitle" style="font-size:12px;margin:4px 0 10px">${esc(q.question)}</p>
+        <div class="imp-grid">${revealHTML}</div>
+        <p class="quiz-meta">${esc(q.reveal)}</p>` : ''}
+        <button class="quiz-btn-primary" onclick="impostorState=null;renderQuiz()" style="margin-top:16px">Jugar de nuevo</button>
+      </div>`;
+    return;
+  }
+
+  // Active question
+  const q = pool[qIdx];
+  const cardsHTML = q.players.map(p => {
+    const isSelected = selected.has(p);
+    const isCorrect = q.correctSet.has(p);
+    let cls = 'imp-card imp-btn';
+    if (isSelected && isCorrect) cls += ' imp-correct';
+    if (transitioning) cls = 'imp-card imp-correct'; // all green on transition
+    const disabled = (isSelected || transitioning) ? 'disabled' : '';
+    return `<button class="${cls}" onclick="impostorClick(this.dataset.p)" data-p="${esc(p)}" ${disabled}>${esc(p)}</button>`;
+  }).join('');
+
+  container.innerHTML = `
+    <div class="quiz-wrap quiz-game">
+      <div class="quiz-header">
+        <span class="quiz-round-chip">🕵️ El Impostor</span>
+        <span class="quiz-score-chip">✓ ${streak} rondas</span>
+      </div>
+      <p class="quiz-question" style="font-size:15px;font-weight:600;margin-bottom:4px">${esc(q.question)}</p>
+      <p class="quiz-meta" style="margin-bottom:16px">${selected.size} / 4 · toca uno a uno</p>
+      <div class="imp-grid">${cardsHTML}</div>
+      ${q.type === 'plantilla' ? `<p class="quiz-meta" style="margin-top:8px">${teamLogo(q.team, 14)} ${esc(q.team)}</p>` : ''}
+    </div>`;
 }
 
 fetchAll();
