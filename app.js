@@ -2182,8 +2182,8 @@ function renderQuiz() {
   }
 
   const feedbackHTML = !answered ? '' : lastCorrect
-    ? `<div class="quiz-feedback correct">✓ ¡Correcto!</div>`
-    : `<div class="quiz-feedback wrong">✗ Era: ${teamLogo(current.team,14)} <strong>${esc(current.team)}</strong></div>`;
+    ? `<div class="quiz-feedback correct">BANG! 🏀</div>`
+    : `<div class="quiz-feedback wrong">Oh! Blocked by James! (Era: ${teamLogo(current.team,14)} <strong>${esc(current.team)}</strong>)</div>`;
 
   const isRoundOver = answered && roundAnswers.length >= 5;
   const nextLabel   = isRoundOver ? (round >= 2 ? 'Ver resultados' : 'Siguiente ronda') : 'Siguiente';
