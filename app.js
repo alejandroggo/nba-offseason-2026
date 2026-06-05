@@ -2088,8 +2088,8 @@ function quizMatchTeam(input, correctTeam) {
 }
 
 async function fetchLeaderboard() {
-  const res = await fetchWithTimeout(`${SCRIPT_URL}?action=get_leaderboard`, 15000);
-  const csv = res.text.trim();
+  const r = await fetch(`${SCRIPT_URL}?action=get_leaderboard`);
+  const csv = (await r.text()).trim();
   if (!csv) return [];
   return csv.split('\n').filter(Boolean).map((line, i) => {
     const cols = line.split(',').map(c => c.replace(/^"|"$/g,'').replace(/""/g,'"'));
@@ -2103,7 +2103,7 @@ async function quizSubmitScore() {
   const score  = quizState.streak;
   const btn    = document.getElementById('quiz-submit-score-btn');
   if (btn) { btn.disabled = true; btn.textContent = 'Enviando...'; }
-  try { await fetchWithTimeout(`${SCRIPT_URL}?action=add_score&name=${encodeURIComponent(name)}&score=${score}`, 8000); } catch(e) {}
+  try { await fetch(`${SCRIPT_URL}?action=add_score&name=${encodeURIComponent(name)}&score=${score}`); } catch(e) {}
   quizState.submittedName = name;
   quizState.leaderboardData = null;
   renderQuiz();
