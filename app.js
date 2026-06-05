@@ -2147,7 +2147,7 @@ function renderQuiz() {
       <div class="quiz-wrap">
         <h2 class="quiz-title">🏆 Ranking Infinito</h2>
         ${renderLeaderboardHTML(quizState.leaderboardData, null)}
-        <button class="quiz-btn-primary" onclick="quizState=null;renderQuiz()" style="margin-top:20px">← Volver</button>
+        <button class="quiz-btn-primary" onclick="quizState={modeSelect:true};renderQuiz()" style="margin-top:20px">← Volver</button>
       </div>`;
     return;
   }
@@ -2156,7 +2156,28 @@ function renderQuiz() {
     container.innerHTML = `
       <div class="quiz-wrap quiz-start">
         <div class="quiz-icon">🏀</div>
-        <h2 class="quiz-title">Quiz NBA 2026</h2>
+        <h2 class="quiz-title">Juegos NBA 2026</h2>
+        <div class="juegos-home-grid">
+          <button class="juegos-card" onclick="quizState={modeSelect:true};renderQuiz()">
+            <span class="juegos-card-icon">🏀</span>
+            <span class="juegos-card-name">¿Dónde Juega?</span>
+            <span class="juegos-card-desc">Adivina el equipo de cada jugador</span>
+          </button>
+          <button class="juegos-card" onclick="startImpostor()">
+            <span class="juegos-card-icon">🕵️</span>
+            <span class="juegos-card-name">El Impostor</span>
+            <span class="juegos-card-desc">¿Quién no encaja en la plantilla?</span>
+          </button>
+        </div>
+      </div>`;
+    return;
+  }
+
+  if (quizState.modeSelect) {
+    container.innerHTML = `
+      <div class="quiz-wrap quiz-start">
+        <div class="quiz-icon">🏀</div>
+        <h2 class="quiz-title">¿Dónde Juega?</h2>
         <p class="quiz-subtitle">¿A qué equipo fue el jugador?</p>
 
         <div class="quiz-modes-grid">
@@ -2190,13 +2211,7 @@ function renderQuiz() {
         </p>
 
         <div class="quiz-infinite-sep"></div>
-        <div style="display:flex;justify-content:center">
-          <button class="quiz-mode-btn" style="max-width:240px" onclick="startImpostor()">
-            <span class="quiz-mode-icon">🕵️</span>
-            <span class="quiz-mode-name">El Impostor</span>
-            <span class="quiz-mode-desc">¿Quién no encaja? · uno a uno</span>
-          </button>
-        </div>
+        <button class="quiz-btn-secondary" onclick="quizState=null;renderQuiz()">← Volver a Juegos</button>
       </div>`;
     return;
   }
@@ -2214,7 +2229,7 @@ function renderQuiz() {
           <h2 class="quiz-title">🏆 Ranking Infinito</h2>
           <p class="quiz-subtitle" style="margin-bottom:16px">Tu puntuación: <strong>${streak}</strong></p>
           ${renderLeaderboardHTML(leaderboardData, submittedName)}
-          <button class="quiz-btn-primary" onclick="quizState=null;renderQuiz()" style="margin-top:20px">Jugar de nuevo</button>
+          <button class="quiz-btn-primary" onclick="quizState={modeSelect:true};renderQuiz()" style="margin-top:20px">Jugar de nuevo</button>
         </div>`;
       return;
     }
@@ -2235,7 +2250,7 @@ function renderQuiz() {
             <button class="quiz-btn-confirm" id="quiz-submit-score-btn" onclick="quizSubmitScore()">Enviar</button>
           </div>
           <button class="quiz-link-btn" onclick="quizShowLeaderboard()" style="display:block;margin:8px auto">Solo ver ranking</button>
-          <button class="quiz-btn-primary" onclick="quizState=null;renderQuiz()" style="margin-top:8px">Jugar de nuevo</button>
+          <button class="quiz-btn-primary" onclick="quizState={modeSelect:true};renderQuiz()" style="margin-top:8px">Jugar de nuevo</button>
         </div>`;
       setTimeout(() => document.getElementById('quiz-infinite-name')?.focus(), 50);
       return;
@@ -2282,7 +2297,7 @@ function renderQuiz() {
               <span class="quiz-round-score-pts">${s}/${[5,10,15][i]}</span>
             </div>`).join('')}
         </div>
-        <button class="quiz-btn-primary" onclick="quizState=null;renderQuiz()">Jugar de nuevo</button>
+        <button class="quiz-btn-primary" onclick="quizState={modeSelect:true};renderQuiz()">Jugar de nuevo</button>
       </div>`;
     return;
   }
@@ -2481,8 +2496,8 @@ function buildImpostorPool() {
     questions.push({
       type: 'plantilla',
       team: teamName,
-      question: `¿Cuáles están en la plantilla de los ${teamName}?`,
-      reveal: `Los 4 son jugadores de los ${teamName}`,
+      question: `¿Qué jugadores están en la plantilla de ${teamName.startsWith('Los ') ? '' : 'los '}${teamName}?`,
+      reveal: `Los 4 son jugadores de ${teamName.startsWith('Los ') ? '' : 'los '}${teamName}`,
       players: imp_shuffle([...correct4, ...impostors]),
       correctSet: new Set(correct4)
     });
@@ -2586,7 +2601,7 @@ function renderImpostor() {
     const isCorrect = q.correctSet.has(p);
     let cls = 'imp-card imp-btn';
     if (isSelected && isCorrect) cls += ' imp-correct';
-    if (transitioning) cls = 'imp-card imp-correct'; // all green on transition
+    if (transitioning) cls = 'imp-card ' + (isCorrect ? 'imp-correct' : 'imp-avoided');
     const disabled = (isSelected || transitioning) ? 'disabled' : '';
     return `<button class="${cls}" onclick="impostorClick(this.dataset.p)" data-p="${esc(p)}" ${disabled}>${esc(p)}</button>`;
   }).join('');
