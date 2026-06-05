@@ -2171,8 +2171,11 @@ function renderQuiz() {
       }).join('')}
     </div>`;
   } else {
-    answerHTML = `<div class="quiz-input-row">
-      <input class="quiz-input" id="quiz-input" type="text" placeholder="Nombre del equipo..." autocomplete="off"
+    const teamOptions = Object.keys(TEAM_LOGOS).map(t => `<option value="${esc(t)}">`).join('');
+    answerHTML = `<datalist id="quiz-teams">${teamOptions}</datalist>
+    <div class="quiz-input-row">
+      <input class="quiz-input" id="quiz-input" type="text" placeholder="Nombre del equipo..."
+        list="quiz-teams" autocomplete="off"
         ${answered?'disabled':''} onkeydown="if(event.key==='Enter')quizSubmitText()">
       <button class="quiz-btn-confirm" onclick="quizSubmitText()" ${answered?'disabled':''}>OK</button>
     </div>`;
