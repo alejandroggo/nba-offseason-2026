@@ -828,7 +828,15 @@ function parseSalidaReason(rawName) {
   const m = (rawName || '').match(/\(([^)]+)\)\s*$/);
   if (m) {
     const nameWithoutTag = rawName.replace(/\s*\([^)]+\)\s*$/, '').trim();
-    const key = SALIDA_REASON_MAP[m[1].trim().toLowerCase()];
+    const tagContent = m[1].trim();
+    const colonIdx = tagContent.indexOf(':');
+    if (colonIdx !== -1) {
+      const tagKey = tagContent.slice(0, colonIdx).trim().toLowerCase();
+      const dest = tagContent.slice(colonIdx + 1).trim();
+      const key = SALIDA_REASON_MAP[tagKey];
+      if (key) return { name: nameWithoutTag, reasonKey: key, dest };
+    }
+    const key = SALIDA_REASON_MAP[tagContent.toLowerCase()];
     return { name: nameWithoutTag, reasonKey: key || 'waived' };
   }
   return { name: (rawName || '').trim(), reasonKey: 'waived' };
@@ -1769,8 +1777,8 @@ function openTeamView(teamName, pushHistory = true) {
     ...tradeOut.map(r => stripTag(r.item)),
   ]);
   (roster?.salidas || []).forEach(p => {
-    const { name, reasonKey } = parseSalidaReason(p.name);
-    if (!seenOut.has(stripTag(name))) faOut.push({ player: name, dest: '', reasonKey });
+    const { name, reasonKey, dest } = parseSalidaReason(p.name);
+    if (!seenOut.has(stripTag(name))) faOut.push({ player: name, dest: dest || '', reasonKey });
   });
 
   const itemPosTag = (item, pos) => {
@@ -1840,7 +1848,12 @@ function openTeamView(teamName, pushHistory = true) {
   html += `<div class="tv-section-title" style="color:var(--gone)">${t('roster_departures')}</div>
   <div class="team-view-grid" style="margin-bottom:28px">
     ${tvCard(t('roster_salidas_fa'), faOut.length,
-        faOut.length ? faOut.map(d => tvRow(itemPosTag(d.player, d.pos) + esc(d.player), d.dest ? `→ ${esc(d.dest)}` : t(`roster_${d.reasonKey || 'waived'}`), '', d.player)).join('') : tvEmpty())}
+        faOut.length ? faOut.map(d => {
+          const detail = d.dest
+            ? (d.reasonKey === 'overseas' ? `${t('roster_overseas')} · ${esc(d.dest)}` : `→ ${esc(d.dest)}`)
+            : t(`roster_${d.reasonKey || 'waived'}`);
+          return tvRow(itemPosTag(d.player, d.pos) + esc(d.player), detail, '', d.player);
+        }).join('') : tvEmpty())}
     ${tvCard(t('roster_salidas_trade'), tradeOut.length,
         tradeOut.length ? tradeOut.map(r => tvRow(itemPosTag(r.item, r.pos) + esc(r.item), `→ ${esc(r.to)}`, '', r.item)).join('') : tvEmpty())}
     ${tvCard(t('roster_fa_pending'), faPending.length,
