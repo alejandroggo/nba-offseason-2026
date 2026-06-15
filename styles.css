@@ -1503,6 +1503,44 @@
   /* ── HOME ROWS ── */
   .home-rows { display: flex; flex-direction: column; flex: 1; }
 
+  /* ── CALENDARIO ─────────────────────────── */
+  .cal-section { padding: 28px 48px 8px; }
+  .cal-header {
+    font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+  .cal-timeline { display: flex; flex-direction: column; gap: 2px; }
+  .cal-month {
+    font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted);
+    padding: 12px 0 6px; margin-top: 4px;
+  }
+  .cal-month:first-child { margin-top: 0; padding-top: 0; }
+  .cal-event {
+    display: flex; align-items: center; gap: 16px;
+    padding: 10px 14px; border-radius: 8px;
+    border-left: 3px solid transparent;
+  }
+  .cal-event--past   { opacity: 0.38; border-left-color: var(--border); }
+  .cal-event--upcoming { border-left-color: var(--border); }
+  .cal-event--active { background: rgba(var(--accent-rgb, 45,122,58),.08); border-left-color: var(--accent); }
+  .cal-event-date {
+    font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500;
+    color: var(--text-muted); min-width: 64px; flex-shrink: 0;
+  }
+  .cal-event--active .cal-event-date { color: var(--accent); }
+  .cal-event-body { flex: 1; min-width: 0; }
+  .cal-event-title { font-size: 13px; font-weight: 600; color: var(--text); }
+  .cal-event-detail { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .cal-badge {
+    font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500;
+    border-radius: 4px; padding: 2px 7px; flex-shrink: 0; letter-spacing: 0.04em;
+  }
+  .cal-badge--now      { background: rgba(var(--accent-rgb,45,122,58),.15); color: var(--accent); }
+  .cal-badge--soon     { background: rgba(239,168,68,.15); color: #d97706; }
+  .cal-badge--upcoming { background: var(--surface); color: var(--text-muted); border: 1px solid var(--border); }
+
   .home-sources {
     padding: 20px 48px 8px;
     display: flex;

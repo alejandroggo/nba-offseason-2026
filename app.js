@@ -2647,6 +2647,64 @@ function renderImpostor() {
     </div>`;
 }
 
+// ── CALENDARIO ───────────────────────────────────────────────────────────────
+const CAL_EVENTS = [
+  { date: '2026-06-23', end: null,         title: 'Draft NBA – 1ª Ronda',             detail: '20:00 ET · ABC/ESPN' },
+  { date: '2026-06-24', end: null,         title: 'Draft NBA – 2ª Ronda',             detail: '20:00 ET · ESPN' },
+  { date: '2026-06-30', end: null,         title: 'Inicio negociaciones FA',           detail: '18:00 ET' },
+  { date: '2026-07-03', end: '2026-07-06', title: 'California Classic Summer League', detail: 'Chase Center (SF) · Golden 1 Center (SAC)' },
+  { date: '2026-07-04', end: '2026-07-07', title: 'Salt Lake City Summer League',     detail: 'Jon M. Huntsman Center (SLC)' },
+  { date: '2026-07-06', end: null,         title: 'Apertura oficial de FA',           detail: '12:01 ET' },
+  { date: '2026-07-09', end: '2026-07-19', title: 'NBA Summer League Las Vegas',      detail: '' },
+];
+
+function renderCalendar() {
+  const el = document.getElementById('cal-container');
+  if (!el) return;
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const toD = s => { const [y, m, d] = s.split('-'); return new Date(+y, +m - 1, +d); };
+  const diffDays = d => Math.round((d - today) / 86400000);
+
+  let lastMonth = '';
+  const rows = CAL_EVENTS.map(ev => {
+    const start = toD(ev.date);
+    const end   = ev.end ? toD(ev.end) : start;
+    const isPast   = end < today;
+    const isActive = start <= today && today <= end;
+    const daysTo   = diffDays(start);
+
+    const monthKey = start.toLocaleString('es-ES', { month: 'long', year: 'numeric' });
+    let monthHeader = '';
+    if (monthKey !== lastMonth) {
+      lastMonth = monthKey;
+      monthHeader = `<div class="cal-month">${monthKey.charAt(0).toUpperCase() + monthKey.slice(1)}</div>`;
+    }
+
+    const dateStr = ev.end
+      ? `${start.getDate()}–${end.getDate()} ${start.toLocaleString('es-ES', { month: 'short' })}`
+      : `${start.getDate()} ${start.toLocaleString('es-ES', { month: 'short' })}`;
+
+    let badge = '';
+    if (isActive)            badge = `<span class="cal-badge cal-badge--now">En curso</span>`;
+    else if (!isPast && daysTo <= 7) badge = `<span class="cal-badge cal-badge--soon">en ${daysTo} día${daysTo !== 1 ? 's' : ''}</span>`;
+    else if (!isPast)        badge = `<span class="cal-badge cal-badge--upcoming">en ${daysTo} días</span>`;
+
+    const cls = isPast ? 'cal-event cal-event--past' : isActive ? 'cal-event cal-event--active' : 'cal-event cal-event--upcoming';
+    return `${monthHeader}<div class="${cls}">
+      <div class="cal-event-date">${dateStr}</div>
+      <div class="cal-event-body">
+        <div class="cal-event-title">${esc(ev.title)}</div>
+        ${ev.detail ? `<div class="cal-event-detail">${esc(ev.detail)}</div>` : ''}
+      </div>
+      ${badge}
+    </div>`;
+  }).join('');
+
+  el.innerHTML = `<div class="cal-section"><div class="cal-header">Calendario</div><div class="cal-timeline">${rows}</div></div>`;
+}
+
+renderCalendar();
+
 fetchAll();
 
 // Auto-refresh cada 5 minutos (silencioso, sin toast)
