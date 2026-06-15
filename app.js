@@ -1232,7 +1232,9 @@ const TEAM_VIDEOS = {
 };
 
 const TEAM_ARTICLES = {
+  'Atlanta Hawks':          'https://www.nbaconcontexto.com/p/atlanta-hawks-previa-del-verano-de',
   'Brooklyn Nets':          'https://www.nbaconcontexto.com/p/brooklyn-nets-previa-del-verano-de',
+  'Charlotte Hornets':      'https://www.nbaconcontexto.com/p/charlotte-hornets-previa-del-verano',
   'Chicago Bulls':          'https://www.nbaconcontexto.com/p/chicago-bulls-previa-del-verano-de',
   'Dallas Mavericks':       'https://www.nbaconcontexto.com/p/dallas-mavericks-previa-del-verano',
   'Golden State Warriors':  'https://www.nbaconcontexto.com/p/golden-state-warriors-previa-del',
@@ -1242,7 +1244,12 @@ const TEAM_ARTICLES = {
   'Miami Heat':             'https://www.nbaconcontexto.com/p/miami-heat-previa-del-verano-de-2026',
   'Milwaukee Bucks':        'https://www.nbaconcontexto.com/p/milwaukee-bucks-previa-del-verano',
   'New Orleans Pelicans':   'https://www.nbaconcontexto.com/p/new-orleans-pelicans-previa-del-verano',
+  'Orlando Magic':          'https://www.nbaconcontexto.com/p/orlando-magic-previa-del-verano-de',
+  'Philadelphia 76ers':     'https://www.nbaconcontexto.com/p/philadelphia-76ers-previa-del-verano',
+  'Phoenix Suns':           'https://www.nbaconcontexto.com/p/phoenix-suns-previa-del-verano-de',
+  'Portland Trail Blazers': 'https://www.nbaconcontexto.com/p/portland-trail-blazers-previa-del',
   'Sacramento Kings':       'https://www.nbaconcontexto.com/p/sacramento-kings-previa-del-verano',
+  'Toronto Raptors':        'https://www.nbaconcontexto.com/p/toronto-raptors-previa-del-verano',
   'Utah Jazz':              'https://www.nbaconcontexto.com/p/utah-jazz-previa-del-verano-de-2026',
   'Washington Wizards':     'https://www.nbaconcontexto.com/p/washington-wizards-previa-del-verano',
 };
