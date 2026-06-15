@@ -1805,15 +1805,16 @@ function openTeamView(teamName, pushHistory = true) {
         }).join('') : tvEmpty())}
     ${(() => {
       const draftRows = [
-        ...picks.map(d => ({ pick: `#${d.pick}`, player: d.player, contract: d.contract, undrafted: false })),
-        ...undrafted.map(d => ({ pick: 'U', player: d.player, contract: d.contract, undrafted: true })),
+        ...picks.map(d => ({ pick: `#${d.pick}`, player: d.player, pos: d.pos, contract: d.contract, undrafted: false })),
+        ...undrafted.map(d => ({ pick: 'Undrafted', player: d.player, pos: d.pos, contract: d.contract, undrafted: true })),
       ];
       const renderDraftRow = d => {
         const { name, tw } = parseTW(d.player, d.contract);
         const pickCls = d.undrafted ? 'tv-row-pick undrafted' : 'tv-row-pick';
-        return `<div class="tv-row${(tw && !d.undrafted) ? ' tv-row-tw' : ''}" style="justify-content:flex-start;gap:14px">
-          <span class="${pickCls}">${esc(d.pick)}</span>
-          <span class="tv-row-name" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(name)}${tw ? ' <span class="badge-tw">TW</span>' : ''}</span>
+        return `<div class="tv-row${(tw && !d.undrafted) ? ' tv-row-tw' : ''}" style="justify-content:flex-start;gap:10px">
+          ${itemPosTag(name, d.pos)}
+          <span class="tv-row-name" onclick="openPlayerDrawer('${esc(d.player)}')" style="flex:1">${esc(name)}${tw ? ' <span class="badge-tw">TW</span>' : ''}</span>
+          <span class="${pickCls}" style="text-align:right;min-width:auto">${esc(d.pick)}</span>
         </div>`;
       };
       return tvCard(t('roster_draft'), draftRows.length,
@@ -1829,7 +1830,7 @@ function openTeamView(teamName, pushHistory = true) {
     ${tvCard(t('roster_salidas_trade'), tradeOut.length,
         tradeOut.length ? tradeOut.map(r => tvRow(itemPosTag(r.item, r.pos) + esc(r.item), `→ ${esc(r.to)}`, '', r.item)).join('') : tvEmpty())}
     ${tvCard(t('roster_fa_pending'), faPending.length,
-        faPending.length ? faPending.map(d => { const {name,badge} = faStatus(d.player); return tvRow(esc(name) + badge, '', '', d.player); }).join('') : tvEmpty())}
+        faPending.length ? faPending.map(d => { const {name,badge} = faStatus(d.player); return tvRow(itemPosTag(name, d.pos) + esc(name) + badge, '', '', d.player); }).join('') : tvEmpty())}
   </div>
   ${faPending.some(d => faStatus(d.player).badge) ? `<div class="legend-row legend-row--team" style="margin-top:-16px;margin-bottom:28px;justify-content:flex-end">
     <span class="legend-item"><span class="badge badge-rfa">RFA</span><span class="legend-text">${t('legend_rfa')}</span></span>
