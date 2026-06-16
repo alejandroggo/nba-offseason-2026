@@ -1884,6 +1884,16 @@
     text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px;
   }
 
+  .quiz-game-topbar {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
+  }
+  .quiz-action-btn {
+    background: none; border: none; color: var(--text-muted); font-size: 12px; font-weight: 500;
+    cursor: pointer; padding: 4px 10px; border-radius: 6px; transition: color 0.15s, background 0.15s;
+    font-family: 'Inter', sans-serif;
+  }
+  .quiz-action-btn:hover { color: var(--text); background: var(--border); }
+
   .quiz-header {
     display: flex; align-items: center; justify-content: space-between;
     margin-bottom: 12px; text-align: left;

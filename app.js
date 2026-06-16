@@ -2187,7 +2187,7 @@ function renderQuiz() {
         <h2 class="quiz-title">Juegos NBA 2026</h2>
         <div class="juegos-home-grid">
           <button class="juegos-card" onclick="quizState={modeSelect:true};renderQuiz()">
-            <span class="juegos-card-icon">🏀</span>
+            <span class="juegos-card-icon">📍</span>
             <span class="juegos-card-name">¿Dónde Juega?</span>
             <span class="juegos-card-desc">Adivina el equipo de cada jugador</span>
           </button>
@@ -2204,20 +2204,23 @@ function renderQuiz() {
   if (quizState.modeSelect) {
     container.innerHTML = `
       <div class="quiz-wrap quiz-start">
-        <div class="quiz-icon">🏀</div>
+        <div class="quiz-game-topbar">
+          <button class="quiz-action-btn" onclick="quizState=null;renderQuiz()">← Juegos</button>
+        </div>
+        <div class="quiz-icon">📍</div>
         <h2 class="quiz-title">¿Dónde Juega?</h2>
         <p class="quiz-subtitle">¿A qué equipo fue el jugador?</p>
 
         <div class="quiz-modes-grid">
           <button class="quiz-mode-btn" onclick="startQuiz('hints')">
-            <span class="quiz-mode-icon">💡</span>
-            <span class="quiz-mode-name">Con Pistas</span>
+            <span class="quiz-mode-icon">🎯</span>
+            <span class="quiz-mode-name">15 Preguntas</span>
             <span class="quiz-mode-desc">4 opciones · 3 rondas</span>
           </button>
-          <button class="quiz-mode-btn" onclick="startQuiz('nohints')">
-            <span class="quiz-mode-icon">✏</span>
-            <span class="quiz-mode-name">Sin Pistas</span>
-            <span class="quiz-mode-desc">Escribe el equipo · 3 rondas</span>
+          <button class="quiz-mode-btn quiz-mode-infinite" onclick="startQuiz('infinite')">
+            <span class="quiz-mode-icon">∞</span>
+            <span class="quiz-mode-name">Infinito</span>
+            <span class="quiz-mode-desc">hasta fallar · ranking global</span>
           </button>
         </div>
         <div class="quiz-scoring">
@@ -2225,21 +2228,9 @@ function renderQuiz() {
           <div class="quiz-scoring-row"><span class="quiz-scoring-round" style="color:var(--accent)">Medio</span><span class="quiz-scoring-pts">2 ptos por respuesta</span><span class="quiz-scoring-max">máx. 10 pts</span></div>
           <div class="quiz-scoring-row"><span class="quiz-scoring-round" style="color:var(--gone)">Difícil</span><span class="quiz-scoring-pts">3 ptos por respuesta</span><span class="quiz-scoring-max">máx. 15 pts</span></div>
         </div>
-
-        <div class="quiz-infinite-sep"></div>
-
-        <button class="quiz-mode-btn quiz-mode-infinite quiz-mode-solo" onclick="startQuiz('infinite')">
-          <span class="quiz-mode-icon">∞</span>
-          <span class="quiz-mode-name">Infinito</span>
-          <span class="quiz-mode-desc">Sin pistas · hasta fallar</span>
-        </button>
-        <p class="quiz-meta">Sin límite de preguntas · 1 fallo = fin · ranking global</p>
-        <p class="quiz-meta" style="margin-top:4px">
+        <p class="quiz-meta" style="margin-top:12px">
           <button class="quiz-link-btn" onclick="quizShowLeaderboard()">🏆 Ver ranking infinito</button>
         </p>
-
-        <div class="quiz-infinite-sep"></div>
-        <button class="quiz-btn-secondary" onclick="quizState=null;renderQuiz()">← Volver a Juegos</button>
       </div>`;
     return;
   }
@@ -2289,6 +2280,10 @@ function renderQuiz() {
     const feedbackHTML = !answered ? '' : `<div class="quiz-feedback correct">BANG! 🏀</div>`;
     container.innerHTML = `
       <div class="quiz-wrap quiz-game">
+        <div class="quiz-game-topbar">
+          <button class="quiz-action-btn" onclick="quizState={modeSelect:true};renderQuiz()">← Volver</button>
+          <button class="quiz-action-btn" onclick="startQuiz('infinite')">↺ Reiniciar</button>
+        </div>
         <div class="quiz-header">
           <span class="quiz-round-chip" style="color:var(--accent)">∞ Infinito</span>
           <span class="quiz-score-chip" style="font-size:20px;font-weight:900">${streak}</span>
@@ -2340,6 +2335,10 @@ function renderQuiz() {
     ];
     container.innerHTML = `
       <div class="quiz-wrap quiz-round-intro">
+        <div class="quiz-game-topbar">
+          <button class="quiz-action-btn" onclick="quizState={modeSelect:true};renderQuiz()">← Volver</button>
+          <button class="quiz-action-btn" onclick="startQuiz('hints')">↺ Reiniciar</button>
+        </div>
         <div class="quiz-round-pill" style="color:${roundColors[round]};border-color:${roundColors[round]}">Ronda ${round+1} de 3</div>
         <h2 class="quiz-title" style="color:${roundColors[round]}">${roundNames[round]}</h2>
         <p class="quiz-subtitle">${roundDescs[round]}</p>
@@ -2393,6 +2392,10 @@ function renderQuiz() {
 
   container.innerHTML = `
     <div class="quiz-wrap quiz-game">
+      <div class="quiz-game-topbar">
+        <button class="quiz-action-btn" onclick="quizState={modeSelect:true};renderQuiz()">← Volver</button>
+        <button class="quiz-action-btn" onclick="startQuiz('hints')">↺ Reiniciar</button>
+      </div>
       <div class="quiz-header">
         <span class="quiz-round-chip" style="color:${roundColors[round]}">Ronda ${round+1} · ${roundNames[round]}</span>
         <span class="quiz-progress">${qNum} / 5</span>
@@ -2506,19 +2509,23 @@ function buildImpostorPool() {
   // Map: team → all current players (siguen + llegadas)
   const teamRoster = {};
   DATA.rosters.forEach(team => {
-    const players = [
-      ...(team.siguen  || []).map(p => cleanName(p.name)),
-      ...(team.llegadas|| []).map(p => cleanName(p.name))
-    ].filter(Boolean);
-    if (players.length >= 4) teamRoster[team.team] = players;
+    const siguen   = (team.siguen   || []).map(p => cleanName(p.name)).filter(Boolean);
+    const llegadas = (team.llegadas || []).map(p => cleanName(p.name)).filter(Boolean);
+    const all = [...siguen, ...llegadas];
+    if (all.length >= 4) teamRoster[team.team] = { siguen, llegadas, all };
   });
   const allTeams = Object.keys(teamRoster);
 
-  // Category A: Plantilla — 4 del equipo, 2 de otros
+  // Category A: Plantilla — 4 del equipo (priorizando llegadas), 2 de otros
   allTeams.forEach(teamName => {
-    const correct4 = imp_shuffle(teamRoster[teamName]).slice(0, 4);
-    const impostors = imp_shuffle(
-      allTeams.filter(t => t !== teamName).flatMap(t => teamRoster[t])
+    const { siguen, llegadas, all } = teamRoster[teamName];
+    // Take up to 3 llegadas, fill rest with siguen
+    const shLlegadas = imp_shuffle(llegadas);
+    const shSiguen   = imp_shuffle(siguen);
+    const nLlegadas  = Math.min(3, shLlegadas.length);
+    const correct4   = imp_shuffle([...shLlegadas.slice(0, nLlegadas), ...shSiguen]).slice(0, 4);
+    const impostors  = imp_shuffle(
+      allTeams.filter(t => t !== teamName).flatMap(t => teamRoster[t].all)
     ).slice(0, 2);
     if (impostors.length < 2) return;
     questions.push({
@@ -2636,6 +2643,10 @@ function renderImpostor() {
 
   container.innerHTML = `
     <div class="quiz-wrap quiz-game">
+      <div class="quiz-game-topbar">
+        <button class="quiz-action-btn" onclick="impostorState=null;renderQuiz()">← Volver</button>
+        <button class="quiz-action-btn" onclick="startImpostor()">↺ Reiniciar</button>
+      </div>
       <div class="quiz-header">
         <span class="quiz-round-chip">🕵️ El Impostor</span>
         <span class="quiz-score-chip">✓ ${streak} rondas</span>
