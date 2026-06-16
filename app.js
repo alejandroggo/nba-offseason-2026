@@ -2048,6 +2048,7 @@ document.addEventListener('keydown', function(e) {
 function buildQuizPool() {
   const easy = [], medium = [], hard = [];
   const seen = new Set();
+  const cleanName = n => { const { name } = parseTW((n||'').replace(/\s*\((?:RFA|TO|PO)\)\s*/gi, '')); return name.trim(); };
 
   function add(player, team, level) {
     const key = player.toLowerCase().trim();
@@ -2058,16 +2059,19 @@ function buildQuizPool() {
     else medium.push({ player, team });
   }
 
+  // FA firmados
   (DATA.fa||[]).filter(d => d.dest).forEach(d => {
     const { name } = faStatus(d.player);
     const aav = parseFloat(d.aav) || 0;
     add(name, d.dest, aav >= 15 ? 'easy' : aav >= 5 ? 'medium' : 'hard');
   });
+  // Draft picks
   (DATA.draft||[]).filter(d => d.team && d.player).forEach(d => {
     const pick = parseInt(d.pick) || 99;
     add(d.player, d.team, pick <= 10 ? 'easy' : pick <= 30 ? 'medium' : 'hard');
   });
   (DATA.undrafted||[]).filter(d => d.team && d.player).forEach(d => add(d.player, d.team, 'hard'));
+  // Trades
   (DATA.trades||[]).forEach(tr => {
     tr.sides.forEach(side => {
       (side.receives||[]).filter(r => !isNonPlayerAsset(r.item)).forEach(r => {
@@ -2075,6 +2079,11 @@ function buildQuizPool() {
         add(name, side.team, 'medium');
       });
     });
+  });
+  // Plantillas: llegadas (fichajes) como medio, siguen como difícil
+  (DATA.rosters||[]).forEach(r => {
+    (r.llegadas||[]).forEach(p => { const n = cleanName(p.name); if (n) add(n, r.team, 'medium'); });
+    (r.siguen  ||[]).forEach(p => { const n = cleanName(p.name); if (n) add(n, r.team, 'hard'); });
   });
 
   return { easy, medium, hard };
