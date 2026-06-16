@@ -2212,7 +2212,7 @@ function renderQuiz() {
         <p class="quiz-subtitle">¿A qué equipo fue el jugador?</p>
 
         <div class="quiz-modes-grid">
-          <button class="quiz-mode-btn" onclick="startQuiz('hints')">
+          <button class="quiz-mode-btn" onclick="quizState={subSelect:true};renderQuiz()">
             <span class="quiz-mode-icon">🎯</span>
             <span class="quiz-mode-name">15 Preguntas</span>
             <span class="quiz-mode-desc">4 opciones · 3 rondas</span>
@@ -2231,6 +2231,32 @@ function renderQuiz() {
         <p class="quiz-meta" style="margin-top:12px">
           <button class="quiz-link-btn" onclick="quizShowLeaderboard()">🏆 Ver ranking infinito</button>
         </p>
+      </div>`;
+    return;
+  }
+
+  if (quizState.subSelect) {
+    container.innerHTML = `
+      <div class="quiz-wrap quiz-start">
+        <div class="quiz-game-topbar">
+          <button class="quiz-action-btn" onclick="quizState={modeSelect:true};renderQuiz()">← Modos</button>
+        </div>
+        <div class="quiz-icon">🎯</div>
+        <h2 class="quiz-title">15 Preguntas</h2>
+        <p class="quiz-subtitle">Elige cómo quieres responder</p>
+
+        <div class="quiz-modes-grid">
+          <button class="quiz-mode-btn" onclick="startQuiz('hints')">
+            <span class="quiz-mode-icon">💡</span>
+            <span class="quiz-mode-name">Con Pistas</span>
+            <span class="quiz-mode-desc">4 opciones · elige el equipo</span>
+          </button>
+          <button class="quiz-mode-btn" onclick="startQuiz('nohints')">
+            <span class="quiz-mode-icon">✏</span>
+            <span class="quiz-mode-name">Sin Pistas</span>
+            <span class="quiz-mode-desc">escribe el nombre del equipo</span>
+          </button>
+        </div>
       </div>`;
     return;
   }
@@ -2414,6 +2440,12 @@ function renderQuiz() {
 
 function startQuiz(mode) {
   const pool = buildQuizPool();
+  const total = pool.easy.length + pool.medium.length + pool.hard.length;
+  if (!total) {
+    const container = document.getElementById('quiz-container');
+    if (container) container.innerHTML = `<div class="quiz-wrap"><p class="quiz-subtitle" style="margin-top:40px">Cargando datos… inténtalo de nuevo en unos segundos.</p><button class="quiz-btn-primary" onclick="quizState={modeSelect:true};renderQuiz()" style="margin-top:16px">← Volver</button></div>`;
+    return;
+  }
   if (mode === 'infinite') {
     const all = [...pool.easy, ...pool.medium, ...pool.hard];
     for (let i = all.length-1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [all[i],all[j]]=[all[j],all[i]]; }
