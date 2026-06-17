@@ -2762,6 +2762,13 @@ renderCalendar();
 let _searchIdx = [];
 let _gsActiveIdx = -1;
 
+const _TEAM_SHORT = { gs:'GSW', no:'NOP', ny:'NYK', sa:'SAS', utah:'UTA', wsh:'WAS' };
+function teamShort(name) {
+  const code = TEAM_LOGOS[name];
+  if (!code) return name;
+  return (_TEAM_SHORT[code] || code.toUpperCase());
+}
+
 function buildSearchIdx() {
   const seen = new Set();
   const entries = [];
@@ -2771,7 +2778,7 @@ function buildSearchIdx() {
     const key = name.trim().toLowerCase();
     if (seen.has(key)) return;
     seen.add(key);
-    entries.push({ name: name.trim(), team: team || '', meta: meta || '' });
+    entries.push({ name: name.trim(), team: team || '', teamShort: teamShort(team || ''), meta: meta || '' });
   }
 
   (DATA.fa || []).forEach(d => {
@@ -2828,7 +2835,7 @@ function _gsRender(results, query) {
         <div class="gs-item-name">${_gsHighlight(r.name, query)}</div>
         ${r.meta ? `<div class="gs-item-meta">${r.meta}</div>` : ''}
       </div>
-      ${r.team ? `<div class="gs-item-team">${r.team}</div>` : ''}
+      ${r.team ? `<div class="gs-item-team">${r.teamShort || r.team}</div>` : ''}
     </div>`;
   }).join('');
   dd.style.display = '';
