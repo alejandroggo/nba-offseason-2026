@@ -241,8 +241,9 @@ const CACHE_TTL = 5 * 60 * 1000; // 5 minutos
 function processPlayers(rows) {
   DATA.players = new Map();
   rows.slice(1).forEach(r => {
-    const name = cell(r, 0);
-    if (!name) return;
+    const rawName = cell(r, 0);
+    if (!rawName) return;
+    const name = rawName.replace(/\s*\([^)]+\)\s*$/, '').trim();
     DATA.players.set(normPlayerKey(name), {
       name,
       yearBirth:  cell(r, 1),
