@@ -1253,6 +1253,8 @@ const TEAM_ARTICLES = {
   'Brooklyn Nets':          'https://www.nbaconcontexto.com/p/brooklyn-nets-previa-del-verano-de',
   'Charlotte Hornets':      'https://www.nbaconcontexto.com/p/charlotte-hornets-previa-del-verano',
   'Chicago Bulls':          'https://www.nbaconcontexto.com/p/chicago-bulls-previa-del-verano-de',
+  'Cleveland Cavaliers':    'https://www.nbaconcontexto.com/p/cleveland-cavaliers-previa-del-verano',
+  'Houston Rockets':        'https://www.nbaconcontexto.com/p/houston-rockets-previa-del-verano',
   'Dallas Mavericks':       'https://www.nbaconcontexto.com/p/dallas-mavericks-previa-del-verano',
   'Golden State Warriors':  'https://www.nbaconcontexto.com/p/golden-state-warriors-previa-del',
   'Indiana Pacers':         'https://www.nbaconcontexto.com/p/indiana-pacers-previa-del-verano',
