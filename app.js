@@ -1723,18 +1723,18 @@ function openPlayerDrawer(playerName, pushHistory = true) {
   const bioEntry = DATA.players?.get(normPlayerKey(playerName));
   if (bioEntry) {
     let bioHtml = '';
-    if (bioEntry.heightIn || bioEntry.heightCm) {
-      const parts = [bioEntry.heightIn, bioEntry.heightCm ? `${bioEntry.heightCm} cm` : ''].filter(Boolean);
-      bioHtml += drawerRow('Altura', esc(parts.join(' · ')));
-    }
-    if (bioEntry.weightKg) bioHtml += drawerRow('Peso', `${esc(bioEntry.weightKg)} kg`);
+    if (bioEntry.heightCm)  bioHtml += drawerRow('Altura', `${esc(bioEntry.heightCm)} cm`);
+    if (bioEntry.weightKg)  bioHtml += drawerRow('Peso', `${esc(bioEntry.weightKg)} kg`);
     if (bioEntry.yearBirth) {
       const age = bioEntry.ageApprox ? ` (${esc(bioEntry.ageApprox)} años)` : '';
       bioHtml += drawerRow('Nacimiento', esc(bioEntry.yearBirth) + age);
     }
     if (bioEntry.birthPlace) bioHtml += drawerRow('Origen', esc(bioEntry.birthPlace));
     if (bioEntry.univ)       bioHtml += drawerRow('Universidad', esc(bioEntry.univ));
-    if (bioHtml) html += `<div class="drawer-section">${bioHtml}</div>`;
+    if (bioHtml) html += `<div class="drawer-section">
+      <div class="drawer-section-title drawer-section-title--accent">Biografía</div>
+      ${bioHtml}
+    </div>`;
   }
 
   if (!html) {

@@ -1088,6 +1088,10 @@
     color: var(--text-muted); margin-bottom: 12px;
     padding-bottom: 6px; border-bottom: 1px solid var(--border);
   }
+  .drawer-section-title--accent {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
   .drawer-row {
     display: flex; justify-content: space-between; align-items: baseline;
     padding: 7px 0; border-bottom: 1px solid var(--border); gap: 16px;
