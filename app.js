@@ -2100,6 +2100,38 @@ else if (window.innerWidth <= 768) { showTab('fa', false); }
 else { document.body.classList.add('on-home'); updateOgImage('home'); }
 renderTeamsGrid();
 
+// Escribe _debugPlayers() en la consola para ver qué nombres no encajan
+window._debugPlayers = () => {
+  if (!DATA.players?.size) { console.warn('Jugadores no cargados todavía'); return; }
+
+  // Todos los jugadores conocidos en el resto del sheet
+  const known = new Set();
+  (DATA.fa        || []).forEach(d => known.add(normPlayerKey(d.player)));
+  (DATA.draft     || []).forEach(d => known.add(normPlayerKey(d.player)));
+  (DATA.undrafted || []).forEach(d => known.add(normPlayerKey(d.player)));
+  (DATA.faPending || []).forEach(d => known.add(normPlayerKey(d.player)));
+  (DATA.rosters   || []).forEach(r => {
+    [...(r.siguen||[]), ...(r.llegadas||[])].forEach(p => known.add(normPlayerKey(p.name)));
+  });
+  (DATA.trades || []).forEach(tr => tr.sides.forEach(s => s.receives.forEach(r => {
+    if (r.type === 'player') known.add(normPlayerKey(r.item));
+  })));
+
+  const noMatch = [], matched = [];
+  DATA.players.forEach((bio, key) => {
+    if (known.has(key)) matched.push(bio.name);
+    else noMatch.push(bio.name);
+  });
+
+  console.group(`_debugPlayers — ${DATA.players.size} entradas`);
+  console.log(`✅ Con match (${matched.length}):`, matched.sort());
+  if (noMatch.length)
+    console.warn(`❌ Sin match en el resto del sheet (${noMatch.length}) — revisa el nombre exacto:`, noMatch.sort());
+  else
+    console.log('✅ Todos los jugadores tienen match');
+  console.groupEnd();
+};
+
 // Debug: escribe _debugTrades() en la consola del navegador para ver los datos
 window._debugTrades = () => {
   const raw = window._rawTradeRows;
