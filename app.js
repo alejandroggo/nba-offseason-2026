@@ -247,6 +247,7 @@ function applyRawData(raw, ts) {
   DATA._stamp = ts;
   rerenderAll();
   updateHomeCounts();
+  buildSearchIdx();
   ['fa-tbody','fa-pending-tbody','draft-tbody','undrafted-tbody','coaches-tbody','trades-container'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.setAttribute('aria-busy', 'false');
@@ -2756,6 +2757,158 @@ function renderCalendar() {
 }
 
 renderCalendar();
+
+// ── Global Player Search ────────────────────────────────────────
+let _searchIdx = [];
+let _gsActiveIdx = -1;
+
+function buildSearchIdx() {
+  const seen = new Set();
+  const entries = [];
+
+  function add(name, team, meta) {
+    if (!name) return;
+    const key = name.trim().toLowerCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    entries.push({ name: name.trim(), team: team || '', meta: meta || '' });
+  }
+
+  (DATA.fa || []).forEach(d => {
+    const status = d.dest ? `→ ${d.dest}` : 'Agente libre';
+    add(d.player, d.dest || d.team25, status);
+  });
+  (DATA.draft || []).forEach(d => add(d.player, d.team, `Pick #${d.pick || '?'}`));
+  (DATA.undrafted || []).forEach(d => add(d.player, d.team, 'Sin draftear'));
+  (DATA.trades || []).forEach(tr => tr.sides.forEach(s => s.receives.forEach(r => {
+    if (r.type === 'player') add(r.item, s.team, 'Traspaso');
+  })));
+  (DATA.rosters || []).forEach(r => {
+    (r.llegadas || []).forEach(p => add(p.name, r.team, 'Llegada'));
+    (r.siguen   || []).forEach(p => add(p.name, r.team, 'En plantilla'));
+    (r.salidas  || []).forEach(p => {
+      const parsed = parseSalidaReason(p.name);
+      add(parsed.name, r.team, 'Salida');
+    });
+  });
+  (DATA.faPending || []).forEach(d => add(d.player, d.team25, 'FA pendiente'));
+
+  entries.sort((a, b) => a.name.localeCompare(b.name));
+  _searchIdx = entries;
+}
+
+function _gsHighlight(name, query) {
+  const idx = name.toLowerCase().indexOf(query.toLowerCase());
+  if (idx === -1) return `<span>${name}</span>`;
+  return `<span>${name.slice(0, idx)}<mark>${name.slice(idx, idx + query.length)}</mark>${name.slice(idx + query.length)}</span>`;
+}
+
+function _gsFilter(query) {
+  if (!query) return [];
+  const q = query.trim().toLowerCase();
+  if (!q) return [];
+  return _searchIdx
+    .filter(e => e.name.toLowerCase().includes(q))
+    .slice(0, 8);
+}
+
+function _gsRender(results, query) {
+  const dd = document.getElementById('gs-dropdown');
+  if (!dd) return;
+  if (!results.length) {
+    dd.innerHTML = `<div class="gs-empty">Sin resultados para «${query}»</div>`;
+    dd.style.display = '';
+    return;
+  }
+  dd.innerHTML = results.map((r, i) => {
+    const initials = r.name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+    return `<div class="gs-item" role="option" data-idx="${i}" onmousedown="gsPick(${i})" onmouseover="_gsSetActive(${i})">
+      <div class="gs-item-avatar">${initials}</div>
+      <div class="gs-item-body">
+        <div class="gs-item-name">${_gsHighlight(r.name, query)}</div>
+        ${r.meta ? `<div class="gs-item-meta">${r.meta}</div>` : ''}
+      </div>
+      ${r.team ? `<div class="gs-item-team">${r.team}</div>` : ''}
+    </div>`;
+  }).join('');
+  dd.style.display = '';
+  _gsActiveIdx = -1;
+}
+
+function _gsSetActive(idx) {
+  _gsActiveIdx = idx;
+  const items = document.querySelectorAll('#gs-dropdown .gs-item');
+  items.forEach((el, i) => el.classList.toggle('active', i === idx));
+}
+
+function gsInput(e) {
+  const q = e.target.value;
+  const clearBtn = document.getElementById('gs-clear');
+  if (clearBtn) clearBtn.style.display = q ? '' : 'none';
+  if (!q.trim()) { gsHide(); return; }
+  _gsCurrentQuery = q;
+  const results = _gsFilter(q);
+  _gsCurrentResults = results;
+  _gsRender(results, q);
+}
+
+let _gsCurrentQuery = '';
+let _gsCurrentResults = [];
+
+function gsOpen() {
+  const q = document.getElementById('gs-input')?.value || '';
+  if (q.trim() && _gsCurrentResults.length) {
+    document.getElementById('gs-dropdown').style.display = '';
+  }
+}
+
+function gsHide() {
+  const dd = document.getElementById('gs-dropdown');
+  if (dd) dd.style.display = 'none';
+  _gsActiveIdx = -1;
+}
+
+function gsClear() {
+  const inp = document.getElementById('gs-input');
+  if (inp) { inp.value = ''; inp.focus(); }
+  const clearBtn = document.getElementById('gs-clear');
+  if (clearBtn) clearBtn.style.display = 'none';
+  _gsCurrentQuery = '';
+  _gsCurrentResults = [];
+  gsHide();
+}
+
+function gsPick(idx) {
+  const entry = _gsCurrentResults[idx];
+  if (!entry) return;
+  gsHide();
+  const inp = document.getElementById('gs-input');
+  if (inp) inp.blur();
+  openPlayerDrawer(entry.name);
+}
+
+function gsKeydown(e) {
+  const dd = document.getElementById('gs-dropdown');
+  const visible = dd && dd.style.display !== 'none';
+  if (e.key === 'Escape') { gsHide(); document.getElementById('gs-input')?.blur(); return; }
+  if (!visible) return;
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    _gsSetActive(Math.min(_gsActiveIdx + 1, _gsCurrentResults.length - 1));
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    _gsSetActive(Math.max(_gsActiveIdx - 1, 0));
+  } else if (e.key === 'Enter') {
+    e.preventDefault();
+    if (_gsActiveIdx >= 0) gsPick(_gsActiveIdx);
+    else if (_gsCurrentResults.length === 1) gsPick(0);
+  }
+}
+
+document.addEventListener('click', e => {
+  const wrap = document.getElementById('gs-wrap');
+  if (wrap && !wrap.contains(e.target)) gsHide();
+});
 
 fetchAll();
 

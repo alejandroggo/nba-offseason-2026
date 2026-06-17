@@ -68,6 +68,19 @@
     <span class="logo-title">NBA Off-Season</span>
     <span class="logo-year">2026</span>
   </button>
+
+  <div class="gs-wrap" id="gs-wrap">
+    <div class="gs-field">
+      <svg class="gs-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="gs-input" id="gs-input" type="text" placeholder="Buscar jugador…" autocomplete="off" spellcheck="false"
+        oninput="gsInput(event)" onkeydown="gsKeydown(event)" onfocus="gsOpen()" aria-label="Buscar jugador" aria-autocomplete="list" aria-controls="gs-dropdown">
+      <button class="gs-clear" id="gs-clear" onclick="gsClear()" aria-label="Limpiar búsqueda" style="display:none">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true" focusable="false"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="gs-dropdown" id="gs-dropdown" role="listbox" style="display:none"></div>
+  </div>
+
   <div class="header-right">
     <div class="header-meta">
       <div class="update-dot" aria-hidden="true"></div>
