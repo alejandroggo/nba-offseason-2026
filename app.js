@@ -1517,25 +1517,59 @@ function slugify(str) {
     .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
+function teamFromSlug(slug) {
+  return Object.keys(TEAM_LOGOS).find(t => slugify(t) === slug) || null;
+}
+
+function playerFromSlug(slug) {
+  return (_searchIdx || []).find(e => slugify(e.name) === slug)?.name || null;
+}
+
+let _pendingPlayerSlug = null;
+let _drawerBackHash = '';
+
 function pushURL(params) {
-  const url = new URL(window.location.href);
-  Object.keys(params).forEach(k => {
-    if (params[k]) url.searchParams.set(k, params[k]);
-    else url.searchParams.delete(k);
-  });
-  window.history.pushState({}, '', url.toString());
+  let hash = '';
+  if (params.player)    hash = 'jugador/' + slugify(params.player);
+  else if (params.team) hash = 'equipo/'  + slugify(params.team);
+  else if (params.tab)  hash = params.tab;
+  window.history.pushState({}, '', BASE_PATH + (hash ? '#' + hash : ''));
 }
 
 function readURL() {
-  const p = new URLSearchParams(window.location.search);
-  return { player: p.get('player'), team: p.get('team'), tab: p.get('tab') };
+  // Migrar URLs antiguas con query params al nuevo formato hash
+  const legacy = new URLSearchParams(window.location.search);
+  if (legacy.has('team') || legacy.has('player') || legacy.has('tab')) {
+    const lp = legacy.get('player'), lt = legacy.get('team'), ltab = legacy.get('tab');
+    let hash = '';
+    if (lp)   hash = 'jugador/' + slugify(lp);
+    else if (lt)   hash = 'equipo/'  + slugify(lt);
+    else if (ltab) hash = ltab;
+    window.history.replaceState({}, '', BASE_PATH + (hash ? '#' + hash : ''));
+  }
+
+  const hash = window.location.hash.replace(/^#\/?/, '');
+  if (!hash) return { player: null, team: null, tab: null };
+  if (hash.startsWith('jugador/')) {
+    const slug = hash.slice('jugador/'.length);
+    const name = playerFromSlug(slug);
+    if (name) return { player: name, team: null, tab: null };
+    _pendingPlayerSlug = slug;
+    return { player: null, team: null, tab: null };
+  }
+  if (hash.startsWith('equipo/')) {
+    const slug = hash.slice('equipo/'.length);
+    return { player: null, team: teamFromSlug(slug) || slug, tab: null };
+  }
+  return { player: null, team: null, tab: hash };
 }
 
 window.addEventListener('popstate', () => {
+  _pendingPlayerSlug = null;
   const { player, team, tab } = readURL();
-  if (team) { openTeamView(decodeURIComponent(team), false); }
-  else if (player) { openPlayerDrawer(decodeURIComponent(player), false); }
-  else { closeDrawer(false); showTab(tab || (window.innerWidth <= 768 ? 'fa' : 'home'), false); }
+  if (team)        { openTeamView(team, false); }
+  else if (player) { openPlayerDrawer(player, false); }
+  else             { closeDrawer(false); showTab(tab || (window.innerWidth <= 768 ? 'fa' : 'home'), false); }
 });
 
 // ─────────────────────────────────────────────
@@ -1708,7 +1742,7 @@ function openPlayerDrawer(playerName, pushHistory = true) {
   overlay.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
 
-  if (pushHistory) pushURL({ player: playerName, team: null });
+  if (pushHistory) { _drawerBackHash = window.location.hash; pushURL({ player: playerName, team: null }); }
 }
 
 function drawerRow(label, value, cls = '') {
@@ -1726,7 +1760,7 @@ function closeDrawer(pushHistory = true) {
   drawerEl.setAttribute('aria-hidden', 'true');
   overlay.setAttribute('aria-hidden', 'true');
   document.body.style.overflow = '';
-  if (pushHistory) pushURL({ player: null });
+  if (pushHistory) window.history.pushState({}, '', BASE_PATH + (_drawerBackHash || ''));
 }
 
 // ESC para cerrar drawer
@@ -2021,9 +2055,9 @@ if (lang !== 'es') setLang(lang);
 // A11y: add scope="col" a todos los th de cabecera
 document.querySelectorAll('thead th').forEach(th => { if (!th.hasAttribute('scope')) th.setAttribute('scope', 'col'); });
 const { player: initPlayer, team: initTeam, tab: initTab } = readURL();
-if (initTeam) { openTeamView(decodeURIComponent(initTeam), false); }
-else if (initPlayer) { openPlayerDrawer(decodeURIComponent(initPlayer), false); }
-else if (initTab) { showTab(initTab, false); }
+if (initTeam)        { openTeamView(initTeam, false); }
+else if (initPlayer) { openPlayerDrawer(initPlayer, false); }
+else if (initTab)    { showTab(initTab, false); }
 else if (window.innerWidth <= 768) { showTab('fa', false); }
 else { document.body.classList.add('on-home'); updateOgImage('home'); }
 renderTeamsGrid();
@@ -2805,6 +2839,11 @@ function buildSearchIdx() {
 
   entries.sort((a, b) => a.name.localeCompare(b.name));
   _searchIdx = entries;
+
+  if (_pendingPlayerSlug) {
+    const name = playerFromSlug(_pendingPlayerSlug);
+    if (name) { _pendingPlayerSlug = null; openPlayerDrawer(name, false); }
+  }
 }
 
 function _gsHighlight(name, query) {
