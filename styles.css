@@ -1089,8 +1089,12 @@
     padding-bottom: 6px; border-bottom: 1px solid var(--border);
   }
   .drawer-section-title--accent {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
     color: var(--accent);
-    border-bottom-color: var(--accent);
+    border-bottom: none;
+    margin-bottom: 8px;
   }
   .drawer-row {
     display: flex; justify-content: space-between; align-items: baseline;
