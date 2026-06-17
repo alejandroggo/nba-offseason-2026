@@ -1235,6 +1235,7 @@ const TEAM_VIDEOS = {
   'Milwaukee Bucks':        'qDYSWTvfdy0',
   'Minnesota Timberwolves': 'fTF5W_3apRA',
   'New Orleans Pelicans':   'BaZcLGxrZI8',
+  'New York Knicks':        'gdXimBg6YNE',
   'Oklahoma City Thunder':  '1pWjBYV1BIc',
   'Orlando Magic':          'F9tE6p-ud1c',
   'Philadelphia 76ers':     '7CDdvn1XkU0',
