@@ -6,13 +6,14 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZAb1-oLDkidOmC6Lrp
 // ── Fechas de evento (actualizar según calendario) ──────────────────────────
 
 const URLS = {
-  fa:       `${SCRIPT_URL}?tab=fa`,
-  draft:    `${SCRIPT_URL}?tab=draft`,
-  trades:   `${SCRIPT_URL}?tab=trades`,
-  rosters1: `${SCRIPT_URL}?tab=rosters1`,
-  rosters2: `${SCRIPT_URL}?tab=rosters2`,
-  coaches:  `${SCRIPT_URL}?tab=coaches`,
-  fecha:    `${SCRIPT_URL}?tab=fecha`,
+  fa:        `${SCRIPT_URL}?tab=fa`,
+  draft:     `${SCRIPT_URL}?tab=draft`,
+  trades:    `${SCRIPT_URL}?tab=trades`,
+  rosters1:  `${SCRIPT_URL}?tab=rosters1`,
+  rosters2:  `${SCRIPT_URL}?tab=rosters2`,
+  coaches:   `${SCRIPT_URL}?tab=coaches`,
+  jugadores: `${SCRIPT_URL}?tab=Jugadores`,
+  fecha:     `${SCRIPT_URL}?tab=fecha`,
 };
 
 // ─────────────────────────────────────────────
@@ -237,6 +238,24 @@ const SORT = { fa: {col:-1,asc:true}, draft: {col:-1,asc:true}, coaches: {col:-1
 const CACHE_KEY = 'nba2026_cache';
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutos
 
+function processPlayers(rows) {
+  DATA.players = new Map();
+  rows.slice(1).forEach(r => {
+    const name = cell(r, 0);
+    if (!name) return;
+    DATA.players.set(normPlayerKey(name), {
+      name,
+      yearBirth:  cell(r, 1),
+      ageApprox:  cell(r, 2),
+      heightCm:   cell(r, 3),
+      heightIn:   cell(r, 4),
+      weightKg:   cell(r, 5),
+      birthPlace: cell(r, 6),
+      univ:       cell(r, 7),
+    });
+  });
+}
+
 function applyRawData(raw, ts) {
   processFA(parseCSV(raw.fa));
   processDraft(parseCSV(raw.draft));
@@ -244,6 +263,7 @@ function applyRawData(raw, ts) {
   processTrades(window._rawTradeRows);
   processRosters(parseCSV(raw.rosters1), parseCSV(raw.rosters2));
   processCoaches(parseCSV(raw.coaches));
+  processPlayers(parseCSV(raw.jugadores || ''));
   DATA._stamp = ts;
   rerenderAll();
   updateHomeCounts();
@@ -294,7 +314,7 @@ async function fetchAll() {
   // Refrescar desde el Sheet en background — usar allSettled para tolerar
   // que alguna fuente falle sin tirar el resto.
   try {
-    const dataKeys = ['fa', 'draft', 'trades', 'rosters1', 'rosters2', 'coaches'];
+    const dataKeys = ['fa', 'draft', 'trades', 'rosters1', 'rosters2', 'coaches', 'jugadores'];
     const allKeys  = [...dataKeys, 'fecha'];
 
     function fetchWithTimeout(url, ms = 12000) {
@@ -1697,6 +1717,24 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     if (pd.team25) html += drawerRow(t('fa_col_team25'), teamBadgeHTML(pd.team25, false));
     if (pd.notes) html += drawerRow(t('col_notes'), esc(pd.notes), 'notes');
     html += `</div>`;
+  }
+
+  // Bio: altura, peso, nacimiento, universidad
+  const bioEntry = DATA.players?.get(normPlayerKey(playerName));
+  if (bioEntry) {
+    let bioHtml = '';
+    if (bioEntry.heightIn || bioEntry.heightCm) {
+      const parts = [bioEntry.heightIn, bioEntry.heightCm ? `${bioEntry.heightCm} cm` : ''].filter(Boolean);
+      bioHtml += drawerRow('Altura', esc(parts.join(' · ')));
+    }
+    if (bioEntry.weightKg) bioHtml += drawerRow('Peso', `${esc(bioEntry.weightKg)} kg`);
+    if (bioEntry.yearBirth) {
+      const age = bioEntry.ageApprox ? ` (${esc(bioEntry.ageApprox)} años)` : '';
+      bioHtml += drawerRow('Nacimiento', esc(bioEntry.yearBirth) + age);
+    }
+    if (bioEntry.birthPlace) bioHtml += drawerRow('Origen', esc(bioEntry.birthPlace));
+    if (bioEntry.univ)       bioHtml += drawerRow('Universidad', esc(bioEntry.univ));
+    if (bioHtml) html += `<div class="drawer-section">${bioHtml}</div>`;
   }
 
   if (!html) {
