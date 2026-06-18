@@ -12,7 +12,7 @@ const URLS = {
   rosters1:  `${SCRIPT_URL}?tab=rosters1`,
   rosters2:  `${SCRIPT_URL}?tab=rosters2`,
   coaches:   `${SCRIPT_URL}?tab=coaches`,
-  jugadores:  `${SCRIPT_URL}?tab=jugadores`,
+  jugadores:  `${SCRIPT_URL}?tab=Jugadores`,
   candidatos: `${SCRIPT_URL}?tab=Candidatos`,
   fecha:     `${SCRIPT_URL}?tab=fecha`,
 };
