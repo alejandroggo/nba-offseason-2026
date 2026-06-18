@@ -1044,10 +1044,12 @@
   .drawer-section { margin-bottom: 28px; }
   .drawer-section--bio { margin-bottom: 0; }
   .drawer-scouting-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 20px; letter-spacing: 1px;
-    color: var(--text);
-    margin-bottom: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--accent);
+    margin-top: 4px;
+    margin-bottom: 24px;
   }
   .drawer-scouting-list {
     list-style: none; padding: 0; margin: 0;
@@ -1096,7 +1098,7 @@
     color: var(--accent);
     border-bottom: none;
     margin-top: 4px;
-    margin-bottom: 0;
+    margin-bottom: 24px;
   }
   .drawer-row {
     display: flex; justify-content: space-between; align-items: baseline;
