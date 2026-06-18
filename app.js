@@ -1686,44 +1686,6 @@ function openPlayerDrawer(playerName, pushHistory = true) {
   // Scouting Report (aplica a draft y undrafted; todos los URLs no vacíos)
   const bioBefore = DATA.players?.get(normPlayerKey(playerName));
   const bioScouting = bioBefore?.scouting ? bioBefore.scouting.split(',').map(s => s.trim()).filter(Boolean) : [];
-
-  // Bio: altura, peso, nacimiento, origen
-  if (bioBefore) {
-    let bioHtml = '';
-    if (bioBefore.heightCm) {
-      const h = bioBefore.heightCm;
-      bioHtml += drawerRow('Altura', esc(/^\d+$/.test(h.trim()) ? h + ' cm' : h));
-    }
-    if (bioBefore.weightKg) {
-      const w = bioBefore.weightKg;
-      bioHtml += drawerRow('Peso', esc(/^\d+$/.test(w.trim()) ? w + ' kg' : w));
-    }
-    if (bioBefore.yearBirth) {
-      let ageStr = '';
-      const dmy = bioBefore.yearBirth.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
-      if (dmy) {
-        const bd = new Date(+dmy[3], +dmy[2] - 1, +dmy[1]);
-        const now = new Date();
-        let years = now.getFullYear() - bd.getFullYear();
-        let months = now.getMonth() - bd.getMonth();
-        if (now.getDate() < bd.getDate()) months--;
-        if (months < 0) { years--; months += 12; }
-        ageStr = months > 0 ? `${years} años ${months} meses` : `${years} años`;
-      } else if (bioBefore.ageApprox) {
-        ageStr = esc(bioBefore.ageApprox);
-      } else {
-        ageStr = esc(bioBefore.yearBirth);
-      }
-      bioHtml += drawerRow('Edad', ageStr);
-    }
-    if (bioBefore.birthPlace) bioHtml += drawerRow('Nacimiento', esc(bioBefore.birthPlace));
-    if (bioBefore.univ)       bioHtml += drawerRow('Universidad/Origen', esc(bioBefore.univ));
-    if (bioHtml) html += `<div class="drawer-section drawer-section--bio">
-      <div class="drawer-section-title drawer-section-title--accent">Biografía</div>
-      ${bioHtml}
-    </div>`;
-  }
-
   const scoutingUrls = [...allDraftData.flatMap(d => d.scouting ? d.scouting.split(',').map(s => s.trim()).filter(Boolean) : []), ...bioScouting];
   if (scoutingUrls.length) {
     html += `<div class="drawer-section">
@@ -1785,6 +1747,43 @@ function openPlayerDrawer(playerName, pushHistory = true) {
 
   if (!html) {
     html = `<div class="drawer-empty">${t('no_data')}</div>`;
+  }
+
+  // Bio: al final, separada del resto
+  if (bioBefore) {
+    let bioHtml = '';
+    if (bioBefore.heightCm) {
+      const h = bioBefore.heightCm;
+      bioHtml += drawerRow('Altura', esc(/^\d+$/.test(h.trim()) ? h + ' cm' : h));
+    }
+    if (bioBefore.weightKg) {
+      const w = bioBefore.weightKg;
+      bioHtml += drawerRow('Peso', esc(/^\d+$/.test(w.trim()) ? w + ' kg' : w));
+    }
+    if (bioBefore.yearBirth) {
+      let ageStr = '';
+      const dmy = bioBefore.yearBirth.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+      if (dmy) {
+        const bd = new Date(+dmy[3], +dmy[2] - 1, +dmy[1]);
+        const now = new Date();
+        let years = now.getFullYear() - bd.getFullYear();
+        let months = now.getMonth() - bd.getMonth();
+        if (now.getDate() < bd.getDate()) months--;
+        if (months < 0) { years--; months += 12; }
+        ageStr = months > 0 ? `${years} años ${months} meses` : `${years} años`;
+      } else if (bioBefore.ageApprox) {
+        ageStr = esc(bioBefore.ageApprox);
+      } else {
+        ageStr = esc(bioBefore.yearBirth);
+      }
+      bioHtml += drawerRow('Edad', ageStr);
+    }
+    if (bioBefore.birthPlace) bioHtml += drawerRow('Nacimiento', esc(bioBefore.birthPlace));
+    if (bioBefore.univ)       bioHtml += drawerRow('Universidad/Origen', esc(bioBefore.univ));
+    if (bioHtml) html += `<div class="drawer-section drawer-section--bio">
+      <div class="drawer-section-title drawer-section-title--accent">Biografía</div>
+      ${bioHtml}
+    </div>`;
   }
 
   // Botones de navegación a equipos
