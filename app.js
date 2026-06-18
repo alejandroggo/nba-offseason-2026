@@ -259,21 +259,21 @@ function processPlayers(rows) {
 }
 
 function processCandidatos(rows) {
-  // Columnas: Jugador(0) País(1) Posición(2) Universidad/Equipo(3) Bryan Garcia(4) Javier Molero(5) Fecha nacimiento(6) Edad en el draft(7) Altura(8)
+  // Columnas: Rank(0) Jugador(1) País(2) Posición(3) Universidad/Equipo(4) Bryan Garcia(5) Javier Molero(6) Fecha nacimiento(7) Edad en el draft(8) Altura(9)
   rows.slice(1).forEach(r => {
-    const rawName = cell(r, 0);
+    const rawName = cell(r, 1);
     if (!rawName) return;
     const name = rawName.replace(/\s*\([^)]+\)\s*$/, '').trim();
     const key = normPlayerKey(name);
-    const scouting = [cell(r, 4), cell(r, 5)].filter(Boolean).join(',');
+    const scouting = [cell(r, 5), cell(r, 6)].filter(Boolean).join(',');
     DATA.players.set(key, {
       ...(DATA.players.get(key) || {}),
       name,
-      birthPlace: cell(r, 1) || DATA.players.get(key)?.birthPlace,
-      univ:       cell(r, 3) || DATA.players.get(key)?.univ,
-      yearBirth:  cell(r, 6) || DATA.players.get(key)?.yearBirth,
-      ageApprox:  cell(r, 7) || DATA.players.get(key)?.ageApprox,
-      heightCm:   cell(r, 8) || DATA.players.get(key)?.heightCm,
+      birthPlace: cell(r, 2) || DATA.players.get(key)?.birthPlace,
+      univ:       cell(r, 4) || DATA.players.get(key)?.univ,
+      yearBirth:  cell(r, 7) || DATA.players.get(key)?.yearBirth,
+      ageApprox:  cell(r, 8) || DATA.players.get(key)?.ageApprox,
+      heightCm:   cell(r, 9) || DATA.players.get(key)?.heightCm,
       scouting:   scouting   || DATA.players.get(key)?.scouting || '',
     });
   });
