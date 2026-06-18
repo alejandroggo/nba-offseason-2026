@@ -1693,8 +1693,9 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     if (bioBefore.heightCm)  bioHtml += drawerRow('Altura', `${esc(bioBefore.heightCm)} cm`);
     if (bioBefore.weightKg)  bioHtml += drawerRow('Peso', `${esc(bioBefore.weightKg)} kg`);
     if (bioBefore.yearBirth) {
-      const age = bioBefore.ageApprox ? ` (${esc(bioBefore.ageApprox)} años)` : '';
-      bioHtml += drawerRow('Nacimiento', esc(bioBefore.yearBirth) + age);
+      const year = esc(bioBefore.yearBirth);
+      const age = bioBefore.ageApprox ? `${esc(bioBefore.ageApprox)} años (${year})` : year;
+      bioHtml += drawerRow('Edad', age);
     }
     if (bioBefore.birthPlace) bioHtml += drawerRow('Origen', esc(bioBefore.birthPlace));
     if (bioHtml) html += `<div class="drawer-section">
