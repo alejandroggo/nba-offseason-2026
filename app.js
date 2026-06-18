@@ -1683,12 +1683,11 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     html += `</div>`;
   }
 
-  // Scouting Report (aplica a draft y undrafted; todos los URLs no vacíos)
+  // Precalcular bio y scouting (se renderizan al final)
   const bioBefore = DATA.players?.get(normPlayerKey(playerName));
   const bioScouting = bioBefore?.scouting ? bioBefore.scouting.split(',').map(s => s.trim()).filter(Boolean) : [];
   const scoutingUrls = [...allDraftData.flatMap(d => d.scouting ? d.scouting.split(',').map(s => s.trim()).filter(Boolean) : []), ...bioScouting];
-  if (scoutingUrls.length) {
-    html += `<div class="drawer-section">
+  const scoutingHtml = scoutingUrls.length ? `<div class="drawer-section">
       <div class="drawer-scouting-title">${t('drawer_scouting')}</div>
       <ul class="drawer-scouting-list">` +
       scoutingUrls.map(raw => {
@@ -1701,8 +1700,7 @@ function openPlayerDrawer(playerName, pushHistory = true) {
         else label = 'vía ' + host;
         return `<li><a class="drawer-scouting-link" href="${esc(safeUrl)}" target="_blank" rel="noopener noreferrer">${esc(label)} →</a></li>`;
       }).join('') +
-      `</ul></div>`;
-  }
+      `</ul></div>` : '';
 
   // Trades
   if (tradeData.length) {
@@ -1785,6 +1783,9 @@ function openPlayerDrawer(playerName, pushHistory = true) {
       ${bioHtml}
     </div>`;
   }
+
+  // Scouting va después de bio (solo draft)
+  html += scoutingHtml;
 
   // Botones de navegación a equipos
   const teamLinks = [];

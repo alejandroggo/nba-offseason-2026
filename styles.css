@@ -1095,7 +1095,8 @@
     text-transform: uppercase; letter-spacing: 0.08em;
     color: var(--accent);
     border-bottom: none;
-    margin-bottom: 8px;
+    margin-top: 4px;
+    margin-bottom: 0;
   }
   .drawer-row {
     display: flex; justify-content: space-between; align-items: baseline;
