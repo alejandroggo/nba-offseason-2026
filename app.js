@@ -1686,6 +1686,23 @@ function openPlayerDrawer(playerName, pushHistory = true) {
   // Scouting Report (aplica a draft y undrafted; todos los URLs no vacíos)
   const bioBefore = DATA.players?.get(normPlayerKey(playerName));
   const bioScouting = bioBefore?.scouting ? bioBefore.scouting.split(',').map(s => s.trim()).filter(Boolean) : [];
+
+  // Bio: altura, peso, nacimiento, origen
+  if (bioBefore) {
+    let bioHtml = '';
+    if (bioBefore.heightCm)  bioHtml += drawerRow('Altura', `${esc(bioBefore.heightCm)} cm`);
+    if (bioBefore.weightKg)  bioHtml += drawerRow('Peso', `${esc(bioBefore.weightKg)} kg`);
+    if (bioBefore.yearBirth) {
+      const age = bioBefore.ageApprox ? ` (${esc(bioBefore.ageApprox)} años)` : '';
+      bioHtml += drawerRow('Nacimiento', esc(bioBefore.yearBirth) + age);
+    }
+    if (bioBefore.birthPlace) bioHtml += drawerRow('Origen', esc(bioBefore.birthPlace));
+    if (bioHtml) html += `<div class="drawer-section">
+      <div class="drawer-section-title drawer-section-title--accent">Biografía</div>
+      ${bioHtml}
+    </div>`;
+  }
+
   const scoutingUrls = [...allDraftData.flatMap(d => d.scouting ? d.scouting.split(',').map(s => s.trim()).filter(Boolean) : []), ...bioScouting];
   if (scoutingUrls.length) {
     html += `<div class="drawer-section">
@@ -1743,24 +1760,6 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     if (pd.team25) html += drawerRow(t('fa_col_team25'), teamBadgeHTML(pd.team25, false));
     if (pd.notes) html += drawerRow(t('col_notes'), esc(pd.notes), 'notes');
     html += `</div>`;
-  }
-
-  // Bio: altura, peso, nacimiento, universidad
-  const bioEntry = bioBefore;
-  if (bioEntry) {
-    let bioHtml = '';
-    if (bioEntry.heightCm)  bioHtml += drawerRow('Altura', `${esc(bioEntry.heightCm)} cm`);
-    if (bioEntry.weightKg)  bioHtml += drawerRow('Peso', `${esc(bioEntry.weightKg)} kg`);
-    if (bioEntry.yearBirth) {
-      const age = bioEntry.ageApprox ? ` (${esc(bioEntry.ageApprox)} años)` : '';
-      bioHtml += drawerRow('Nacimiento', esc(bioEntry.yearBirth) + age);
-    }
-    if (bioEntry.birthPlace) bioHtml += drawerRow('Origen', esc(bioEntry.birthPlace));
-    if (bioEntry.univ)       bioHtml += drawerRow('Universidad', esc(bioEntry.univ));
-    if (bioHtml) html += `<div class="drawer-section">
-      <div class="drawer-section-title drawer-section-title--accent">Biografía</div>
-      ${bioHtml}
-    </div>`;
   }
 
   if (!html) {
