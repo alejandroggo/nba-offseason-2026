@@ -12,7 +12,8 @@ const URLS = {
   rosters1:  `${SCRIPT_URL}?tab=rosters1`,
   rosters2:  `${SCRIPT_URL}?tab=rosters2`,
   coaches:   `${SCRIPT_URL}?tab=coaches`,
-  jugadores: `${SCRIPT_URL}?tab=jugadores`,
+  jugadores:  `${SCRIPT_URL}?tab=jugadores`,
+  candidatos: `${SCRIPT_URL}?tab=Candidatos`,
   fecha:     `${SCRIPT_URL}?tab=fecha`,
 };
 
@@ -257,6 +258,28 @@ function processPlayers(rows) {
   });
 }
 
+function processCandidatos(rows) {
+  // Columnas: Rank(0) Jugador(1) Posición(2) Universidad/Equipo(3) Bryan Garcia(4) Javier Molero(5) País(6) Fecha nacimiento(7) Edad en el draft(8) Altura(9)
+  rows.slice(1).forEach(r => {
+    const rawName = cell(r, 1);
+    if (!rawName) return;
+    const name = rawName.replace(/\s*\([^)]+\)\s*$/, '').trim();
+    const key = normPlayerKey(name);
+    const scouting = [cell(r, 4), cell(r, 5)].filter(Boolean).join(',');
+    // Candidatos tiene prioridad sobre Jugadores para datos biográficos de draft
+    DATA.players.set(key, {
+      ...(DATA.players.get(key) || {}),
+      name,
+      univ:       cell(r, 3) || DATA.players.get(key)?.univ,
+      birthPlace: cell(r, 6) || DATA.players.get(key)?.birthPlace,
+      yearBirth:  cell(r, 7) || DATA.players.get(key)?.yearBirth,
+      ageApprox:  cell(r, 8) || DATA.players.get(key)?.ageApprox,
+      heightCm:   cell(r, 9) || DATA.players.get(key)?.heightCm,
+      scouting:   scouting   || DATA.players.get(key)?.scouting || '',
+    });
+  });
+}
+
 function applyRawData(raw, ts) {
   processFA(parseCSV(raw.fa));
   processDraft(parseCSV(raw.draft));
@@ -265,6 +288,7 @@ function applyRawData(raw, ts) {
   processRosters(parseCSV(raw.rosters1), parseCSV(raw.rosters2));
   processCoaches(parseCSV(raw.coaches));
   processPlayers(parseCSV(raw.jugadores || ''));
+  processCandidatos(parseCSV(raw.candidatos || ''));
   DATA._stamp = ts;
   rerenderAll();
   updateHomeCounts();
@@ -315,7 +339,7 @@ async function fetchAll() {
   // Refrescar desde el Sheet en background — usar allSettled para tolerar
   // que alguna fuente falle sin tirar el resto.
   try {
-    const dataKeys = ['fa', 'draft', 'trades', 'rosters1', 'rosters2', 'coaches', 'jugadores'];
+    const dataKeys = ['fa', 'draft', 'trades', 'rosters1', 'rosters2', 'coaches', 'jugadores', 'candidatos'];
     const allKeys  = [...dataKeys, 'fecha'];
 
     function fetchWithTimeout(url, ms = 12000) {
@@ -1661,7 +1685,9 @@ function openPlayerDrawer(playerName, pushHistory = true) {
   }
 
   // Scouting Report (aplica a draft y undrafted; todos los URLs no vacíos)
-  const scoutingUrls = allDraftData.flatMap(d => d.scouting ? d.scouting.split(',').map(s => s.trim()).filter(Boolean) : []);
+  const bioBefore = DATA.players?.get(normPlayerKey(playerName));
+  const bioScouting = bioBefore?.scouting ? bioBefore.scouting.split(',').map(s => s.trim()).filter(Boolean) : [];
+  const scoutingUrls = [...allDraftData.flatMap(d => d.scouting ? d.scouting.split(',').map(s => s.trim()).filter(Boolean) : []), ...bioScouting];
   if (scoutingUrls.length) {
     html += `<div class="drawer-section">
       <div class="drawer-scouting-title">${t('drawer_scouting')}</div>
@@ -1721,7 +1747,7 @@ function openPlayerDrawer(playerName, pushHistory = true) {
   }
 
   // Bio: altura, peso, nacimiento, universidad
-  const bioEntry = DATA.players?.get(normPlayerKey(playerName));
+  const bioEntry = bioBefore;
   if (bioEntry) {
     let bioHtml = '';
     if (bioEntry.heightCm)  bioHtml += drawerRow('Altura', `${esc(bioEntry.heightCm)} cm`);
