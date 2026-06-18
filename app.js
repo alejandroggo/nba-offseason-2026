@@ -1697,7 +1697,7 @@ function openPlayerDrawer(playerName, pushHistory = true) {
       const age = bioBefore.ageApprox ? `${esc(bioBefore.ageApprox)} años (${year})` : year;
       bioHtml += drawerRow('Edad', age);
     }
-    if (bioBefore.birthPlace) bioHtml += drawerRow('Origen', esc(bioBefore.birthPlace));
+    if (bioBefore.birthPlace) bioHtml += drawerRow('Nacimiento', esc(bioBefore.birthPlace));
     if (bioHtml) html += `<div class="drawer-section">
       <div class="drawer-section-title drawer-section-title--accent">Biografía</div>
       ${bioHtml}
