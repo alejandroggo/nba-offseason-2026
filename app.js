@@ -1711,6 +1711,7 @@ function openPlayerDrawer(playerName, pushHistory = true) {
       bioHtml += drawerRow('Edad', ageStr);
     }
     if (bioBefore.birthPlace) bioHtml += drawerRow('Nacimiento', esc(bioBefore.birthPlace));
+    if (bioBefore.univ)       bioHtml += drawerRow('Universidad/Origen', esc(bioBefore.univ));
     if (bioHtml) html += `<div class="drawer-section drawer-section--bio">
       <div class="drawer-section-title drawer-section-title--accent">Biografía</div>
       ${bioHtml}
