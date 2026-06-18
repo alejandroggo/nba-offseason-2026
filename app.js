@@ -1693,9 +1693,22 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     if (bioBefore.heightCm)  bioHtml += drawerRow('Altura', `${esc(bioBefore.heightCm)} cm`);
     if (bioBefore.weightKg)  bioHtml += drawerRow('Peso', `${esc(bioBefore.weightKg)} kg`);
     if (bioBefore.yearBirth) {
-      const year = esc(bioBefore.yearBirth);
-      const age = bioBefore.ageApprox ? `${esc(bioBefore.ageApprox)} años (${year})` : year;
-      bioHtml += drawerRow('Edad', age);
+      let ageStr = '';
+      const dmy = bioBefore.yearBirth.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+      if (dmy) {
+        const bd = new Date(+dmy[3], +dmy[2] - 1, +dmy[1]);
+        const now = new Date();
+        let years = now.getFullYear() - bd.getFullYear();
+        let months = now.getMonth() - bd.getMonth();
+        if (now.getDate() < bd.getDate()) months--;
+        if (months < 0) { years--; months += 12; }
+        ageStr = months > 0 ? `${years} años ${months} meses` : `${years} años`;
+      } else if (bioBefore.ageApprox) {
+        ageStr = `${esc(bioBefore.ageApprox)} años`;
+      } else {
+        ageStr = esc(bioBefore.yearBirth);
+      }
+      bioHtml += drawerRow('Edad', ageStr);
     }
     if (bioBefore.birthPlace) bioHtml += drawerRow('Nacimiento', esc(bioBefore.birthPlace));
     if (bioHtml) html += `<div class="drawer-section drawer-section--bio">
