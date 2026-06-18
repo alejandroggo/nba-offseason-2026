@@ -1690,7 +1690,7 @@ function openPlayerDrawer(playerName, pushHistory = true) {
   // Bio: altura, peso, nacimiento, origen
   if (bioBefore) {
     let bioHtml = '';
-    if (bioBefore.heightCm)  bioHtml += drawerRow('Altura', `${esc(bioBefore.heightCm)} cm`);
+    if (bioBefore.heightCm)  bioHtml += drawerRow('Altura', esc(bioBefore.heightCm));
     if (bioBefore.weightKg)  bioHtml += drawerRow('Peso', `${esc(bioBefore.weightKg)} kg`);
     if (bioBefore.yearBirth) {
       let ageStr = '';
@@ -1704,7 +1704,7 @@ function openPlayerDrawer(playerName, pushHistory = true) {
         if (months < 0) { years--; months += 12; }
         ageStr = months > 0 ? `${years} años ${months} meses` : `${years} años`;
       } else if (bioBefore.ageApprox) {
-        ageStr = `${esc(bioBefore.ageApprox)} años`;
+        ageStr = esc(bioBefore.ageApprox);
       } else {
         ageStr = esc(bioBefore.yearBirth);
       }
