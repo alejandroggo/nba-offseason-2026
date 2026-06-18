@@ -1010,7 +1010,6 @@
 
   .drawer-header {
     padding: 20px 24px 16px;
-    border-bottom: 1px solid var(--border);
     display: flex; align-items: flex-start; justify-content: space-between;
     flex-shrink: 0;
   }
@@ -1018,6 +1017,9 @@
     font-family: 'Bebas Neue', sans-serif;
     font-size: 32px; letter-spacing: 1px; line-height: 1;
     color: var(--text);
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
   }
   .drawer-player-type {
     font-family: 'Inter', sans-serif;
@@ -1043,6 +1045,7 @@
   }
   .drawer-section { margin-bottom: 28px; }
   .drawer-section--bio { margin-bottom: 0; }
+  .drawer-section--bio .drawer-row { border-bottom: none; padding: 4px 0; }
   .drawer-scouting-title {
     font-family: 'Inter', sans-serif;
     font-size: 13px; font-weight: 700;
