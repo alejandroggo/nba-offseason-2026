@@ -1501,6 +1501,82 @@ function rerenderAll() {
 // ─────────────────────────────────────────────
 // TRANSACTIONS LOG
 // ─────────────────────────────────────────────
+
+// Deadlines extraídos de Spotrac (21/06/2026). Solo PLAYER y CLUB options.
+const _OPTION_DEADLINES = {
+  'kentavious caldwell-pope': '2026-06-23',
+  "d'angelo russell":        '2026-06-23',
+  'jordan miller':           '2026-06-24',
+  'bogdan bogdanovic':       '2026-06-26',
+  'jericho sims':            '2026-06-26',
+  'jamal shead':             '2026-06-27',
+  'ziaire williams':         '2026-06-28',
+  "day'ron sharpe":          '2026-06-28',
+  'mouhamed gueye':          '2026-06-29', 'jonathan kuminga':       '2026-06-29',
+  'josh minott':             '2026-06-29', 'malachi smith':          '2026-06-29',
+  'jordan walsh':            '2026-06-29', 'neemias queta':          '2026-06-29',
+  'amari williams':          '2026-06-29', 'max shulga':             '2026-06-29',
+  'ron harper jr.':          '2026-06-29', 'j.d. davison':           '2026-06-29',
+  'dalano banton':           '2026-06-29', 'hayden gray':            '2026-06-29',
+  'pat connaughton':         '2026-06-29', 'nick smith jr.':         '2026-06-29',
+  'leonard miller':          '2026-06-29', 'mouhamadou gueye':       '2026-06-29',
+  'jahmir young':            '2026-06-29', 'james harden':           '2026-06-29',
+  'killian hayes':           '2026-06-29', 'ryan nembhard':          '2026-06-29',
+  'olivier-maxence prosper': '2026-06-29', 'jalen pickett':          '2026-06-29',
+  'daniss jenkins':          '2026-06-29', 'tolu smith iii':         '2026-06-29',
+  'draymond green':          '2026-06-29', 'al horford':             '2026-06-29',
+  "de'anthony melton":       '2026-06-29', 'fred vanvleet':          '2026-06-29',
+  'kam jones':               '2026-06-29', 'micah potter':           '2026-06-29',
+  'nicolas batum':           '2026-06-29', 'brook lopez':            '2026-06-29',
+  'bradley beal':            '2026-06-29', 'kobe sanders':           '2026-06-29',
+  'luka doncic':             '2026-06-29', 'austin reaves':          '2026-06-29',
+  'deandre ayton':           '2026-06-29', 'marcus smart':           '2026-06-29',
+  'g.g. jackson':            '2026-06-29', 'andrew wiggins':         '2026-06-29',
+  'pelle larsson':           '2026-06-29', 'bez mbeng':              '2026-06-29',
+  'ousmane dieng':           '2026-06-29', 'andre jackson jr.':      '2026-06-29',
+  'kevin porter jr.':        '2026-06-29', 'taurean prince':         '2026-06-29',
+  'gary trent jr.':          '2026-06-29', 'gary harris':            '2026-06-29',
+  'jamaree bouyea':          '2026-06-29', 'julian phillips':        '2026-06-29',
+  'karlo matkovic':          '2026-06-29', 'kevon looney':           '2026-06-29',
+  'dalen terry':             '2026-06-29', 'jose alvarado':          '2026-06-29',
+  'luguentz dort':           '2026-06-29', 'kenrich williams':       '2026-06-29',
+  'isaiah hartenstein':      '2026-06-29', 'jamal cain':             '2026-06-29',
+  'joel embiid':             '2026-06-29', 'trendon watford':        '2026-06-29',
+  'dominick barlow':         '2026-06-29', 'toumani camara':         '2026-06-29',
+  'zach lavine':             '2026-06-29', 'julian champagnie':      '2026-06-29',
+  'jakob poeltl':            '2026-06-29', 'trayce jackson-davis':   '2026-06-29',
+  'jonathan mogbo':          '2026-06-29', 'sandro mamukelashvili':  '2026-06-29',
+  'sviatoslav mykhailiuk':   '2026-06-29', 'jamir watkins':          '2026-06-29',
+  // Club options rookies 2024/2025 draft — deadline oct 2026
+  'zaccharie risacher': '2026-10-31', 'asa newell':          '2026-10-31',
+  'egor demin':         '2026-10-31', 'nolan traore':        '2026-10-31',
+  'drake powell':       '2026-10-31', 'ben saraf':           '2026-10-31',
+  'danny wolf':         '2026-10-31', 'baylor scheierman':   '2026-10-31',
+  'tidjane salaun':     '2026-10-31', 'kon knueppel':        '2026-10-31',
+  'liam mcneeley':      '2026-10-31', 'rob dillingham':      '2026-10-31',
+  'matas buzelis':      '2026-10-31', 'noa essengue':        '2026-10-31',
+  'jaylon tyson':       '2026-10-31', 'aj johnson':          '2026-10-31',
+  'cooper flagg':       '2026-10-31', 'daron holmes ii':     '2026-10-31',
+  'ron holland ii':     '2026-10-31', 'reed sheppard':       '2026-10-31',
+  'dalton knecht':      '2026-10-31', 'zach edey':           '2026-10-31',
+  'cedric coward':      '2026-10-31', 'walter clayton jr.':  '2026-10-31',
+  "kel'el ware":        '2026-10-31', 'kasparas jakucionis':  '2026-10-31',
+  'terrence shannon jr.': '2026-10-31', 'yves missi':         '2026-10-31',
+  'jeremiah fears':     '2026-10-31', 'derik queen':         '2026-10-31',
+  'pacome dadiet':      '2026-10-31', 'nikola topic':        '2026-10-31',
+  'jared mccain':       '2026-10-31', 'thomas sorber':       '2026-10-31',
+  'tristan da silva':   '2026-10-31', 'jase richardson':     '2026-10-31',
+  'vj edgecombe':       '2026-10-31', 'ryan dunn':           '2026-10-31',
+  'khaman maluach':     '2026-10-31', 'donovan clingan':     '2026-10-31',
+  'devin carter':       '2026-10-31', 'stephon castle':      '2026-10-31',
+  'dylan harper':       '2026-10-31', 'carter bryant':       '2026-10-31',
+  "ja'kobe walter":     '2026-10-31', 'collin murray-boyles': '2026-10-31',
+  'cody williams':      '2026-10-31', 'isaiah collier':      '2026-10-31',
+  'ace bailey':         '2026-10-31', 'alex sarr':           '2026-10-31',
+  'bub carrington':     '2026-10-31', 'kyshawn george':      '2026-10-31',
+  'tre johnson':        '2026-10-31', 'will riley':          '2026-10-31',
+};
+
 function buildTransactions() {
   const entries = [];
   const norm2 = s => (s || '').trim().toLowerCase();
@@ -1542,7 +1618,7 @@ function buildTransactions() {
     (r.siguen || []).forEach(p => {
       const { name, tag, label } = faStatus(p.name);
       if (!tag || !['POE','TOE'].includes(tag)) return;
-      entries.push({ date: null, type: 'option', player: name, rawPlayer: p.name,
+      entries.push({ date: _OPTION_DEADLINES[name.toLowerCase()] || null, type: 'option', player: name, rawPlayer: p.name,
         team: r.team, tag, label });
     });
   });
@@ -1551,7 +1627,7 @@ function buildTransactions() {
   (DATA.faPending || []).forEach(d => {
     const { name, tag, label } = faStatus(d.player);
     if (!tag || !['POX','TOX','RFAX'].includes(tag)) return;
-    entries.push({ date: null, type: 'option', player: name, rawPlayer: d.player,
+    entries.push({ date: _OPTION_DEADLINES[name.toLowerCase()] || null, type: 'option', player: name, rawPlayer: d.player,
       team: d.team25, tag, label });
   });
 
