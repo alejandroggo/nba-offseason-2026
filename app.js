@@ -1460,6 +1460,7 @@ function faStatus(player) {
     name: player.replace(/\s*\([^)]+\)\s*$/, '').trim(),
     badge: `&nbsp;<span class="badge ${cls}">${displayTag}</span>`,
     label,
+    tag,
   };
 }
 
