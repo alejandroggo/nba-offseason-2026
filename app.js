@@ -488,7 +488,7 @@ function filterFAPending() {
     if (team && (d.team25||'').trim().toLowerCase() !== team.trim().toLowerCase()) return false;
     if (pos  && validPos(d.pos) !== pos) return false;
     if (_pendingTypeFilter) {
-      const m = (d.player || '').match(/\((RFA|TO|PO)\)\s*$/i);
+      const m = (d.player || '').match(/\((RFA|RFAX|TO|TOE|TOX|PO|POE|POX)\)\s*$/i);
       if (!m || m[1].toUpperCase() !== _pendingTypeFilter) return false;
     }
     return true;
@@ -798,7 +798,7 @@ function processRosters(rows1, rows2) {
   DATA.rosters = [...parse(rows1), ...parse(rows2)].sort((a,b) => a.team.localeCompare(b.team));
 
   // Strip trailing (RFA)/(TO)/(PO) tags for dedup purposes.
-  const stripTag = n => (n || '').replace(/\s*\((?:RFA|TO|PO)\)\s*$/i, '').trim().toLowerCase();
+  const stripTag = n => (n || '').replace(/\s*\((?:RFA|RFAX|TO|TOE|TOX|PO|POE|POX)\)\s*$/i, '').trim().toLowerCase();
 
   const pendingFromFA = [];
   const signedNames = new Set(DATA.fa.filter(d => d.dest).map(d => normPlayerKey(d.player)));
@@ -891,7 +891,7 @@ function parseSalidaReason(rawName) {
 // pasándolo a minúsculas, para usarlo como clave de índice/comparación.
 function normPlayerKey(name) {
   if (!name) return '';
-  return parseTW(name).name.replace(/\s*\((?:RFA|TO|PO)\)\s*$/i, '').trim().toLowerCase();
+  return parseTW(name).name.replace(/\s*\((?:RFA|RFAX|TO|TOE|TOX|PO|POE|POX)\)\s*$/i, '').trim().toLowerCase();
 }
 
 // Índice global de posiciones por jugador, reconstruido cuando cambia DATA._stamp.
@@ -1010,7 +1010,7 @@ function plantillaBlock(players) {
     <div class="roster-block">
       <div class="roster-label plantilla">${t('roster_stays')}</div>
       ${players.length
-        ? players.map(p => `<div class="${cls(p)}">${posTag(p.pos)}${esc(p.name)}${tw(p)}</div>`).join('')
+        ? players.map(p => { const { name, badge } = faStatus(p.name); return `<div class="${cls(p)}">${posTag(p.pos)}${esc(name)}${tw(p)}${badge}</div>`; }).join('')
         : `<div class="roster-player" style="color:var(--text-dim)">—</div>`}
     </div>`;
 }
@@ -1415,10 +1415,14 @@ function validPos(pos) {
 }
 
 function faStatus(player) {
-  const m = (player || '').match(/\((RFA|TO|PO)\)\s*$/i);
+  const m = (player || '').match(/\((RFA|RFAX|TO|TOE|TOX|PO|POE|POX)\)\s*$/i);
   if (!m) return { name: player || '', badge: '' };
   const tag = m[1].toUpperCase();
-  const cls = tag === 'RFA' ? 'badge-rfa' : tag === 'TO' ? 'badge-to' : 'badge-po';
+  const cls = {
+    RFA: 'badge-rfa', RFAX: 'badge-rfa badge-declined',
+    TO: 'badge-to', TOE: 'badge-toe', TOX: 'badge-tox',
+    PO: 'badge-po', POE: 'badge-poe', POX: 'badge-pox',
+  }[tag] || 'badge-neutral';
   return {
     name: player.replace(/\s*\([^)]+\)\s*$/, '').trim(),
     badge: `&nbsp;<span class="badge ${cls}">${tag}</span>`
@@ -1893,7 +1897,7 @@ function openTeamView(teamName, pushHistory = true) {
 
   // Cortados: jugadores en col F,G (Salidas) que no firmaron en otro lado ni
   // fueron traspasados. Se muestran en la card "FA" sin destino.
-  const stripTag = n => (n || '').replace(/\s*\((?:RFA|TO|PO)\)\s*$/i, '').trim().toLowerCase();
+  const stripTag = n => (n || '').replace(/\s*\((?:RFA|RFAX|TO|TOE|TOX|PO|POE|POX)\)\s*$/i, '').trim().toLowerCase();
   const seenOut = new Set([
     ...faOut.map(d => stripTag(d.player)),
     ...tradeOut.map(r => stripTag(r.item)),
@@ -2202,7 +2206,7 @@ document.addEventListener('keydown', function(e) {
 function buildQuizPool() {
   const easy = [], medium = [], hard = [];
   const seen = new Set();
-  const cleanName = n => { const { name } = parseTW((n||'').replace(/\s*\((?:RFA|TO|PO)\)\s*/gi, '')); return name.trim(); };
+  const cleanName = n => { const { name } = parseTW((n||'').replace(/\s*\((?:RFA|RFAX|TO|TOE|TOX|PO|POE|POX)\)\s*/gi, '')); return name.trim(); };
 
   function add(player, team, level) {
     const key = player.toLowerCase().trim();
@@ -2699,7 +2703,7 @@ function imp_shuffle(arr) {
 
 function buildImpostorPool() {
   const questions = [];
-  const cleanName = n => { const { name } = parseTW((n||'').replace(/\s*\((?:RFA|TO|PO)\)\s*/gi, '')); return name.trim(); };
+  const cleanName = n => { const { name } = parseTW((n||'').replace(/\s*\((?:RFA|RFAX|TO|TOE|TOX|PO|POE|POX)\)\s*/gi, '')); return name.trim(); };
 
   // Map: team → all current players (siguen + llegadas)
   const teamRoster = {};
