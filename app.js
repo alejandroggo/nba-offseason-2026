@@ -1416,16 +1416,25 @@ function validPos(pos) {
 
 function faStatus(player) {
   const m = (player || '').match(/\((RFA|RFAX|TO|TOE|TOX|PO|POE|POX)\)\s*$/i);
-  if (!m) return { name: player || '', badge: '' };
+  if (!m) return { name: player || '', badge: '', label: '' };
   const tag = m[1].toUpperCase();
   const cls = {
     RFA: 'badge-rfa', RFAX: 'badge-rfa badge-declined',
     TO: 'badge-to', TOE: 'badge-toe', TOX: 'badge-tox',
     PO: 'badge-po', POE: 'badge-poe', POX: 'badge-pox',
   }[tag] || 'badge-neutral';
+  const displayTag = { POE: 'PO', TOE: 'TO', POX: 'PO', TOX: 'TO', RFAX: 'RFA' }[tag] || tag;
+  const label = {
+    POE: 'Opción de jugador ejercida',
+    TOE: 'Opción de equipo ejercida',
+    POX: 'Opción de jugador rechazada',
+    TOX: 'Opción de equipo rechazada',
+    RFAX: 'Oferta RFA no igualada',
+  }[tag] || '';
   return {
     name: player.replace(/\s*\([^)]+\)\s*$/, '').trim(),
-    badge: `&nbsp;<span class="badge ${cls}">${tag}</span>`
+    badge: `&nbsp;<span class="badge ${cls}">${displayTag}</span>`,
+    label,
   };
 }
 
@@ -1636,7 +1645,8 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     for (const p of (team.siguen || [])) {
       const { name: pn, tw } = parseTW(p.name);
       if (normPlayerKey(pn) === normPlayerKey(playerName)) {
-        rosterEntry = { team: team.team, tw };
+        const { badge: optBadge, label: optLabel } = faStatus(p.name);
+        rosterEntry = { team: team.team, tw, optBadge, optLabel, pos: p.pos };
         break;
       }
     }
@@ -1732,6 +1742,8 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     const twBadge = rosterEntry.tw ? ' <span class="badge-tw">TW</span>' : '';
     html += `<div class="drawer-section">`;
     html += drawerRow('Contrato', teamBadgeHTML(rosterEntry.team, false) + twBadge);
+    if (rosterEntry.pos && validPos(rosterEntry.pos)) html += drawerRow(t('draft_col_pos'), `<span class="pos-text">${esc(validPos(rosterEntry.pos))}</span>`);
+    if (rosterEntry.optLabel) html += drawerRow('Opción', rosterEntry.optBadge.trim() + '&nbsp;' + esc(rosterEntry.optLabel));
     html += `</div>`;
   }
 
