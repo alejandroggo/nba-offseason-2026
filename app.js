@@ -57,7 +57,7 @@ const i18n = {
     rosters_search_ph: 'Buscar equipo o jugador…',
     roster_stays: 'Plantilla', roster_arrivals: 'Llegadas', roster_departures: 'Salidas',
     roster_fa: 'FA', roster_draft: 'Draft', roster_trade: 'Vía Trade',
-    roster_salidas_fa: 'FA', roster_salidas_trade: 'Vía Trade', roster_fa_pending: 'FA Pendientes', roster_waived: 'Cortado', roster_deceased: 'Fallecido', roster_retired: 'Retirado', roster_overseas: 'Otras ligas',
+    roster_salidas_fa: 'FA', roster_salidas_trade: 'Vía Trade', roster_fa_pending: 'FA Pendientes', roster_waived: 'Cortado', roster_deceased: 'Fallecido', roster_retired: 'Retirado', roster_overseas: 'Otras ligas', roster_opt_declined: 'Declinó opción',
     roster_section_trades: 'Traspasos', roster_section_coaches: 'Cuerpo técnico y gerencia',
     coaches_title: 'Entrenadores y General Managers', coaches_subtitle: 'Cambios en banquillos y gerencias',
     coaches_search_ph: 'Equipo, nombre…',
@@ -126,7 +126,7 @@ const i18n = {
     rosters_search_ph: 'Search team or player…',
     roster_stays: 'Roster', roster_arrivals: 'Arrivals', roster_departures: 'Departures',
     roster_fa: 'FA', roster_draft: 'Draft', roster_trade: 'Via Trade',
-    roster_salidas_fa: 'FA', roster_salidas_trade: 'Via Trade', roster_fa_pending: 'Pending FA', roster_waived: 'Waived', roster_deceased: 'Deceased', roster_retired: 'Retired', roster_overseas: 'Overseas',
+    roster_salidas_fa: 'FA', roster_salidas_trade: 'Via Trade', roster_fa_pending: 'Pending FA', roster_waived: 'Waived', roster_deceased: 'Deceased', roster_retired: 'Retired', roster_overseas: 'Overseas', roster_opt_declined: 'Declined option',
     roster_section_trades: 'Trades', roster_section_coaches: 'Coaching staff & front office',
     coaches_title: 'Head Coaches & General Managers', coaches_subtitle: 'Coaching and front office changes',
     coaches_search_ph: 'Team, name…',
@@ -1504,8 +1504,9 @@ function rerenderAll() {
 
 // Deadlines extraídos de Spotrac (21/06/2026). Solo PLAYER y CLUB options.
 const _OPTION_DEADLINES = {
-  'kentavious caldwell-pope': '2026-06-23',
-  "d'angelo russell":        '2026-06-23',
+  'kentavious caldwell-pope': '2026-06-19',
+  "d'angelo russell":        '2026-06-19',
+  'trae young':              '2026-06-17',
   'jordan miller':           '2026-06-24',
   'bogdan bogdanovic':       '2026-06-26',
   'jericho sims':            '2026-06-26',
@@ -2128,13 +2129,24 @@ function openTeamView(teamName, pushHistory = true) {
   const canonical = Object.keys(TEAM_LOGOS).find(n => norm2(n) === tKey);
   if (canonical) teamName = canonical;
   else if (!teamName) { showTab('home', pushHistory); return; }
-  const faIn      = DATA.fa.filter(d => norm2(d.dest) === tKey);
-  const faOut     = DATA.fa.filter(d => norm2(d.team25) === tKey && d.dest && norm2(d.dest) !== tKey);
+  const faIn          = DATA.fa.filter(d => norm2(d.dest) === tKey);
+  const faOut         = DATA.fa.filter(d => norm2(d.team25) === tKey && d.dest && norm2(d.dest) !== tKey);
+  const declinedOpts  = (DATA.faPending || []).filter(d => {
+    const { tag } = faStatus(d.player);
+    return norm2(d.team25) === tKey && (tag === 'POX' || tag === 'TOX');
+  });
   const picks     = DATA.draft.filter(d => norm2(d.team) === tKey);
   const undrafted = (DATA.undrafted || []).filter(d => norm2(d.team) === tKey && d.player);
   const trades    = DATA.trades.filter(tr => tr.sides.some(s => norm2(s.team) === tKey));
   const roster    = DATA.rosters.find(r => norm2(r.team) === tKey);
-  const faPending = (roster?.fa || []).map(d => ({ player: d.name, pos: d.pos }));
+  const _localPending = (roster?.fa || []).map(d => ({ player: d.name, pos: d.pos }));
+  const _seenPending  = new Set(_localPending.map(d => (d.player||'').trim().toLowerCase()));
+  const faPending = [
+    ..._localPending,
+    ...(DATA.faPending || [])
+      .filter(d => norm2(d.team25) === tKey && !_seenPending.has((d.player||'').trim().toLowerCase()))
+      .map(d => ({ player: d.player, pos: d.pos })),
+  ];
   const coaches   = DATA.coaches.filter(d => norm2(d.team) === tKey);
 
   document.getElementById('tv-team-name').textContent = teamName;
