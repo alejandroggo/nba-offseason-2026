@@ -71,6 +71,11 @@ const i18n = {
     last_update: 'Actualizado',
     trade_label: 'Traspaso',
     teams_title: 'Equipos', teams_subtitle: 'Las 30 franquicias de la NBA',
+    tab_transactions: 'Transacciones',
+    transactions_title: 'Transacciones', transactions_subtitle: 'Log cronológico de movimientos',
+    tx_type_signing: 'FIRMA', tx_type_resign: 'RENOVACIÓN', tx_type_trade: 'TRADE',
+    tx_type_draft: 'DRAFT', tx_type_option: 'OPCIÓN', tx_type_waived: 'CORTADO',
+    tx_no_date: 'Sin fecha confirmada',
     drawer_view_team: 'Ver nuevo equipo', drawer_view_old_team: 'Ver equipo anterior',
     drawer_trade_alongside: 'Junto con', drawer_trade_inexchange: 'A cambio de',
     legend_rfa: 'Agente libre restringido', legend_to: 'Opción de equipo', legend_po: 'Opción de jugador',
@@ -135,6 +140,11 @@ const i18n = {
     last_update: 'Updated',
     trade_label: 'Trade',
     teams_title: 'Teams', teams_subtitle: 'All 30 NBA franchises',
+    tab_transactions: 'Transactions',
+    transactions_title: 'Transactions', transactions_subtitle: 'Chronological log of moves',
+    tx_type_signing: 'SIGNING', tx_type_resign: 'EXTENSION', tx_type_trade: 'TRADE',
+    tx_type_draft: 'DRAFT', tx_type_option: 'OPTION', tx_type_waived: 'WAIVED',
+    tx_no_date: 'Date unconfirmed',
     drawer_view_team: 'View new team', drawer_view_old_team: 'View previous team',
     drawer_trade_alongside: 'Alongside', drawer_trade_inexchange: 'In exchange for',
     legend_rfa: 'Restricted free agent', legend_to: 'Team option', legend_po: 'Player option',
@@ -1479,11 +1489,139 @@ function rerenderAll() {
   filterCoaches();
   updateHomeCounts();
   applyTranslations();
+  renderTransactions();
   const currentTeam = document.getElementById('tv-team-name')?.textContent?.trim();
   const teamSection = document.getElementById('section-team');
   if (currentTeam && teamSection?.classList.contains('active')) {
     openTeamView(currentTeam, false);
   }
+}
+
+// ─────────────────────────────────────────────
+// TRANSACTIONS LOG
+// ─────────────────────────────────────────────
+function buildTransactions() {
+  const entries = [];
+  const norm2 = s => (s || '').trim().toLowerCase();
+
+  // FA firmados
+  (DATA.fa || []).filter(d => d.dest).forEach(d => {
+    const { name } = faStatus(d.player);
+    const isResign = norm2(d.team25) === norm2(d.dest);
+    entries.push({ date: null, type: isResign ? 'resign' : 'signing',
+      player: name, rawPlayer: d.player, from: d.team25, to: d.dest,
+      money: d.money, years: d.years });
+  });
+
+  // Trades
+  (DATA.trades || []).forEach(tr => {
+    entries.push({ date: tr.date || null, type: 'trade', trade: tr,
+      teams: [...new Set(tr.sides.map(s => s.team))] });
+  });
+
+  // Draft picks
+  (DATA.draft || []).forEach(d => {
+    if (!d.player) return;
+    const { name, tw } = parseTW(d.player, d.contract);
+    entries.push({ date: null, type: 'draft', player: name, rawPlayer: d.player,
+      pick: d.pick, team: d.team, pos: d.pos, tw });
+  });
+
+  // Opciones ejercidas (POE/TOE) — en siguen con tag
+  (DATA.rosters || []).forEach(r => {
+    (r.siguen || []).forEach(p => {
+      const { name, tag, label } = faStatus(p.name);
+      if (!tag || !['POE','TOE'].includes(tag)) return;
+      entries.push({ date: null, type: 'option', player: name, rawPlayer: p.name,
+        team: r.team, tag, label });
+    });
+  });
+
+  // Opciones rechazadas (POX/TOX) — en faPending con tag
+  (DATA.faPending || []).forEach(d => {
+    const { name, tag, label } = faStatus(d.player);
+    if (!tag || !['POX','TOX'].includes(tag)) return;
+    entries.push({ date: null, type: 'option', player: name, rawPlayer: d.player,
+      team: d.team25, tag, label });
+  });
+
+  // Cortados (waived)
+  (DATA.rosters || []).forEach(r => {
+    (r.salidas || []).forEach(p => {
+      const { name, reasonKey } = parseSalidaReason(p.name);
+      if (reasonKey !== 'waived') return;
+      entries.push({ date: null, type: 'waived', player: name, team: r.team });
+    });
+  });
+
+  return entries;
+}
+
+function renderTransactions() {
+  const container = document.getElementById('tx-container');
+  if (!container) return;
+  const entries = buildTransactions();
+  if (!entries.length) {
+    container.innerHTML = fetchComplete ? `<div class="state-empty">${t('no_data')}</div>` : '';
+    return;
+  }
+
+  const dated   = entries.filter(e => e.date).sort((a,b) => new Date(b.date) - new Date(a.date));
+  const undated = entries.filter(e => !e.date);
+
+  const typeMeta = {
+    signing: { cls: 'badge-poe',     label: () => t('tx_type_signing') },
+    resign:  { cls: 'badge-to',      label: () => t('tx_type_resign') },
+    trade:   { cls: 'badge-accent',  label: () => t('tx_type_trade') },
+    draft:   { cls: 'badge-neutral', label: () => t('tx_type_draft') },
+    option:  { cls: e => (e.tag==='POE'||e.tag==='TOE') ? 'badge-poe' : 'badge-pox', label: () => t('tx_type_option') },
+    waived:  { cls: 'badge-danger',  label: () => t('tx_type_waived') },
+  };
+
+  const renderEntry = e => {
+    const meta = typeMeta[e.type] || { cls: 'badge-neutral', label: () => e.type };
+    const cls = typeof meta.cls === 'function' ? meta.cls(e) : meta.cls;
+    const typeLabel = meta.label(e);
+    let desc = '';
+
+    if (e.type === 'signing' || e.type === 'resign') {
+      const contract = e.money ? ` · $${e.money}M / ${esc(e.years)}y` : '';
+      const arrow = e.type === 'resign' ? ' renovó con ' : ' → ';
+      desc = `<span class="tx-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(e.rawPlayer || e.player)}')">${esc(e.player)}</span>${esc(arrow)}${teamBadgeHTML(e.to, false)}${esc(contract)}`;
+    } else if (e.type === 'trade') {
+      desc = e.teams.map(tm => teamBadgeHTML(tm, false)).join(' <span class="tx-arrow">⇄</span> ');
+    } else if (e.type === 'draft') {
+      const tw = e.tw ? ' <span class="badge-tw">TW</span>' : '';
+      desc = `${teamBadgeHTML(e.team, false)} → <span class="tx-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(e.rawPlayer || e.player)}')">${esc(e.player)}</span>${tw} <span class="tx-pick">#${esc(e.pick)}</span>`;
+    } else if (e.type === 'option') {
+      desc = `<span class="tx-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(e.rawPlayer || e.player)}')">${esc(e.player)}</span> · <span class="tx-muted">${esc(e.label)}</span> ${teamBadgeHTML(e.team, false)}`;
+    } else if (e.type === 'waived') {
+      desc = `${teamBadgeHTML(e.team, false)} cortó a <span class="tx-player">${esc(e.player)}</span>`;
+    }
+
+    return `<div class="tx-entry">
+      <span class="badge ${cls} tx-type-badge">${typeLabel}</span>
+      <div class="tx-desc">${desc}</div>
+    </div>`;
+  };
+
+  let html = '';
+
+  if (dated.length) {
+    const byDate = {};
+    dated.forEach(e => { (byDate[e.date] = byDate[e.date] || []).push(e); });
+    Object.entries(byDate).sort(([a],[b]) => new Date(b)-new Date(a)).forEach(([date, group]) => {
+      html += `<div class="tx-date-header">${fmtDate(date)}</div>`;
+      html += group.map(renderEntry).join('');
+    });
+  }
+
+  if (undated.length) {
+    if (dated.length) html += `<div class="tx-date-header tx-date-undated">${t('tx_no_date')}</div>`;
+    html += undated.map(renderEntry).join('');
+  }
+
+  container.innerHTML = html;
 }
 
 function updateHomeCounts() {

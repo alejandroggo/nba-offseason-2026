@@ -1836,6 +1836,31 @@
   .legend-row { display: flex; gap: 20px; margin-top: 10px; flex-wrap: wrap; align-items: center; }
   .legend-item { display: inline-flex; align-items: center; gap: 6px; }
   .legend-text { font-size: 11px; color: var(--text-muted); }
+  /* TRANSACTIONS LOG */
+  .tx-entry {
+    display: flex; align-items: baseline; gap: 12px;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+  }
+  .tx-type-badge {
+    flex-shrink: 0; min-width: 88px; text-align: center;
+    font-size: 10px; letter-spacing: 0.05em;
+  }
+  .tx-desc {
+    font-size: 13px; color: var(--text); line-height: 1.5;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 4px;
+  }
+  .tx-player { font-weight: 600; }
+  .tx-pick { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); }
+  .tx-arrow { color: var(--text-muted); margin: 0 2px; }
+  .tx-muted { color: var(--text-muted); font-size: 12px; }
+  .tx-date-header {
+    font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--accent); padding: 20px 0 8px;
+    border-bottom: 1px solid var(--border); margin-bottom: 2px;
+  }
+  .tx-date-undated { color: var(--text-muted); margin-top: 8px; }
+
   .fa-subsection-title--pending { margin-top: 40px; }
   .fa-pending-toggle { cursor: pointer; user-select: none; display: flex; align-items: center; gap: 8px; }
   .fa-pending-toggle:hover { opacity: 0.75; }
