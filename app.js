@@ -31,6 +31,8 @@ const i18n = {
     home_rosters_desc: 'Los 30 equipos con altas, bajas y continuidades',
     home_coaches_desc: 'Cambios en banquillos y gerencias',
     home_teams_desc: 'Las 30 franquicias: movimientos y plantilla',
+    home_transactions_desc: 'Log cronológico de movimientos',
+    home_quiz_desc: 'Trivia y minijuegos del Draft 2026',
     fa_event_date_label: 'Apertura agencia libre',
     draft_event_date_label: 'Fecha del draft',
     home_records: 'registros',
@@ -100,6 +102,8 @@ const i18n = {
     home_rosters_desc: 'All 30 teams — arrivals, departures, returning',
     home_coaches_desc: 'Coaching and front office changes',
     home_teams_desc: 'All 30 franchises — moves and roster',
+    home_transactions_desc: 'Chronological log of all moves',
+    home_quiz_desc: 'Draft 2026 trivia and mini-games',
     fa_event_date_label: 'Free agency opens',
     draft_event_date_label: 'Draft date',
     home_records: 'records',
@@ -1497,9 +1501,9 @@ function rerenderAll() {
   filterDraft();
   filterTrades();
   filterCoaches();
+  renderTransactions();
   updateHomeCounts();
   applyTranslations();
-  renderTransactions();
   const currentTeam = document.getElementById('tv-team-name')?.textContent?.trim();
   const teamSection = document.getElementById('section-team');
   if (currentTeam && teamSection?.classList.contains('active')) {
@@ -1738,6 +1742,7 @@ function updateHomeCounts() {
   setText('home-count-draft', draftCount  || '—');
   setText('home-count-trades', tradesCount || '—');
   setText('home-count-coaches', coachCount  || '—');
+  setText('home-count-tx', _txEntries.length || '—');
   setText('home-total-moves', total       || '—');
 }
 
@@ -1981,6 +1986,7 @@ function openPlayerDrawer(playerName, pushHistory = true) {
   if (tradeData.length) {
     html += `<div class="drawer-section">`;
     tradeData.forEach(tr => {
+      if (tr.date) html += drawerRow(t('col_date'), fmtDate(tr.date));
       tr.sides.forEach(side => {
         const myReceive = side.receives.find(r => tradeItemMatchesPlayer(r.item, playerName));
         if (myReceive) {

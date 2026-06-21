@@ -38,7 +38,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260623h">
+<link rel="stylesheet" href="styles.css?v=20260623i">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -197,6 +197,27 @@
         </div>
         <div class="home-row-right">
           <span class="home-row-stat">30</span>
+          <span class="home-row-arrow" aria-hidden="true">↗</span>
+        </div>
+      </button>
+      <button type="button" class="home-row" onclick="showTab('transactions')">
+        <span class="home-row-ordinal" aria-hidden="true">06</span>
+        <div class="home-row-body">
+          <div class="home-row-title" data-i18n="tab_transactions">Transacciones</div>
+          <div class="home-row-desc" data-i18n="home_transactions_desc">Log cronológico de movimientos</div>
+        </div>
+        <div class="home-row-right">
+          <span class="home-row-stat" id="home-count-tx">—</span>
+          <span class="home-row-arrow" aria-hidden="true">↗</span>
+        </div>
+      </button>
+      <button type="button" class="home-row" onclick="showTab('quiz')">
+        <span class="home-row-ordinal" aria-hidden="true">07</span>
+        <div class="home-row-body">
+          <div class="home-row-title" data-i18n="home_quiz_title">Juegos</div>
+          <div class="home-row-desc" data-i18n="home_quiz_desc">Trivia y minijuegos del Draft 2026</div>
+        </div>
+        <div class="home-row-right">
           <span class="home-row-arrow" aria-hidden="true">↗</span>
         </div>
       </button>
@@ -570,17 +591,17 @@
     </span>
     <span class="mobile-tab-label" data-i18n="tab_draft">DRAFT</span>
   </button>
+  <button type="button" class="mobile-tab mobile-tab--home" onclick="showTab('home')" id="mtab-home">
+    <span class="mobile-tab-icon" aria-hidden="true">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </span>
+    <span class="mobile-tab-label">HOME</span>
+  </button>
   <button type="button" class="mobile-tab" onclick="showTab('trades')" id="mtab-trades" aria-controls="section-trades">
     <span class="mobile-tab-icon" aria-hidden="true">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
     </span>
     <span class="mobile-tab-label" data-i18n="tab_trades">TRADES</span>
-  </button>
-  <button type="button" class="mobile-tab" onclick="showTab('coaches')" id="mtab-coaches" aria-controls="section-coaches">
-    <span class="mobile-tab-icon" aria-hidden="true">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
-    </span>
-    <span class="mobile-tab-label" data-i18n="tab_coaches_short">HC / GMs</span>
   </button>
   <button type="button" class="mobile-tab" onclick="showTab('teams')" id="mtab-teams" aria-controls="section-teams">
     <span class="mobile-tab-icon" aria-hidden="true">
@@ -588,22 +609,10 @@
     </span>
     <span class="mobile-tab-label" data-i18n="tab_teams">EQUIPOS</span>
   </button>
-  <button type="button" class="mobile-tab" onclick="showTab('transactions')" id="mtab-transactions" aria-controls="section-transactions">
-    <span class="mobile-tab-icon" aria-hidden="true">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-    </span>
-    <span class="mobile-tab-label" data-i18n="tab_transactions">Transacciones</span>
-  </button>
-  <button type="button" class="mobile-tab" onclick="showTab('quiz')" id="mtab-quiz" aria-controls="section-quiz" style="display:none">
-    <span class="mobile-tab-icon" aria-hidden="true">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-    </span>
-    <span class="mobile-tab-label">JUEGOS</span>
-  </button>
 </nav>
 
 
-<script defer src="app.js?v=20260623h"></script>
+<script defer src="app.js?v=20260623i"></script>
 <!-- PLAYER DRAWER -->
 <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()" aria-hidden="true"></div>
 <div class="player-drawer" id="player-drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-player-name" aria-hidden="true">

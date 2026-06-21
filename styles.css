@@ -1777,6 +1777,12 @@
       line-height: 1;
     }
 
+    /* Home center button active via body class */
+    body.on-home #mtab-home { color: var(--accent); }
+    body.on-home #mtab-home::before { background: var(--accent); }
+
+    .mobile-tab--home .mobile-tab-icon svg { width: 24px; height: 24px; }
+
     /* Siempre visible en móvil, incluso en home */
     body.on-home .mobile-nav { display: flex; }
 
