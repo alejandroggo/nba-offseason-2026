@@ -1918,8 +1918,13 @@ function openPlayerDrawer(playerName, pushHistory = true) {
   if (faData.length) {
     html += `<div class="drawer-section">`;
     faData.forEach(d => {
-      if (d.dest)   html += drawerRow(t('drawer_new_team'), teamBadgeHTML(d.dest, false));
-      if (d.team25) html += drawerRow(t('drawer_old_team'), teamBadgeHTML(d.team25, false));
+      const isResign = d.dest && d.team25 && d.dest.trim().toLowerCase() === d.team25.trim().toLowerCase();
+      if (isResign) {
+        html += drawerRow(t('col_team'), teamBadgeHTML(d.dest, false));
+      } else {
+        if (d.dest)   html += drawerRow(t('drawer_new_team'), teamBadgeHTML(d.dest, false));
+        if (d.team25) html += drawerRow(t('drawer_old_team'), teamBadgeHTML(d.team25, false));
+      }
       if (d.money)  html += drawerRow(t('drawer_total'), `$${esc(d.money)}M`, 'money');
       if (d.years)  html += drawerRow(t('drawer_years'), esc(d.years));
       if (d.aav)    html += drawerRow('AAV', fmtAav(d.aav), 'money');
