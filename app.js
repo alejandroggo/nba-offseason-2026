@@ -1533,7 +1533,7 @@ function buildTransactions() {
       pick: d.pick, team: d.team, pos: d.pos, tw });
     if (d.signDate) {
       entries.push({ date: d.signDate, type: 'signing', player: name, rawPlayer: d.player,
-        from: null, to: d.team, money: null, years: null });
+        from: null, to: d.team, money: null, years: null, contract: d.contract, tw });
     }
   });
 
@@ -1605,14 +1605,15 @@ function filterTransactions() {
     const cls = typeof meta.cls === 'function' ? meta.cls(e) : meta.cls;
     let desc = '';
     if (e.type === 'signing' || e.type === 'resign') {
-      const contract = e.money ? ` · $${e.money}M / ${esc(e.years)}y` : '';
+      const twBadge = e.tw ? ' <span class="badge-tw">TW</span>' : '';
+      const contract = e.money ? ` · $${e.money}M / ${esc(e.years)}y` : (e.contract ? ` · ${esc(e.contract)}` : '');
       const arrow = e.type === 'resign' ? ' renovó con ' : ' → ';
-      desc = `<span class="tx-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(e.rawPlayer || e.player)}')">${esc(e.player)}</span>${esc(arrow)}${teamBadgeHTML(e.to, false)}${esc(contract)}`;
+      desc = `<span class="tx-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(e.rawPlayer || e.player)}')">${esc(e.player)}</span>${esc(arrow)}${teamBadgeHTML(e.to, false)}${twBadge}${esc(contract)}`;
     } else if (e.type === 'trade') {
       desc = e.teams.map(tm => teamBadgeHTML(tm, false)).join(' <span class="tx-arrow">⇄</span> ');
     } else if (e.type === 'draft') {
       const twBadge = e.tw ? ' <span class="badge-tw">TW</span>' : '';
-      desc = `${teamBadgeHTML(e.team, false)} → <span class="tx-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(e.rawPlayer || e.player)}')">${esc(e.player)}</span>${twBadge} <span class="tx-pick">#${esc(e.pick)}</span>`;
+      desc = `<span class="tx-pick">#${esc(e.pick)}</span> ${teamBadgeHTML(e.team, false)} → <span class="tx-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(e.rawPlayer || e.player)}')">${esc(e.player)}</span>${twBadge}`;
     } else if (e.type === 'option') {
       desc = `<span class="tx-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(e.rawPlayer || e.player)}')">${esc(e.player)}</span> · <span class="tx-muted">${esc(e.label)}</span> ${teamBadgeHTML(e.team, false)}`;
     } else if (e.type === 'waived') {
@@ -2135,15 +2136,16 @@ function openTeamView(teamName, pushHistory = true) {
         }).join('') : tvEmpty())}
     ${(() => {
       const draftRows = [
-        ...picks.map(d => ({ pick: `#${d.pick}`, player: d.player, pos: d.pos, contract: d.contract, undrafted: false })),
-        ...undrafted.map(d => ({ pick: 'Undrafted', player: d.player, pos: d.pos, contract: d.contract, undrafted: true })),
+        ...picks.map(d => ({ pick: `#${d.pick}`, player: d.player, pos: d.pos, contract: d.contract, undrafted: false, check: d.check })),
+        ...undrafted.map(d => ({ pick: 'Undrafted', player: d.player, pos: d.pos, contract: d.contract, undrafted: true, check: d.check })),
       ];
       const renderDraftRow = d => {
         const { name, tw } = parseTW(d.player, d.contract);
         const pickCls = d.undrafted ? 'tv-row-pick undrafted' : 'tv-row-pick';
+        const checkBadge = d.check ? ` <span class="badge badge-check">${esc(d.check)}</span>` : '';
         return `<div class="tv-row${(tw && !d.undrafted) ? ' tv-row-tw' : ''}" style="justify-content:flex-start;gap:10px">
           ${itemPosTag(name, d.pos)}
-          <span class="tv-row-name" onclick="openPlayerDrawer('${esc(d.player)}')" style="flex:1">${esc(name)}${tw ? ' <span class="badge-tw">TW</span>' : ''}</span>
+          <span class="tv-row-name" onclick="openPlayerDrawer('${esc(d.player)}')" style="flex:1">${esc(name)}${tw ? ' <span class="badge-tw">TW</span>' : ''}${checkBadge}</span>
           <span class="${pickCls}" style="text-align:right;min-width:auto">${esc(d.pick)}</span>
         </div>`;
       };

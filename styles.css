@@ -1850,7 +1850,7 @@
     display: flex; flex-wrap: wrap; align-items: center; gap: 4px;
   }
   .tx-player { font-weight: 600; }
-  .tx-pick { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); }
+  .tx-pick { font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 700; color: var(--text); }
   .tx-arrow { color: var(--text-muted); margin: 0 2px; }
   .tx-muted { color: var(--text-muted); font-size: 12px; }
   .tx-date-header {
