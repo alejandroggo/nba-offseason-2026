@@ -579,7 +579,7 @@ function processDraft(rows) {
     check:    cell(r,6),
     contract: cell(r,7),
     notes:    cell(r,8),
-    scouting: cell(r,9),
+    signDate: cell(r,9),
   }));
   DATA.undrafted = data.filter(r => cell(r,2) && (!cell(r,0) || isNaN(parseInt(cell(r,0))))).map(r => ({
     team:     cell(r,1),
@@ -590,7 +590,7 @@ function processDraft(rows) {
     check:    cell(r,6),
     contract: cell(r,7),
     notes:    cell(r,8),
-    scouting: cell(r,9),
+    signDate: cell(r,9),
   }));
   setText('count-draft', DATA.draft.length);
   populateSelect('draft-pos',  [...new Set(DATA.draft.map(d=>d.pos).filter(Boolean))].sort());
@@ -1505,11 +1505,14 @@ function buildTransactions() {
   const entries = [];
   const norm2 = s => (s || '').trim().toLowerCase();
 
+  const DRAFT_R1_DATE = '2026-06-23'; // Martes — picks 1-30
+  const DRAFT_R2_DATE = '2026-06-24'; // Miércoles — picks 31+
+
   // FA firmados
   (DATA.fa || []).filter(d => d.dest).forEach(d => {
     const { name } = faStatus(d.player);
     const isResign = norm2(d.team25) === norm2(d.dest);
-    entries.push({ date: null, type: isResign ? 'resign' : 'signing',
+    entries.push({ date: d.date || null, type: isResign ? 'resign' : 'signing',
       player: name, rawPlayer: d.player, from: d.team25, to: d.dest,
       money: d.money, years: d.years });
   });
@@ -1524,8 +1527,14 @@ function buildTransactions() {
   (DATA.draft || []).forEach(d => {
     if (!d.player) return;
     const { name, tw } = parseTW(d.player, d.contract);
-    entries.push({ date: null, type: 'draft', player: name, rawPlayer: d.player,
+    const pickNum = parseInt(d.pick);
+    const draftDate = !isNaN(pickNum) ? (pickNum <= 30 ? DRAFT_R1_DATE : DRAFT_R2_DATE) : null;
+    entries.push({ date: draftDate, type: 'draft', player: name, rawPlayer: d.player,
       pick: d.pick, team: d.team, pos: d.pos, tw });
+    if (d.signDate) {
+      entries.push({ date: d.signDate, type: 'signing', player: name, rawPlayer: d.player,
+        from: null, to: d.team, money: null, years: null });
+    }
   });
 
   // Opciones ejercidas (POE/TOE) — en siguen con tag
