@@ -1050,7 +1050,6 @@
   }
   .drawer-section { margin-bottom: 28px; }
   .drawer-section--bio { margin-bottom: 0; }
-  .drawer-section--bio .drawer-row { border-bottom: none; padding: 4px 0; }
   .drawer-scouting-title {
     font-family: 'Inter', sans-serif;
     font-size: 13px; font-weight: 700;
