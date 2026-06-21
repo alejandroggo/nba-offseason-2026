@@ -491,6 +491,12 @@
         <p class="section-subtitle" data-i18n="transactions_subtitle">Log cronológico de movimientos</p>
       </div>
     </div>
+    <div class="filters" role="search" style="margin-bottom:20px">
+      <div class="filter-group">
+        <label class="filter-label" for="tx-search" data-i18n="filter_search">Buscar</label>
+        <input type="text" class="filter-input" id="tx-search" oninput="filterTransactions()" data-i18n-ph="fa_search_ph" placeholder="Jugador, equipo…">
+      </div>
+    </div>
     <div id="tx-container"></div>
   </section>
 

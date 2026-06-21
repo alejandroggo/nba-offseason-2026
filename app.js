@@ -1540,7 +1540,7 @@ function buildTransactions() {
   // Opciones rechazadas (POX/TOX) — en faPending con tag
   (DATA.faPending || []).forEach(d => {
     const { name, tag, label } = faStatus(d.player);
-    if (!tag || !['POX','TOX'].includes(tag)) return;
+    if (!tag || !['POX','TOX','RFAX'].includes(tag)) return;
     entries.push({ date: null, type: 'option', player: name, rawPlayer: d.player,
       team: d.team25, tag, label });
   });
@@ -1557,10 +1557,22 @@ function buildTransactions() {
   return entries;
 }
 
+let _txEntries = [];
+
 function renderTransactions() {
+  _txEntries = buildTransactions();
+  filterTransactions();
+}
+
+function filterTransactions() {
   const container = document.getElementById('tx-container');
   if (!container) return;
-  const entries = buildTransactions();
+  const q = (document.getElementById('tx-search')?.value || '').toLowerCase();
+  const entries = q ? _txEntries.filter(e => {
+    const words = [e.player, e.team, e.to, e.from, ...(e.teams || [])].filter(Boolean).join(' ').toLowerCase();
+    return words.includes(q);
+  }) : _txEntries;
+
   if (!entries.length) {
     container.innerHTML = fetchComplete ? `<div class="state-empty">${t('no_data')}</div>` : '';
     return;
@@ -1581,9 +1593,7 @@ function renderTransactions() {
   const renderEntry = e => {
     const meta = typeMeta[e.type] || { cls: 'badge-neutral', label: () => e.type };
     const cls = typeof meta.cls === 'function' ? meta.cls(e) : meta.cls;
-    const typeLabel = meta.label(e);
     let desc = '';
-
     if (e.type === 'signing' || e.type === 'resign') {
       const contract = e.money ? ` · $${e.money}M / ${esc(e.years)}y` : '';
       const arrow = e.type === 'resign' ? ' renovó con ' : ' → ';
@@ -1591,22 +1601,20 @@ function renderTransactions() {
     } else if (e.type === 'trade') {
       desc = e.teams.map(tm => teamBadgeHTML(tm, false)).join(' <span class="tx-arrow">⇄</span> ');
     } else if (e.type === 'draft') {
-      const tw = e.tw ? ' <span class="badge-tw">TW</span>' : '';
-      desc = `${teamBadgeHTML(e.team, false)} → <span class="tx-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(e.rawPlayer || e.player)}')">${esc(e.player)}</span>${tw} <span class="tx-pick">#${esc(e.pick)}</span>`;
+      const twBadge = e.tw ? ' <span class="badge-tw">TW</span>' : '';
+      desc = `${teamBadgeHTML(e.team, false)} → <span class="tx-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(e.rawPlayer || e.player)}')">${esc(e.player)}</span>${twBadge} <span class="tx-pick">#${esc(e.pick)}</span>`;
     } else if (e.type === 'option') {
       desc = `<span class="tx-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(e.rawPlayer || e.player)}')">${esc(e.player)}</span> · <span class="tx-muted">${esc(e.label)}</span> ${teamBadgeHTML(e.team, false)}`;
     } else if (e.type === 'waived') {
       desc = `${teamBadgeHTML(e.team, false)} cortó a <span class="tx-player">${esc(e.player)}</span>`;
     }
-
     return `<div class="tx-entry">
-      <span class="badge ${cls} tx-type-badge">${typeLabel}</span>
+      <span class="badge ${cls} tx-type-badge">${meta.label(e)}</span>
       <div class="tx-desc">${desc}</div>
     </div>`;
   };
 
   let html = '';
-
   if (dated.length) {
     const byDate = {};
     dated.forEach(e => { (byDate[e.date] = byDate[e.date] || []).push(e); });
@@ -1615,12 +1623,10 @@ function renderTransactions() {
       html += group.map(renderEntry).join('');
     });
   }
-
   if (undated.length) {
     if (dated.length) html += `<div class="tx-date-header tx-date-undated">${t('tx_no_date')}</div>`;
     html += undated.map(renderEntry).join('');
   }
-
   container.innerHTML = html;
 }
 
