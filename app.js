@@ -506,6 +506,16 @@ function updateFilterBadge(inputIds, clearBtnId) {
   if (badge) badge.textContent = active;
 }
 
+function toggleFAPendingSection() {
+  const body = document.getElementById('fa-pending-collapsible');
+  const chevron = document.getElementById('fa-pending-chevron');
+  const toggle = document.querySelector('.fa-pending-toggle');
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : '';
+  if (chevron) chevron.style.transform = isOpen ? 'rotate(-90deg)' : '';
+  if (toggle) toggle.setAttribute('aria-expanded', String(!isOpen));
+}
+
 function resetFAPending() {
   const search = document.getElementById('fa-pending-search');
   if (search) search.value = '';

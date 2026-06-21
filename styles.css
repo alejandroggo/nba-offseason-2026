@@ -1837,6 +1837,9 @@
   .legend-item { display: inline-flex; align-items: center; gap: 6px; }
   .legend-text { font-size: 11px; color: var(--text-muted); }
   .fa-subsection-title--pending { margin-top: 40px; }
+  .fa-pending-toggle { cursor: pointer; user-select: none; display: flex; align-items: center; gap: 8px; }
+  .fa-pending-toggle:hover { opacity: 0.75; }
+  #fa-pending-chevron { flex-shrink: 0; transition: transform 0.2s; }
   .filters--compact { margin-bottom: 16px; }
   .badge-toggle-group { display: flex; gap: 4px; }
   .badge-toggle { cursor: pointer; opacity: 0.4; border: none; padding: 3px 8px; }

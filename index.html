@@ -259,7 +259,8 @@
         </tbody>
       </table>
     </div>
-    <h3 class="fa-subsection-title fa-subsection-title--pending" data-i18n="fa_pending_title">Pendientes de firmar</h3>
+    <h3 class="fa-subsection-title fa-subsection-title--pending fa-pending-toggle" onclick="toggleFAPendingSection()" aria-expanded="true" aria-controls="fa-pending-collapsible" data-i18n="fa_pending_title">Pendientes de firmar<svg id="fa-pending-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></h3>
+    <div id="fa-pending-collapsible">
     <div class="filters filters--compact" role="search">
       <div class="filter-group">
         <label class="filter-label" for="fa-pending-search" data-i18n="filter_search">Buscar</label>
@@ -308,6 +309,7 @@
       <span class="legend-item"><span class="badge badge-to">TO</span><span class="legend-text" data-i18n="legend_to">Opción del equipo</span></span>
       <span class="legend-item"><span class="badge badge-po">PO</span><span class="legend-text" data-i18n="legend_po">Opción del jugador</span></span>
     </div>
+    </div><!-- /fa-pending-collapsible -->
   </section>
 
   <!-- DRAFT -->
