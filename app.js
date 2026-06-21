@@ -444,7 +444,7 @@ function renderFA(data) {
         <td>${teamBadgeHTML(d.team25)}</td>
         <td class="td-money">${d.money ? '$'+esc(d.money)+'M' : '—'}</td>
         <td class="td-num">${esc(d.years) || '—'}</td>
-        <td class="td-money">${d.aav ? '$'+esc(d.aav)+'M' : '—'}</td>
+        <td class="td-money">${fmtAav(d.aav)}</td>
         <td class="td-muted">${esc(d.source)}</td>
       </tr>`;}).join('')
     : (fetchComplete ? `<tr><td colspan="8"><div class="state-empty">${t('no_data')}</div></td></tr>` : '');
@@ -1408,6 +1408,11 @@ function teamBadgeHTML(name, clickable = true) {
   return `<span class="team-inline">${logo}${esc(name)}</span>`;
 }
 
+function fmtAav(v) {
+  if (!v && v !== 0) return '—';
+  return '$' + parseFloat((+v).toFixed(2)) + 'M';
+}
+
 function fmtDate(str) {
   if (!str) return '—';
   const d = new Date(str);
@@ -1686,7 +1691,7 @@ function openPlayerDrawer(playerName, pushHistory = true) {
       if (d.team25) html += drawerRow(t('drawer_old_team'), teamBadgeHTML(d.team25, false));
       if (d.money)  html += drawerRow(t('drawer_total'), `$${esc(d.money)}M`, 'money');
       if (d.years)  html += drawerRow(t('drawer_years'), esc(d.years));
-      if (d.aav)    html += drawerRow('AAV', `$${esc(d.aav)}M`, 'money');
+      if (d.aav)    html += drawerRow('AAV', fmtAav(d.aav), 'money');
       if (d.source) html += drawerRow(t('footer_src'), esc(d.source));
       if (d.notes)  html += drawerRow(t('col_notes'), esc(d.notes), 'notes');
     });
