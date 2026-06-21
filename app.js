@@ -1861,7 +1861,7 @@ function openTeamView(teamName, pushHistory = true) {
   if (canonical) teamName = canonical;
   else if (!teamName) { showTab('home', pushHistory); return; }
   const faIn      = DATA.fa.filter(d => norm2(d.dest) === tKey);
-  const faOut     = DATA.fa.filter(d => norm2(d.team25) === tKey && d.dest);
+  const faOut     = DATA.fa.filter(d => norm2(d.team25) === tKey && d.dest && norm2(d.dest) !== tKey);
   const picks     = DATA.draft.filter(d => norm2(d.team) === tKey);
   const undrafted = (DATA.undrafted || []).filter(d => norm2(d.team) === tKey && d.player);
   const trades    = DATA.trades.filter(tr => tr.sides.some(s => norm2(s.team) === tKey));
