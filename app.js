@@ -1760,9 +1760,10 @@ function openPlayerDrawer(playerName, pushHistory = true) {
   // FA Pending
   if (pendingData.length) {
     const pd = pendingData[0];
-    const { badge: pdBadge } = faStatus(pd.player);
+    const { badge: pdBadge, label: pdLabel } = faStatus(pd.player);
     html += `<div class="drawer-section">`;
     html += drawerRow('Estado', `Agente libre${pdBadge}`);
+    if (pdLabel) html += drawerRow('Opción', pdBadge.trim() + '&nbsp;' + esc(pdLabel));
     if (pd.pos)   html += drawerRow(t('draft_col_pos'), `<span class="pos-text">${esc(pd.pos)}</span>`);
     if (pd.team25) html += drawerRow(t('fa_col_team25'), teamBadgeHTML(pd.team25, false));
     if (pd.notes) html += drawerRow(t('col_notes'), esc(pd.notes), 'notes');
