@@ -76,7 +76,7 @@ const i18n = {
     tab_transactions: 'Transacciones',
     transactions_title: 'Transacciones', transactions_subtitle: 'Log cronológico de movimientos',
     tx_type_signing: 'FIRMA', tx_type_resign: 'RENOVACIÓN', tx_type_trade: 'TRADE',
-    tx_type_draft: 'DRAFT', tx_type_option: 'OPCIÓN', tx_type_waived: 'CORTADO',
+    tx_type_draft: 'DRAFT', tx_type_option: 'OPCIÓN', tx_type_waived: 'CORTADO', tx_type_st: 'S&T',
     tx_no_date: 'Sin fecha confirmada',
     drawer_view_team: 'Ver nuevo equipo', drawer_view_old_team: 'Ver equipo anterior',
     drawer_trade_alongside: 'Junto con', drawer_trade_inexchange: 'A cambio de',
@@ -147,7 +147,7 @@ const i18n = {
     tab_transactions: 'Transactions',
     transactions_title: 'Transactions', transactions_subtitle: 'Chronological log of moves',
     tx_type_signing: 'SIGNING', tx_type_resign: 'EXTENSION', tx_type_trade: 'TRADE',
-    tx_type_draft: 'DRAFT', tx_type_option: 'OPTION', tx_type_waived: 'WAIVED',
+    tx_type_draft: 'DRAFT', tx_type_option: 'OPTION', tx_type_waived: 'WAIVED', tx_type_st: 'S&T',
     tx_no_date: 'Date unconfirmed',
     drawer_view_team: 'View new team', drawer_view_old_team: 'View previous team',
     drawer_trade_alongside: 'Alongside', drawer_trade_inexchange: 'In exchange for',
@@ -1598,10 +1598,14 @@ function buildTransactions() {
   const DRAFT_R1_DATE = '2026-06-23'; // Martes — picks 1-30
   const DRAFT_R2_DATE = '2026-06-24'; // Miércoles — picks 31+
 
-  // FA firmados
+  // FA firmados (se omiten los S&T: el trade entry ya los cubre)
   (DATA.fa || []).filter(d => d.dest).forEach(d => {
     const { name } = faStatus(d.player);
     const isResign = norm2(d.team25) === norm2(d.dest);
+    const isST = !isResign && (DATA.trades || []).some(tr =>
+      tr.sides.some(side => norm2(side.team) === norm2(d.dest) &&
+        side.receives.some(r => tradeItemMatchesPlayer(r.item, d.player))));
+    if (isST) return;
     entries.push({ date: d.date || null, type: isResign ? 'resign' : 'signing',
       player: name, rawPlayer: d.player, from: d.team25, to: d.dest,
       money: d.money, years: d.years });
@@ -1661,6 +1665,12 @@ let _txEntries = [];
 
 function renderTransactions() {
   _txEntries = buildTransactions();
+  const allTxTeams = [...new Set(_txEntries.flatMap(e => {
+    if (e.type === 'trade') return e.teams || [];
+    if (e.type === 'signing' || e.type === 'resign') return [e.to, e.from].filter(Boolean);
+    return [e.team].filter(Boolean);
+  }))].sort();
+  populateSelect('tx-team', allTxTeams);
   filterTransactions();
 }
 
@@ -1668,10 +1678,18 @@ function filterTransactions() {
   const container = document.getElementById('tx-container');
   if (!container) return;
   const q = (document.getElementById('tx-search')?.value || '').toLowerCase();
-  const entries = q ? _txEntries.filter(e => {
+  const teamFilter = document.getElementById('tx-team')?.value || '';
+  const entries = _txEntries.filter(e => {
     const words = [e.player, e.team, e.to, e.from, ...(e.teams || [])].filter(Boolean).join(' ').toLowerCase();
-    return words.includes(q);
-  }) : _txEntries;
+    if (q && !words.includes(q)) return false;
+    if (teamFilter) {
+      const eTeams = e.type === 'trade' ? (e.teams || [])
+        : (e.type === 'signing' || e.type === 'resign') ? [e.to, e.from].filter(Boolean)
+        : [e.team].filter(Boolean);
+      if (!eTeams.includes(teamFilter)) return false;
+    }
+    return true;
+  });
 
   if (!entries.length) {
     container.innerHTML = fetchComplete ? `<div class="state-empty">${t('no_data')}</div>` : '';
@@ -1900,6 +1918,11 @@ function openPlayerDrawer(playerName, pushHistory = true) {
   const undData     = DATA.undrafted ? DATA.undrafted.filter(d => d.player === playerName) : [];
   const tradeData   = DATA.trades.filter(tr => tr.sides.some(s => s.receives.some(r => tradeItemMatchesPlayer(r.item, playerName))));
   const pendingData = (DATA.faPending || []).filter(d => d.player === playerName);
+  const isST = faData.length > 0 && tradeData.length > 0 && faData.some(d =>
+    d.dest && tradeData.some(tr => tr.sides.some(side =>
+      (side.team||'').trim().toLowerCase() === (d.dest||'').trim().toLowerCase() &&
+      side.receives.some(r => tradeItemMatchesPlayer(r.item, playerName))
+    )));
 
   let rosterEntry = null;
   for (const team of (DATA.rosters || [])) {
@@ -1917,7 +1940,8 @@ function openPlayerDrawer(playerName, pushHistory = true) {
   const { name: cleanName } = faStatus(playerName);
   document.getElementById('drawer-player-name').textContent = cleanName || playerName;
 
-  const typeLabel = faData.length
+  const typeLabel = isST ? 'SIGN & TRADE'
+    : faData.length
     ? (faData[0].dest ? (lang === 'en' ? 'SIGNED FREE AGENT' : 'AGENTE LIBRE FIRMADO') : (lang === 'en' ? 'FREE AGENT' : 'AGENTE LIBRE'))
     : draftData.length ? (lang === 'en' ? 'DRAFTED' : 'DRAFTEADO')
     : undData.length  ? (lang === 'en' ? 'UNDRAFTED' : 'UNDRAFTED')
@@ -1929,8 +1953,36 @@ function openPlayerDrawer(playerName, pushHistory = true) {
 
   let html = '';
 
-  // FA
-  if (faData.length) {
+  // Sign & Trade — sección unificada (trade + contrato en una sola vista)
+  if (isST) {
+    const stFa = faData.find(d => d.dest && tradeData.some(tr => tr.sides.some(side =>
+      (side.team||'').trim().toLowerCase() === (d.dest||'').trim().toLowerCase() &&
+      side.receives.some(r => tradeItemMatchesPlayer(r.item, playerName)))));
+    const stTrade = stFa && tradeData.find(tr => tr.sides.some(side =>
+      (side.team||'').trim().toLowerCase() === (stFa.dest||'').trim().toLowerCase() &&
+      side.receives.some(r => tradeItemMatchesPlayer(r.item, playerName))));
+    if (stFa && stTrade) {
+      html += `<div class="drawer-section">`;
+      if (stTrade.date) html += drawerRow(t('col_date'), fmtDate(stTrade.date));
+      html += drawerRow(t('drawer_new_team'), teamBadgeHTML(stFa.dest, false));
+      if (stFa.team25) html += drawerRow(t('drawer_old_team'), teamBadgeHTML(stFa.team25, false));
+      if (stFa.money)  html += drawerRow(t('drawer_total'), `$${esc(stFa.money)}M`, 'money');
+      if (stFa.years)  html += drawerRow(t('drawer_years'), esc(stFa.years));
+      if (stFa.aav)    html += drawerRow('AAV', fmtAav(stFa.aav), 'money');
+      stTrade.sides.forEach(side => {
+        const myReceive = side.receives.find(r => tradeItemMatchesPlayer(r.item, playerName));
+        if (myReceive) {
+          const oldTeamSide = stTrade.sides.find(s => s.team === myReceive.from);
+          if (oldTeamSide?.receives.length) html += drawerRow(t('drawer_trade_inexchange'), oldTeamSide.receives.map(r => esc(r.item)).join(', '));
+        }
+      });
+      if (stFa.notes) html += drawerRow(t('col_notes'), esc(stFa.notes), 'notes');
+      html += `</div>`;
+    }
+  }
+
+  // FA (solo cuando NO es S&T)
+  if (!isST && faData.length) {
     html += `<div class="drawer-section">`;
     faData.forEach(d => {
       const isResign = d.dest && d.team25 && d.dest.trim().toLowerCase() === d.team25.trim().toLowerCase();
@@ -1982,8 +2034,8 @@ function openPlayerDrawer(playerName, pushHistory = true) {
       }).join('') +
       `</ul></div>` : '';
 
-  // Trades
-  if (tradeData.length) {
+  // Trades (solo cuando NO es S&T — el S&T ya se renderizó arriba)
+  if (!isST && tradeData.length) {
     html += `<div class="drawer-section">`;
     tradeData.forEach(tr => {
       if (tr.date) html += drawerRow(t('col_date'), fmtDate(tr.date));
