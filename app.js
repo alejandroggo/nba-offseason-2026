@@ -1578,7 +1578,7 @@ const _OPTION_DEADLINES = {
   'pelle larsson':           '2026-06-29', 'bez mbeng':              '2026-06-29',
   'ousmane dieng':           '2026-06-29', 'andre jackson jr.':      '2026-06-29',
   'kevin porter jr.':        '2026-06-29', 'taurean prince':         '2026-06-29',
-  'gary trent jr.':          '2026-06-29', 'gary harris':            '2026-06-29',
+  'gary trent jr.':          '2026-06-29',
   'jamaree bouyea':          '2026-06-29', 'julian phillips':        '2026-06-29',
   'karlo matkovic':          '2026-06-29', 'kevon looney':           '2026-06-29',
   'dalen terry':             '2026-06-29', 'jose alvarado':          '2026-06-29',
