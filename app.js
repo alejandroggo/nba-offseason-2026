@@ -90,6 +90,7 @@ const i18n = {
     toast_updated: 'Datos actualizados', toast_error: 'Error al actualizar', toast_copied: 'URL copiada ✓',
     badge_resign: 'RENUEVA',
     drawer_scouting: 'Scouting Report', drawer_scouting_link: 'Ver informe',
+    drawer_share: 'Compartir jugador',
     legend_color_new: 'Alta', legend_color_resign: 'Renovación', legend_color_tw: 'Two-way',
   },
   en: {
@@ -161,6 +162,7 @@ const i18n = {
     toast_updated: 'Data updated', toast_error: 'Update failed', toast_copied: 'URL copied ✓',
     badge_resign: 'RE-SIGNS',
     drawer_scouting: 'Scouting Report', drawer_scouting_link: 'View report',
+    drawer_share: 'Share player',
     legend_color_new: 'Signing', legend_color_resign: 'Re-sign', legend_color_tw: 'Two-way',
   }
 };
@@ -1663,6 +1665,12 @@ function buildTransactions() {
 
 let _txEntries = [];
 
+const TX_TYPE_KEYS = {
+  trade: 'tx_type_trade', signing: 'tx_type_signing', resign: 'tx_type_resign',
+  draft: 'tx_type_draft', option: 'tx_type_option', waived: 'tx_type_waived',
+};
+const TX_TYPE_ORDER = ['trade','signing','resign','draft','option','waived'];
+
 function renderTransactions() {
   _txEntries = buildTransactions();
   const allTxTeams = [...new Set(_txEntries.flatMap(e => {
@@ -1671,6 +1679,17 @@ function renderTransactions() {
     return [e.team].filter(Boolean);
   }))].sort();
   populateSelect('tx-team', allTxTeams);
+
+  const presentTypes = new Set(_txEntries.map(e => e.type));
+  const typeSel = document.getElementById('tx-type');
+  if (typeSel) {
+    const prev = typeSel.value;
+    typeSel.innerHTML = '<option value="">—</option>' +
+      TX_TYPE_ORDER.filter(k => presentTypes.has(k))
+        .map(k => `<option value="${k}">${esc(t(TX_TYPE_KEYS[k]))}</option>`).join('');
+    typeSel.value = prev;
+  }
+
   filterTransactions();
 }
 
@@ -1679,9 +1698,11 @@ function filterTransactions() {
   if (!container) return;
   const q = (document.getElementById('tx-search')?.value || '').toLowerCase();
   const teamFilter = document.getElementById('tx-team')?.value || '';
+  const typeFilter = document.getElementById('tx-type')?.value || '';
   const entries = _txEntries.filter(e => {
     const words = [e.player, e.team, e.to, e.from, ...(e.teams || [])].filter(Boolean).join(' ').toLowerCase();
     if (q && !words.includes(q)) return false;
+    if (typeFilter && e.type !== typeFilter) return false;
     if (teamFilter) {
       const eTeams = e.type === 'trade' ? (e.teams || [])
         : (e.type === 'signing' || e.type === 'resign') ? [e.to, e.from].filter(Boolean)
@@ -1839,6 +1860,17 @@ function toggleFooter() {
 function shareOnX(title) {
   const text = encodeURIComponent(`${title} (vía @alejandroggo)`);
   const url = encodeURIComponent(window.location.href);
+  window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank', 'noopener,noreferrer,width=550,height=420');
+}
+
+let _drawerShareText = '';
+let _drawerSharePlayer = '';
+
+function sharePlayer() {
+  if (!_drawerSharePlayer) return;
+  const text = encodeURIComponent(`${_drawerShareText} (vía @alejandroggo)`);
+  const url = encodeURIComponent(
+    window.location.origin + BASE_PATH + '#jugador/' + slugify(_drawerSharePlayer));
   window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank', 'noopener,noreferrer,width=550,height=420');
 }
 
@@ -2152,6 +2184,44 @@ function openPlayerDrawer(playerName, pushHistory = true) {
         </button>`).join('') +
     `</div>`;
   }
+
+  // Texto para compartir — resumen del movimiento del jugador
+  const _nm = cleanName || playerName;
+  if (isST) {
+    const dest = faData.find(d => d.dest)?.dest || '';
+    _drawerShareText = `${_nm} firma y es traspasado a ${dest}`;
+  } else if (faData.length && faData[0].dest) {
+    const d = faData[0];
+    const isResign = d.team25 && d.dest.trim().toLowerCase() === d.team25.trim().toLowerCase();
+    const money = d.money ? ` (${d.money}M${d.years ? `/${d.years}a` : ''})` : '';
+    _drawerShareText = isResign ? `${_nm} renueva con ${d.dest}${money}` : `${_nm} firma con ${d.dest}${money}`;
+  } else if (tradeData.length) {
+    let dest = '';
+    tradeData[0].sides.forEach(side => {
+      if (side.receives.some(r => tradeItemMatchesPlayer(r.item, playerName))) dest = side.team;
+    });
+    _drawerShareText = `${_nm} es traspasado a ${dest}`;
+  } else if (draftData.length) {
+    const d = draftData[0];
+    _drawerShareText = d.pick ? `${d.team} selecciona a ${_nm} con el pick #${d.pick}` : `${d.team} selecciona a ${_nm}`;
+  } else if (undData.length) {
+    _drawerShareText = `${_nm} no fue seleccionado en el Draft 2026`;
+  } else if (pendingData.length) {
+    _drawerShareText = `${_nm} es agente libre`;
+  } else if (rosterEntry) {
+    _drawerShareText = `${_nm} continúa en ${rosterEntry.team}`;
+  } else {
+    _drawerShareText = _nm;
+  }
+  _drawerShareText += ' | NBA Off-Season 2026';
+  _drawerSharePlayer = playerName;
+
+  html += `<div class="drawer-share">
+    <button type="button" class="drawer-share-btn" onclick="sharePlayer()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>
+      <span>${t('drawer_share')}</span>
+    </button>
+  </div>`;
 
   document.getElementById('drawer-body').innerHTML = html;
   const overlay = document.getElementById('drawer-overlay');
