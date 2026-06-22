@@ -47,6 +47,7 @@ const i18n = {
     fa_search_ph: 'Jugador, equipo…',
     fa_col_player: 'Jugador', fa_col_team25: 'Equipo 2026', fa_col_dest: 'Destino',
     fa_col_m: 'Total ($M)', fa_col_yr: 'Años', fa_col_aav: 'AAV', col_date: 'Fecha',
+    fa_total_players: 'jugadores',
     draft_title: 'Draft 2026', draft_subtitle: 'Picks seleccionados — Rondas 1 y 2',
     draft_search_ph: 'Jugador, equipo, universidad…',
     draft_col_pick: 'Pick', draft_col_player: 'Jugador', draft_col_pos: 'Posición',
@@ -120,6 +121,7 @@ const i18n = {
     fa_search_ph: 'Player, team…',
     fa_col_player: 'Player', fa_col_team25: '2026 Team', fa_col_dest: 'Destination',
     fa_col_m: 'Total ($M)', fa_col_yr: 'Years', fa_col_aav: 'AAV', col_date: 'Date',
+    fa_total_players: 'players',
     draft_title: 'Draft 2026', draft_subtitle: 'Selected picks — Rounds 1 & 2',
     draft_search_ph: 'Player, team, college…',
     draft_col_pick: 'Pick', draft_col_player: 'Player', draft_col_pos: 'Position',
@@ -468,6 +470,25 @@ function renderFA(data) {
     : (fetchComplete ? `<tr><td colspan="8"><div class="state-empty">${t('no_data')}</div></td></tr>` : '');
 
   document.getElementById('fa-count').innerHTML = `<span>${signed.length}</span>&nbsp;${t('results')}`;
+
+  const tfoot = document.getElementById('fa-tfoot');
+  if (tfoot) {
+    if (signed.length) {
+      const totalMoney = signed.reduce((s, d) => s + (parseFloat(d.money) || 0), 0);
+      const totalYears = signed.reduce((s, d) => s + (parseFloat(d.years) || 0), 0);
+      const totalAav   = signed.reduce((s, d) => s + (parseFloat(d.aav)   || 0), 0);
+      tfoot.innerHTML = `<tr class="fa-totals-row">
+        <td class="fa-totals-label">${signed.length} ${t('fa_total_players')}</td>
+        <td></td><td></td><td></td>
+        <td class="td-money fa-totals-val">${totalMoney > 0 ? '$' + totalMoney.toFixed(1) + 'M' : '—'}</td>
+        <td class="td-num fa-totals-val">${totalYears > 0 ? totalYears : '—'}</td>
+        <td class="td-money fa-totals-val">${totalAav > 0 ? fmtAav(+totalAav.toFixed(2)) : '—'}</td>
+        <td></td>
+      </tr>`;
+    } else {
+      tfoot.innerHTML = '';
+    }
+  }
 }
 
 function renderFAPending(data) {
