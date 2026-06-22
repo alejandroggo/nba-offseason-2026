@@ -476,13 +476,13 @@ function renderFA(data) {
     if (signed.length) {
       const totalMoney = signed.reduce((s, d) => s + (parseFloat(d.money) || 0), 0);
       const totalYears = signed.reduce((s, d) => s + (parseFloat(d.years) || 0), 0);
-      const totalAav   = signed.reduce((s, d) => s + (parseFloat(d.aav)   || 0), 0);
+      const avgAav     = totalYears > 0 ? totalMoney / totalYears : 0;
       tfoot.innerHTML = `<tr class="fa-totals-row">
         <td class="fa-totals-label">${signed.length} ${t('fa_total_players')}</td>
         <td></td><td></td><td></td>
         <td class="td-money fa-totals-val">${totalMoney > 0 ? '$' + totalMoney.toFixed(1) + 'M' : '—'}</td>
         <td class="td-num fa-totals-val">${totalYears > 0 ? totalYears : '—'}</td>
-        <td class="td-money fa-totals-val">${totalAav > 0 ? fmtAav(+totalAav.toFixed(2)) : '—'}</td>
+        <td class="td-money fa-totals-val">${avgAav > 0 ? fmtAav(+avgAav.toFixed(2)) : '—'}</td>
         <td></td>
       </tr>`;
     } else {
