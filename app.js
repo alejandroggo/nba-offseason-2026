@@ -1440,10 +1440,34 @@ function fmtAav(v) {
   return '$' + parseFloat((+v).toFixed(2)) + 'M';
 }
 
+// Parsea una fecha en local. Las cadenas ISO 'YYYY-MM-DD' se interpretan como
+// fecha local (no UTC) para evitar desfases de un día según la zona horaria.
+function _parseLocalDate(str) {
+  if (!str) return null;
+  const s = String(str).trim();
+  const iso = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (iso) return new Date(+iso[1], +iso[2] - 1, +iso[3]);
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+// Clave de día canónica 'YYYY-MM-DD' para agrupar/ordenar sin importar el formato.
+function _toISO(str) {
+  const d = _parseLocalDate(str);
+  if (!d) return null;
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+// ¿Son el mismo día naturales (ignorando formato)?
+function _sameDay(a, b) {
+  const ia = _toISO(a), ib = _toISO(b);
+  return !!ia && ia === ib;
+}
+
 function fmtDate(str) {
   if (!str) return '—';
-  const d = new Date(str);
-  if (isNaN(d.getTime())) return str;
+  const d = _parseLocalDate(str);
+  if (!d) return str;
   const months = lang === 'es'
     ? ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic']
     : ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -1615,14 +1639,15 @@ const _TX_DATE_OVERRIDES = {
 function _applyTxDate(name, sourceDate) {
   const ov = _TX_DATE_OVERRIDES[(name || '').trim().toLowerCase()];
   if (!ov) return { date: sourceDate || null };
-  if (sourceDate && sourceDate !== ov) return { date: ov, announced: sourceDate };
+  // Sólo anotamos "(anunciado …)" si el día NO coincide con el oficial.
+  if (sourceDate && !_sameDay(sourceDate, ov)) return { date: ov, announced: sourceDate };
   return { date: ov };
 }
 
 // Formato corto DD-MM-YYYY para la anotación "(anunciado …)".
 function fmtDateShort(str) {
-  const d = new Date(str);
-  if (isNaN(d.getTime())) return str;
+  const d = _parseLocalDate(str);
+  if (!d) return str;
   return `${String(d.getDate()).padStart(2,'0')}-${String(d.getMonth()+1).padStart(2,'0')}-${d.getFullYear()}`;
 }
 
@@ -1753,7 +1778,7 @@ function filterTransactions() {
     return;
   }
 
-  const dated   = entries.filter(e => e.date).sort((a,b) => new Date(b.date) - new Date(a.date));
+  const dated   = entries.filter(e => e.date).sort((a,b) => { const ka=_toISO(a.date)||'', kb=_toISO(b.date)||''; return kb>ka?1:kb<ka?-1:0; });
   const undated = entries.filter(e => !e.date);
 
   const typeMeta = {
@@ -1806,10 +1831,12 @@ function filterTransactions() {
 
   let html = '';
   if (dated.length) {
+    // Agrupamos por día canónico (ISO) para no duplicar cabeceras cuando el
+    // Sheet y los overrides usan formatos de fecha distintos.
     const byDate = {};
-    dated.forEach(e => { (byDate[e.date] = byDate[e.date] || []).push(e); });
+    dated.forEach(e => { const k = _toISO(e.date) || e.date; (byDate[k] = byDate[k] || []).push(e); });
     const txLabel = n => `(${n} ${lang === 'en' ? (n === 1 ? 'transaction' : 'transactions') : (n === 1 ? 'transacción' : 'transacciones')})`;
-    Object.entries(byDate).sort(([a],[b]) => new Date(b)-new Date(a)).forEach(([date, group]) => {
+    Object.entries(byDate).sort(([a],[b]) => (b > a ? 1 : b < a ? -1 : 0)).forEach(([date, group]) => {
       html += `<div class="tx-date-header">${fmtDate(date)}<span class="tx-date-count">${txLabel(group.length)}</span></div>`;
       html += group.map(renderEntry).join('');
     });
