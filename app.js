@@ -1741,7 +1741,18 @@ function filterTransactions() {
       const arrow = e.type === 'resign' ? ' renovó con ' : ' → ';
       desc = `<span class="tx-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(e.rawPlayer || e.player)}')">${esc(e.player)}</span>${esc(arrow)}${teamBadgeHTML(e.to, false)}${twBadge}${esc(contract)}`;
     } else if (e.type === 'trade') {
-      desc = e.teams.map(tm => teamBadgeHTML(tm, false)).join(' <span class="tx-arrow">⇄</span> ');
+      const teams = e.teams.map(tm => teamBadgeHTML(tm, false)).join(' <span class="tx-arrow">⇄</span> ');
+      const players = (e.trade?.sides || []).flatMap(side =>
+        (side.receives || [])
+          .filter(r => !isNonPlayerAsset(r.item))
+          .map(r => {
+            const { name } = faStatus(r.item);
+            return `<span class="tx-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(r.item)}')">${esc(name)}</span><span class="tx-arrow">→</span>${teamBadgeHTML(side.team, false)}`;
+          })
+      );
+      desc = players.length
+        ? `<span class="tx-trade-wrap">${teams}</span><span class="tx-trade-players">${players.join('<span class="tx-muted tx-trade-dot">·</span>')}</span>`
+        : teams;
     } else if (e.type === 'draft') {
       const twBadge = e.tw ? ' <span class="badge-tw">TW</span>' : '';
       desc = `<span class="tx-pick">#${esc(e.pick)}</span> ${teamBadgeHTML(e.team, false)} → <span class="tx-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(e.rawPlayer || e.player)}')">${esc(e.player)}</span>${twBadge}`;
@@ -1760,13 +1771,15 @@ function filterTransactions() {
   if (dated.length) {
     const byDate = {};
     dated.forEach(e => { (byDate[e.date] = byDate[e.date] || []).push(e); });
+    const txLabel = n => `(${n} ${lang === 'en' ? (n === 1 ? 'transaction' : 'transactions') : (n === 1 ? 'transacción' : 'transacciones')})`;
     Object.entries(byDate).sort(([a],[b]) => new Date(b)-new Date(a)).forEach(([date, group]) => {
-      html += `<div class="tx-date-header">${fmtDate(date)}<span class="tx-date-count">#${group.length}</span></div>`;
+      html += `<div class="tx-date-header">${fmtDate(date)}<span class="tx-date-count">${txLabel(group.length)}</span></div>`;
       html += group.map(renderEntry).join('');
     });
   }
   if (undated.length) {
-    if (dated.length) html += `<div class="tx-date-header tx-date-undated">${t('tx_no_date')}<span class="tx-date-count">#${undated.length}</span></div>`;
+    const txLabel = n => `(${n} ${lang === 'en' ? (n === 1 ? 'transaction' : 'transactions') : (n === 1 ? 'transacción' : 'transacciones')})`;
+    if (dated.length) html += `<div class="tx-date-header tx-date-undated">${t('tx_no_date')}<span class="tx-date-count">${txLabel(undated.length)}</span></div>`;
     html += undated.map(renderEntry).join('');
   }
   container.innerHTML = html;
