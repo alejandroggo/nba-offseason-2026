@@ -1547,6 +1547,7 @@ function rerenderAll() {
 const _OPTION_DEADLINES = {
   'kentavious caldwell-pope': '2026-06-19',
   "d'angelo russell":        '2026-06-19',
+  'gary harris':             '2026-06-22',
   'trae young':              '2026-06-17',
   'jordan miller':           '2026-06-24',
   'bogdan bogdanovic':       '2026-06-26',
