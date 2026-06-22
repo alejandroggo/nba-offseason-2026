@@ -1892,13 +1892,14 @@
     text-transform: uppercase; letter-spacing: 0.08em;
     color: var(--accent); padding: 20px 0 8px;
     border-bottom: 1px solid var(--border); margin-bottom: 2px;
-    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    display: flex; align-items: center; gap: 10px;
   }
   .tx-date-count {
-    font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500;
-    color: var(--text-muted); background: var(--surface-2, var(--border));
-    border-radius: 10px; padding: 1px 8px; letter-spacing: 0;
+    font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 700;
+    color: #fff; background: var(--accent);
+    border-radius: 10px; padding: 2px 9px; letter-spacing: 0;
   }
+  [data-theme="dark"] .tx-date-count { color: var(--bg); }
   .tx-date-undated { color: var(--text-muted); margin-top: 8px; }
 
   .fa-subsection-title--pending { margin-top: 40px; }
