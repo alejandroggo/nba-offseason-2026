@@ -1204,6 +1204,18 @@
     font-size: 11px; color: var(--text-muted); text-align: right;
     display: flex; flex-direction: column; gap: 4px;
   }
+  .tv-team-summary {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
+    margin-top: -20px; margin-bottom: 32px;
+    font-family: 'Inter', sans-serif; font-size: 13px; color: var(--text-muted);
+  }
+  .tv-team-summary:empty { display: none; }
+  .tv-sum-item { white-space: nowrap; }
+  .tv-sum-num {
+    font-family: 'DM Mono', monospace; font-weight: 600;
+    font-size: 14px; color: var(--text);
+  }
+  .tv-sum-sep { color: var(--border); }
   .tv-meta-new { color: var(--signed); font-weight: 500; }
   .tv-meta-fired { color: var(--danger); margin-left: 2px; }
   .tv-coach-fired { color: var(--danger); }
@@ -1880,6 +1892,12 @@
     text-transform: uppercase; letter-spacing: 0.08em;
     color: var(--accent); padding: 20px 0 8px;
     border-bottom: 1px solid var(--border); margin-bottom: 2px;
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  }
+  .tx-date-count {
+    font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500;
+    color: var(--text-muted); background: var(--surface-2, var(--border));
+    border-radius: 10px; padding: 1px 8px; letter-spacing: 0;
   }
   .tx-date-undated { color: var(--text-muted); margin-top: 8px; }
 
