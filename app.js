@@ -1595,6 +1595,37 @@ const _OPTION_DEADLINES = {
   'tre johnson':        '2026-10-31', 'will riley':          '2026-10-31',
 };
 
+// Fechas autoritativas de transacciones (Spotrac / bloques diarios).
+// key: nombre del jugador en minúsculas → fecha ISO del movimiento.
+// Si la fecha del Sheet difiere, esta manda y la del Sheet se muestra como
+// "(anunciado DD-MM-YYYY)".
+const _TX_DATE_OVERRIDES = {
+  'aaron wiggins':            '2026-06-21',
+  'c.j. mccollum':            '2026-06-21',
+  'cj mccollum':              '2026-06-21',
+  'jordan goodwin':           '2026-06-21',
+  'collin gillespie':         '2026-06-20',
+  'kentavious caldwell-pope': '2026-06-19',
+  "d'angelo russell":         '2026-06-19',
+};
+
+// Aplica el override de fecha a una entrada. Devuelve { date, announced? }.
+// date = fecha autoritativa (override si existe, si no la del Sheet).
+// announced = fecha previa del Sheet, sólo cuando difiere del override.
+function _applyTxDate(name, sourceDate) {
+  const ov = _TX_DATE_OVERRIDES[(name || '').trim().toLowerCase()];
+  if (!ov) return { date: sourceDate || null };
+  if (sourceDate && sourceDate !== ov) return { date: ov, announced: sourceDate };
+  return { date: ov };
+}
+
+// Formato corto DD-MM-YYYY para la anotación "(anunciado …)".
+function fmtDateShort(str) {
+  const d = new Date(str);
+  if (isNaN(d.getTime())) return str;
+  return `${String(d.getDate()).padStart(2,'0')}-${String(d.getMonth()+1).padStart(2,'0')}-${d.getFullYear()}`;
+}
+
 function buildTransactions() {
   const entries = [];
   const norm2 = s => (s || '').trim().toLowerCase();
@@ -1610,14 +1641,17 @@ function buildTransactions() {
       tr.sides.some(side => norm2(side.team) === norm2(d.dest) &&
         side.receives.some(r => tradeItemMatchesPlayer(r.item, d.player))));
     if (isST) return;
-    entries.push({ date: d.date || null, type: isResign ? 'resign' : 'signing',
+    entries.push({ ..._applyTxDate(name, d.date), type: isResign ? 'resign' : 'signing',
       player: name, rawPlayer: d.player, from: d.team25, to: d.dest,
       money: d.money, years: d.years });
   });
 
-  // Trades
+  // Trades — el override se busca por cualquier jugador del traspaso
   (DATA.trades || []).forEach(tr => {
-    entries.push({ date: tr.date || null, type: 'trade', trade: tr,
+    const tradedNames = tr.sides.flatMap(s => (s.receives || [])
+      .filter(r => !isNonPlayerAsset(r.item)).map(r => faStatus(r.item).name));
+    const ovName = tradedNames.find(n => _TX_DATE_OVERRIDES[(n || '').trim().toLowerCase()]);
+    entries.push({ ..._applyTxDate(ovName, tr.date), type: 'trade', trade: tr,
       teams: [...new Set(tr.sides.map(s => s.team))] });
   });
 
@@ -1630,7 +1664,7 @@ function buildTransactions() {
     entries.push({ date: draftDate, type: 'draft', player: name, rawPlayer: d.player,
       pick: d.pick, team: d.team, pos: d.pos, tw });
     if (d.signDate) {
-      entries.push({ date: d.signDate, type: 'signing', player: name, rawPlayer: d.player,
+      entries.push({ ..._applyTxDate(name, d.signDate), type: 'signing', player: name, rawPlayer: d.player,
         from: null, to: d.team, money: null, years: null, contract: d.contract, tw });
     }
   });
@@ -1640,8 +1674,8 @@ function buildTransactions() {
     (r.siguen || []).forEach(p => {
       const { name, tag, label } = faStatus(p.name);
       if (!tag || !['POE','TOE'].includes(tag)) return;
-      entries.push({ date: _OPTION_DEADLINES[name.toLowerCase()] || null, type: 'option', player: name, rawPlayer: p.name,
-        team: r.team, tag, label });
+      entries.push({ ..._applyTxDate(name, _OPTION_DEADLINES[name.toLowerCase()] || null),
+        type: 'option', player: name, rawPlayer: p.name, team: r.team, tag, label });
     });
   });
 
@@ -1649,8 +1683,8 @@ function buildTransactions() {
   (DATA.faPending || []).forEach(d => {
     const { name, tag, label } = faStatus(d.player);
     if (!tag || !['POX','TOX','RFAX'].includes(tag)) return;
-    entries.push({ date: _OPTION_DEADLINES[name.toLowerCase()] || null, type: 'option', player: name, rawPlayer: d.player,
-      team: d.team25, tag, label });
+    entries.push({ ..._applyTxDate(name, _OPTION_DEADLINES[name.toLowerCase()] || null),
+      type: 'option', player: name, rawPlayer: d.player, team: d.team25, tag, label });
   });
 
   // Cortados (waived)
@@ -1761,9 +1795,12 @@ function filterTransactions() {
     } else if (e.type === 'waived') {
       desc = `${teamBadgeHTML(e.team, false)} cortó a <span class="tx-player">${esc(e.player)}</span>`;
     }
+    const announced = e.announced
+      ? ` <span class="tx-announced">(${lang === 'en' ? 'reported' : 'anunciado'} ${fmtDateShort(e.announced)})</span>`
+      : '';
     return `<div class="tx-entry">
       <span class="badge ${cls} tx-type-badge">${meta.label(e)}</span>
-      <div class="tx-desc">${desc}</div>
+      <div class="tx-desc">${desc}${announced}</div>
     </div>`;
   };
 
