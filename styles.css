@@ -1837,6 +1837,7 @@
   @media (max-width: 768px) {
     header { padding: 0 12px; height: 48px; }
     thead th { top: 0; }
+    .tx-date-filter { display: none; }
     main { padding: 20px 16px 20px; }
     .section-title { font-size: 28px; }
     .trade-body { grid-template-columns: repeat(2, 1fr) !important; }

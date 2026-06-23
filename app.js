@@ -69,6 +69,7 @@ const i18n = {
     coaches_col_prev: 'Anterior', coaches_col_date_hired: 'Contratado', coaches_col_date_fired: 'Despedido',
     col_team: 'Equipo', col_source: 'Fuente', col_notes: 'Notas', col_country: 'País',
     filter_search: 'Buscar', filter_type: 'Tipo', btn_reset: 'Limpiar',
+    filter_from: 'Desde', filter_to: 'Hasta',
     loading: 'Cargando datos…', no_data: 'Sin resultados',
     results: 'resultados', receives: 'Recibe',
     footer_data: 'Datos', footer_src: 'Fuente',
@@ -143,6 +144,7 @@ const i18n = {
     coaches_col_prev: 'Previous', coaches_col_date_hired: 'Hired', coaches_col_date_fired: 'Fired',
     col_team: 'Team', col_source: 'Source', col_notes: 'Notes', col_country: 'Country',
     filter_search: 'Search', filter_type: 'Type', btn_reset: 'Reset',
+    filter_from: 'From', filter_to: 'To',
     loading: 'Loading data…', no_data: 'No results',
     results: 'results', receives: 'Receives',
     footer_data: 'Data', footer_src: 'Source',
@@ -1790,10 +1792,20 @@ function filterTransactions() {
   const q = (document.getElementById('tx-search')?.value || '').toLowerCase();
   const teamFilter = document.getElementById('tx-team')?.value || '';
   const typeFilter = document.getElementById('tx-type')?.value || '';
+  // Filtro por rango de fechas (solo escritorio). Los inputs date devuelven
+  // 'YYYY-MM-DD', que coincide con la clave canónica de _toISO().
+  const fromFilter = document.getElementById('tx-from')?.value || '';
+  const toFilter   = document.getElementById('tx-to')?.value || '';
   const entries = _txEntries.filter(e => {
     const words = [e.player, e.team, e.to, e.from, ...(e.teams || [])].filter(Boolean).join(' ').toLowerCase();
     if (q && !words.includes(q)) return false;
     if (typeFilter && e.type !== typeFilter) return false;
+    if (fromFilter || toFilter) {
+      const iso = _toISO(e.date);
+      if (!iso) return false;
+      if (fromFilter && iso < fromFilter) return false;
+      if (toFilter && iso > toFilter) return false;
+    }
     if (teamFilter) {
       const eTeams = e.type === 'trade' ? (e.teams || [])
         : (e.type === 'signing' || e.type === 'resign') ? [e.to, e.from].filter(Boolean)
