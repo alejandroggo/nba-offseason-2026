@@ -784,7 +784,11 @@ function tradeReceivesHTML(receives) {
 function renderTrades(data) {
   const container = document.getElementById('trades-container');
   if (!data.length) { if (!fetchComplete) return; container.innerHTML = `<div class="state-empty">${t('no_data')}</div>`; return; }
-  container.innerHTML = data.map(trade => `
+  const sorted = [...data].sort((a, b) => {
+    const ka = _toISO(a.date) || '', kb = _toISO(b.date) || '';
+    return kb > ka ? 1 : kb < ka ? -1 : 0;
+  });
+  container.innerHTML = sorted.map(trade => `
     <div class="trade-card">
       <div class="trade-header">
         <span class="trade-header-meta">
