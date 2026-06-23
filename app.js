@@ -59,7 +59,7 @@ const i18n = {
     rosters_title: 'Plantillas', rosters_subtitle: 'Los 30 equipos — temporada 2025-26',
     rosters_search_ph: 'Buscar equipo o jugador…',
     roster_stays: 'Plantilla', roster_arrivals: 'Llegadas', roster_departures: 'Salidas',
-    tv_sum_in: 'altas', tv_sum_out: 'bajas', tv_sum_draft: 'picks del draft', tv_sum_pending: 'agentes libres pendientes',
+    tv_sum_in: 'altas', tv_sum_resign: 'renovaciones', tv_sum_out: 'bajas', tv_sum_draft: 'picks del draft', tv_sum_pending: 'agentes libres pendientes',
     roster_fa: 'FA', roster_draft: 'Draft', roster_trade: 'Vía Trade',
     roster_salidas_fa: 'FA', roster_salidas_trade: 'Vía Trade', roster_fa_pending: 'FA Pendientes', roster_waived: 'Cortado', roster_deceased: 'Fallecido', roster_retired: 'Retirado', roster_overseas: 'Otras ligas', roster_opt_declined: 'Declinó opción',
     roster_section_trades: 'Traspasos', roster_section_coaches: 'Cuerpo técnico y gerencia',
@@ -134,7 +134,7 @@ const i18n = {
     rosters_title: 'Rosters', rosters_subtitle: 'All 30 teams — 2025-26 season',
     rosters_search_ph: 'Search team or player…',
     roster_stays: 'Roster', roster_arrivals: 'Arrivals', roster_departures: 'Departures',
-    tv_sum_in: 'arrivals', tv_sum_out: 'departures', tv_sum_draft: 'draft picks', tv_sum_pending: 'pending free agents',
+    tv_sum_in: 'arrivals', tv_sum_resign: 'extensions', tv_sum_out: 'departures', tv_sum_draft: 'draft picks', tv_sum_pending: 'pending free agents',
     roster_fa: 'FA', roster_draft: 'Draft', roster_trade: 'Via Trade',
     roster_salidas_fa: 'FA', roster_salidas_trade: 'Via Trade', roster_fa_pending: 'Pending FA', roster_waived: 'Waived', roster_deceased: 'Deceased', roster_retired: 'Retired', roster_overseas: 'Overseas', roster_opt_declined: 'Declined option',
     roster_section_trades: 'Trades', roster_section_coaches: 'Coaching staff & front office',
@@ -2448,9 +2448,12 @@ function openTeamView(teamName, pushHistory = true) {
   });
 
   // Resumen de movimientos (cabecera del equipo)
+  const faResign = faIn.filter(d => norm2(d.team25) === tKey);
+  const faNewIn  = faIn.filter(d => norm2(d.team25) !== tKey);
   const _summarySegs = [
     { n: picks.length + undrafted.length, label: t('tv_sum_draft') },
-    { n: faIn.length + tradeIn.length,    label: t('tv_sum_in') },
+    { n: faNewIn.length + tradeIn.length, label: t('tv_sum_in') },
+    { n: faResign.length,                 label: t('tv_sum_resign') },
     { n: faOut.length + tradeOut.length,  label: t('tv_sum_out') },
     { n: faPending.length,                label: t('tv_sum_pending') },
   ].filter(s => s.n > 0);
