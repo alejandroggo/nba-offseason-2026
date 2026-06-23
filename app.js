@@ -775,7 +775,9 @@ function tradeReceivesHTML(receives) {
   });
   return byFrom.map((grp, i) => `
     <div class="trade-group${i > 0 ? ' trade-group--gap' : ''}">
-      ${grp.items.map(r => `<div class="trade-item" onclick="openPlayerDrawer('${esc(r.item)}')">${esc(r.item)}</div>`).join('')}
+      <div class="trade-group-items${grp.items.length >= 5 ? ' trade-group-items--cols2' : ''}">
+        ${grp.items.map(r => `<div class="trade-item" onclick="openPlayerDrawer('${esc(r.item)}')">${esc(r.item)}</div>`).join('')}
+      </div>
       <div class="trade-receives-label">
         (vía <span class="clickable-team" tabindex="0" onclick="openTeamView('${esc(grp.from)}')">${esc(grp.from)}</span>)
       </div>
@@ -1844,16 +1846,19 @@ function filterTransactions() {
       desc = `<span class="tx-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(e.rawPlayer || e.player)}')">${esc(e.player)}</span>${esc(arrow)}${teamBadgeHTML(e.to, false)}${twBadge}${esc(contract)}`;
     } else if (e.type === 'trade') {
       const teams = e.teams.map(tm => teamBadgeHTML(tm, false)).join(' <span class="tx-arrow">⇄</span> ');
-      const players = (e.trade?.sides || []).flatMap(side =>
-        (side.receives || [])
+      // Agrupamos los jugadores por equipo de destino: una sola flecha por equipo.
+      const groups = (e.trade?.sides || []).map(side => {
+        const names = (side.receives || [])
           .filter(r => !isNonPlayerAsset(r.item))
           .map(r => {
             const { name } = faStatus(r.item);
-            return `<span class="tx-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(r.item)}')">${esc(name)}</span><span class="tx-arrow">→</span>${teamBadgeHTML(side.team, false)}`;
-          })
-      );
-      desc = players.length
-        ? `<span class="tx-trade-wrap">${teams}</span><span class="tx-trade-players">${players.join('<span class="tx-muted tx-trade-dot">·</span>')}</span>`
+            return `<span class="tx-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(r.item)}')">${esc(name)}</span>`;
+          });
+        if (!names.length) return '';
+        return `<span class="tx-trade-dest">${names.join('<span class="tx-muted tx-trade-dot">·</span>')}<span class="tx-arrow">→</span>${teamBadgeHTML(side.team, false)}</span>`;
+      }).filter(Boolean);
+      desc = groups.length
+        ? `<span class="tx-trade-wrap">${teams}</span><span class="tx-trade-players">${groups.join('')}</span>`
         : teams;
     } else if (e.type === 'draft') {
       const twBadge = e.tw ? ' <span class="badge-tw">TW</span>' : '';
