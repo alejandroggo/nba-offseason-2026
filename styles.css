@@ -594,6 +594,13 @@
   .badge-pox  { background: rgba(220,38,38,0.12); color: var(--gone); border: 1px solid rgba(220,38,38,0.3); }
   .badge-rfax { background: rgba(255,107,53,0.15); color: var(--accent2); border: 1px solid rgba(255,107,53,0.4); }
 
+  /* Badges de la pestaña Transacciones — colores diferenciados por tipo */
+  .badge-tx-signing  { background: rgba(22,163,74,0.12);  color: var(--success);  border: 1px solid rgba(22,163,74,0.3); }   /* verde */
+  .badge-tx-resign   { background: rgba(29,66,138,0.2);   color: #7aadff;         border: 1px solid rgba(29,66,138,0.4); }   /* azul */
+  .badge-tx-trade    { background: rgba(160,100,255,0.14); color: #b580ff;        border: 1px solid rgba(160,100,255,0.35); } /* morado */
+  .badge-tx-option   { background: rgba(255,159,0,0.14);  color: #ff9f0a;         border: 1px solid rgba(255,159,0,0.35); }  /* ámbar */
+  .badge-tx-option-x { background: rgba(220,38,38,0.12);  color: var(--gone);     border: 1px solid rgba(220,38,38,0.3); }   /* rojo (rechazada) */
+
   /* PICK NUMBER */
   .pick-num {
     display: inline-flex;

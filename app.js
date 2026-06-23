@@ -1571,6 +1571,8 @@ const _OPTION_DEADLINES = {
   'kentavious caldwell-pope': '2026-06-19',
   "d'angelo russell":        '2026-06-19',
   'gary harris':             '2026-06-22',
+  'craig porter jr.':        '2026-06-22',
+  'craig porter':            '2026-06-22',
   'trae young':              '2026-06-17',
   'jordan miller':           '2026-06-24',
   'bogdan bogdanovic':       '2026-06-26',
@@ -1806,12 +1808,12 @@ function filterTransactions() {
   const undated = entries.filter(e => !e.date);
 
   const typeMeta = {
-    signing: { cls: 'badge-poe',     label: () => t('tx_type_signing') },
-    resign:  { cls: 'badge-to',      label: () => t('tx_type_resign') },
-    trade:   { cls: 'badge-accent',  label: () => t('tx_type_trade') },
-    draft:   { cls: 'badge-neutral', label: () => t('tx_type_draft') },
-    option:  { cls: e => (e.tag==='POE'||e.tag==='TOE') ? 'badge-poe' : 'badge-pox', label: () => t('tx_type_option') },
-    waived:  { cls: 'badge-danger',  label: () => t('tx_type_waived') },
+    signing: { cls: 'badge-tx-signing', label: () => t('tx_type_signing') },
+    resign:  { cls: 'badge-tx-resign',  label: () => t('tx_type_resign') },
+    trade:   { cls: 'badge-tx-trade',   label: () => t('tx_type_trade') },
+    draft:   { cls: 'badge-neutral',    label: () => t('tx_type_draft') },
+    option:  { cls: e => (e.tag==='POE'||e.tag==='TOE') ? 'badge-tx-option' : 'badge-tx-option-x', label: () => t('tx_type_option') },
+    waived:  { cls: 'badge-danger',     label: () => t('tx_type_waived') },
   };
 
   const renderEntry = e => {
