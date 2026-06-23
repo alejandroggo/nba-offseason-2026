@@ -788,7 +788,8 @@ function renderTrades(data) {
   if (!data.length) { if (!fetchComplete) return; container.innerHTML = `<div class="state-empty">${t('no_data')}</div>`; return; }
   const sorted = [...data].sort((a, b) => {
     const ka = _toISO(a.date) || '', kb = _toISO(b.date) || '';
-    return kb > ka ? 1 : kb < ka ? -1 : 0;
+    if (kb !== ka) return kb > ka ? 1 : -1;
+    return (parseFloat(b.id) || 0) - (parseFloat(a.id) || 0);
   });
   container.innerHTML = sorted.map(trade => `
     <div class="trade-card">
