@@ -670,7 +670,7 @@
 
   .trade-side {
     flex: 1 1 auto;
-    min-width: 140px;
+    min-width: min-content;
     padding: 16px 20px;
     border-right: 1px solid var(--border);
   }
@@ -682,6 +682,7 @@
     font-size: 14px; font-weight: 600;
     color: var(--text);
     margin-bottom: 10px;
+    white-space: nowrap;
   }
   .trade-receives-word {
     font-size: 12px; font-weight: 400;
