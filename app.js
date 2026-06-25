@@ -664,9 +664,10 @@ function renderDraft(data) {
 function renderUndrafted(data) {
   const tbody = document.getElementById('undrafted-tbody');
   document.getElementById('undrafted-count').innerHTML = `<span>${data.length}</span>&nbsp;${t('results')}`;
-  if (!data.length) { if (!fetchComplete) return; tbody.innerHTML = `<tr><td colspan="7"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
+  if (!data.length) { if (!fetchComplete) return; tbody.innerHTML = `<tr><td colspan="8"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
   tbody.innerHTML = data.map(d => `
     <tr>
+      <td><span class="pick-num">U</span></td>
       <td class="td-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</td>
       <td style="text-align:center" title="${esc(d.country)}">${flag(d.country)}</td>
       <td>${d.team ? teamBadgeHTML(d.team) : '<span class="td-muted">—</span>'}</td>

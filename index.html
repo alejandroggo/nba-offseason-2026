@@ -38,7 +38,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260624n">
+<link rel="stylesheet" href="styles.css?v=20260624o">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -388,6 +388,7 @@
       <table>
         <thead id="undrafted-thead">
           <tr>
+            <th aria-hidden="true"></th>
             <th tabindex="0" role="button" aria-sort="none" onclick="sortSection('undrafted',0)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();sortSection('undrafted',0);}"><span data-i18n="draft_col_player">Jugador</span> <span class="sort-icon" aria-hidden="true">↕</span></th>
             <th class="th-w-32 th-center" aria-hidden="true"></th>
             <th tabindex="0" role="button" aria-sort="none" onclick="sortSection('undrafted',1)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();sortSection('undrafted',1);}"><span data-i18n="col_team">Equipo</span> <span class="sort-icon" aria-hidden="true">↕</span></th>
@@ -398,9 +399,9 @@
           </tr>
         </thead>
         <tbody id="undrafted-tbody" aria-live="polite" aria-busy="true">
-          <tr class="sk-row"><td><div class="sk sk-l"></div></td><td><div class="sk sk-s"></div></td><td><div class="sk sk-m"></div></td><td><div class="sk sk-s"></div></td><td><div class="sk sk-m"></div></td><td><div class="sk sk-l"></div></td><td><div class="sk sk-s"></div></td></tr>
-          <tr class="sk-row"><td><div class="sk sk-m"></div></td><td><div class="sk sk-s"></div></td><td><div class="sk sk-l"></div></td><td><div class="sk sk-s"></div></td><td><div class="sk sk-s"></div></td><td><div class="sk sk-m"></div></td><td><div class="sk sk-s"></div></td></tr>
-          <tr class="sk-row"><td><div class="sk sk-l"></div></td><td><div class="sk sk-s"></div></td><td><div class="sk sk-m"></div></td><td><div class="sk sk-s"></div></td><td><div class="sk sk-l"></div></td><td><div class="sk sk-s"></div></td><td><div class="sk sk-s"></div></td></tr>
+          <tr class="sk-row"><td><div class="sk sk-s"></div></td><td><div class="sk sk-l"></div></td><td><div class="sk sk-s"></div></td><td><div class="sk sk-m"></div></td><td><div class="sk sk-s"></div></td><td><div class="sk sk-m"></div></td><td><div class="sk sk-l"></div></td><td><div class="sk sk-s"></div></td></tr>
+          <tr class="sk-row"><td><div class="sk sk-s"></div></td><td><div class="sk sk-m"></div></td><td><div class="sk sk-s"></div></td><td><div class="sk sk-l"></div></td><td><div class="sk sk-s"></div></td><td><div class="sk sk-s"></div></td><td><div class="sk sk-m"></div></td><td><div class="sk sk-s"></div></td></tr>
+          <tr class="sk-row"><td><div class="sk sk-s"></div></td><td><div class="sk sk-l"></div></td><td><div class="sk sk-s"></div></td><td><div class="sk sk-m"></div></td><td><div class="sk sk-s"></div></td><td><div class="sk sk-l"></div></td><td><div class="sk sk-s"></div></td><td><div class="sk sk-s"></div></td></tr>
         </tbody>
       </table>
     </div>
@@ -619,7 +620,7 @@
 </nav>
 
 
-<script defer src="app.js?v=20260624n"></script>
+<script defer src="app.js?v=20260624o"></script>
 <!-- PLAYER DRAWER -->
 <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()" aria-hidden="true"></div>
 <div class="player-drawer" id="player-drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-player-name" aria-hidden="true">
