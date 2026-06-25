@@ -641,6 +641,7 @@
   }
 
   .trade-card:hover { border-color: rgba(var(--accent-rgb),0.3); }
+  .trade-card--highlight { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(var(--accent-rgb),0.25); transition: border-color 0.3s, box-shadow 0.3s; }
 
   .trade-header {
     background: var(--surface-2);
@@ -1929,6 +1930,8 @@
   .tx-trade-dot { margin: 0 4px; }
   .tx-trade-dest { display: inline-flex; flex-wrap: wrap; align-items: center; margin-right: 14px; }
   .tx-trade-dest:last-child { margin-right: 0; }
+  .tx-trade-link { margin-left: 8px; color: var(--text-muted); font-size: 11px; cursor: pointer; opacity: 0.6; }
+  .tx-trade-link:hover { opacity: 1; color: var(--accent); }
   .tx-date-header {
     font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700;
     text-transform: uppercase; letter-spacing: 0.08em;

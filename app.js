@@ -807,8 +807,8 @@ function renderTrades(data) {
     return (parseFloat(b.id) || 0) - (parseFloat(a.id) || 0);
   });
   container.innerHTML = sorted.map(trade => `
-    <div class="trade-card">
-      <div class="trade-header">
+    <div class="trade-card" id="trade-${esc(trade.id)}">
+      <div class="trade-header" style="cursor:pointer" onclick="selectTrade('${esc(trade.id)}')">
         <span class="trade-header-meta">
           ${trade.date ? fmtDate(trade.date) : ''}${trade.date && trade.source ? ' · ' : ''}${trade.source ? esc(trade.source) : ''}
         </span>
@@ -824,6 +824,17 @@ function renderTrades(data) {
       </div>
     </div>`).join('');
   document.getElementById('trades-count').innerHTML = `<span>${data.length}</span>&nbsp;${t('results')}`;
+  if (_pendingTradeId) {
+    const el = document.getElementById('trade-' + _pendingTradeId);
+    if (el) {
+      _pendingTradeId = null;
+      setTimeout(() => {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.classList.add('trade-card--highlight');
+        setTimeout(() => el.classList.remove('trade-card--highlight'), 2000);
+      }, 50);
+    }
+  }
 }
 
 function filterTrades() {
@@ -1882,9 +1893,10 @@ function filterTransactions() {
         if (!names.length) return '';
         return `<span class="tx-trade-dest">${names.join('<span class="tx-muted tx-trade-dot">·</span>')}<span class="tx-arrow">→</span>${teamBadgeHTML(side.team, false)}</span>`;
       }).filter(Boolean);
+      const tradeLink = e.trade?.id ? `<span class="tx-trade-link" tabindex="0" title="${lang === 'en' ? 'View trade' : 'Ver traspaso'}" onclick="openTradeById('${esc(e.trade.id)}')">↗</span>` : '';
       desc = groups.length
-        ? `<span class="tx-trade-wrap">${teams}</span><span class="tx-trade-players">${groups.join('')}</span>`
-        : `<span class="tx-trade-wrap">${teams}</span><span class="tx-muted tx-picks-only">${lang === 'en' ? '(only picks exchanged)' : '(solo picks fueron intercambiados)'}</span>`;
+        ? `<span class="tx-trade-wrap">${teams}</span><span class="tx-trade-players">${groups.join('')}</span>${tradeLink}`
+        : `<span class="tx-trade-wrap">${teams}</span><span class="tx-muted tx-picks-only">${lang === 'en' ? '(only picks exchanged)' : '(solo picks fueron intercambiados)'}</span>${tradeLink}`;
     } else if (e.type === 'draft') {
       const twBadge = e.tw ? ' <span class="badge-tw">TW</span>' : '';
       desc = `<span class="tx-pick">#${esc(e.pick)}</span> ${teamBadgeHTML(e.team, false)} → <span class="tx-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(e.rawPlayer || e.player)}')">${esc(e.player)}</span>${twBadge}`;
@@ -2046,6 +2058,7 @@ function playerFromSlug(slug) {
 }
 
 let _pendingPlayerSlug = null;
+let _pendingTradeId    = null;
 let _drawerBackHash = '';
 
 function pushURL(params) {
@@ -2054,6 +2067,10 @@ function pushURL(params) {
   else if (params.team) hash = 'equipo/'  + slugify(params.team);
   else if (params.tab)  hash = params.tab;
   window.history.pushState({}, '', BASE_PATH + (hash ? '#' + hash : ''));
+}
+
+function selectTrade(id) {
+  history.replaceState(null, '', BASE_PATH + '#trade/' + id);
 }
 
 function readURL() {
@@ -2079,16 +2096,21 @@ function readURL() {
   }
   if (hash.startsWith('equipo/')) {
     const slug = hash.slice('equipo/'.length);
-    return { player: null, team: teamFromSlug(slug) || slug, tab: null };
+    return { player: null, team: teamFromSlug(slug) || slug, tab: null, trade: null };
   }
-  return { player: null, team: null, tab: hash };
+  if (hash.startsWith('trade/')) {
+    const id = hash.slice('trade/'.length);
+    return { player: null, team: null, tab: null, trade: id };
+  }
+  return { player: null, team: null, tab: hash, trade: null };
 }
 
 window.addEventListener('popstate', () => {
   _pendingPlayerSlug = null;
-  const { player, team, tab } = readURL();
+  const { player, team, tab, trade } = readURL();
   if (team)        { openTeamView(team, false); }
   else if (player) { openPlayerDrawer(player, false); }
+  else if (trade)  { openTradeById(trade, false); }
   else             { closeDrawer(false); showTab(tab || (window.innerWidth <= 768 ? 'fa' : 'home'), false); }
 });
 
@@ -2697,6 +2719,18 @@ function openTeamView(teamName, pushHistory = true) {
   if (pushHistory) pushURL({ team: teamName, player: null, tab: null });
 }
 
+function openTradeById(id, pushHistory = true) {
+  showTab('trades', pushHistory ? undefined : false);
+  const el = document.getElementById('trade-' + id);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.add('trade-card--highlight');
+    setTimeout(() => el.classList.remove('trade-card--highlight'), 2000);
+  } else {
+    _pendingTradeId = id;
+  }
+}
+
 function tvCard(label, count, bodyHTML) {
   return `<div class="tv-card">
     <div class="tv-card-header">
@@ -2726,9 +2760,10 @@ applyTheme();
 if (lang !== 'es') setLang(lang);
 // A11y: add scope="col" a todos los th de cabecera
 document.querySelectorAll('thead th').forEach(th => { if (!th.hasAttribute('scope')) th.setAttribute('scope', 'col'); });
-const { player: initPlayer, team: initTeam, tab: initTab } = readURL();
+const { player: initPlayer, team: initTeam, tab: initTab, trade: initTrade } = readURL();
 if (initTeam)        { openTeamView(initTeam, false); }
 else if (initPlayer) { openPlayerDrawer(initPlayer, false); }
+else if (initTrade)  { openTradeById(initTrade, false); }
 else if (initTab)    { showTab(initTab, false); }
 else if (window.innerWidth <= 768) { showTab('fa', false); }
 else { document.body.classList.add('on-home'); updateOgImage('home'); }
