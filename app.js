@@ -924,7 +924,7 @@ function parseTW(rawName, ...hints) {
 
 // Detecta activos que no son jugadores (picks de draft, rondas, cash).
 // Cubre tanto inglés como español: pick, round, ronda, cash.
-const NON_PLAYER_ASSET_RE = /\b(pick|picks|round|ronda|rondas|cash)\b/i;
+const NON_PLAYER_ASSET_RE = /\b(pick|picks|round|ronda|rondas|cash|draft rights)\b/i;
 function isNonPlayerAsset(item) {
   return NON_PLAYER_ASSET_RE.test((item || '').trim());
 }
