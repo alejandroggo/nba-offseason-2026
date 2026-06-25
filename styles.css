@@ -1138,6 +1138,8 @@
     transition: border-color 0.15s, color 0.15s;
   }
   .drawer-share-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .drawer-trade-btn { display: inline-block; margin-top: 10px; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; background: rgba(var(--accent-rgb),0.1); color: var(--accent); border: 1px solid rgba(var(--accent-rgb),0.3); }
+  .drawer-trade-btn:hover { background: rgba(var(--accent-rgb),0.2); border-color: var(--accent); }
   .drawer-share-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .drawer-share-btn svg { flex-shrink: 0; }
   .drawer-section-title {

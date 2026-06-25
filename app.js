@@ -2179,10 +2179,11 @@ function openPlayerDrawer(playerName, pushHistory = true) {
         const myReceive = side.receives.find(r => tradeItemMatchesPlayer(r.item, playerName));
         if (myReceive) {
           const oldTeamSide = stTrade.sides.find(s => s.team === myReceive.from);
-          if (oldTeamSide?.receives.length) html += drawerRow(t('drawer_trade_inexchange'), oldTeamSide.receives.map(r => esc(r.item)).join(', '));
+          if (oldTeamSide?.receives.length) html += drawerRow(t('drawer_trade_inexchange'), summarizeTradeReceives(oldTeamSide.receives));
         }
       });
       if (stFa.notes) html += drawerRow(t('col_notes'), esc(stFa.notes), 'notes');
+      if (stTrade.id) html += `<div class="drawer-trade-btn" tabindex="0" onclick="openTradeById('${esc(stTrade.id)}')">↗ ${lang === 'en' ? 'View trade' : 'Ver traspaso'}</div>`;
       html += `</div>`;
     }
   }
@@ -2253,11 +2254,12 @@ function openPlayerDrawer(playerName, pushHistory = true) {
           const pos = validPos(myReceive.pos || lookupPos(playerName));
           if (pos) html += drawerRow(t('draft_col_pos'), `<span class="pos-text">${esc(pos)}</span>`);
           const alongside = side.receives.filter(r => r.from === myReceive.from && !tradeItemMatchesPlayer(r.item, playerName));
-          if (alongside.length) html += drawerRow(t('drawer_trade_alongside'), alongside.map(r => esc(r.item)).join(', '));
+          if (alongside.length) html += drawerRow(t('drawer_trade_alongside'), summarizeTradeReceives(alongside));
           const oldTeamSide = tr.sides.find(s => s.team === myReceive.from);
-          if (oldTeamSide && oldTeamSide.receives.length) html += drawerRow(t('drawer_trade_inexchange'), oldTeamSide.receives.map(r => esc(r.item)).join(', '));
+          if (oldTeamSide && oldTeamSide.receives.length) html += drawerRow(t('drawer_trade_inexchange'), summarizeTradeReceives(oldTeamSide.receives));
         }
       });
+      if (tr.id) html += `<div class="drawer-trade-btn" tabindex="0" onclick="openTradeById('${esc(tr.id)}')">↗ ${lang === 'en' ? 'View trade' : 'Ver traspaso'}</div>`;
     });
     html += `</div>`;
   }
@@ -2407,6 +2409,23 @@ function openPlayerDrawer(playerName, pushHistory = true) {
   document.body.style.overflow = 'hidden';
 
   if (pushHistory) { _drawerBackHash = window.location.hash; pushURL({ player: playerName, team: null }); }
+}
+
+function summarizeTradeReceives(items) {
+  const players = items.filter(r => !isNonPlayerAsset(r.item));
+  const assets  = items.filter(r => isNonPlayerAsset(r.item));
+  const r1 = assets.filter(r => /\b1st\b|primera|1ª/i.test(r.item)).length;
+  const r2 = assets.filter(r => /\b2nd\b|segunda|2ª/i.test(r.item)).length;
+  const other = assets.length - r1 - r2;
+  const parts = [];
+  players.forEach(r => {
+    const { name } = faStatus(r.item);
+    parts.push(`<span class="clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(r.item)}')">${esc(name)}</span>`);
+  });
+  if (r1) parts.push(lang === 'en' ? `${r1} 1st-round pick${r1 > 1 ? 's' : ''}` : `${r1} pick${r1 > 1 ? 's' : ''} de 1ª ronda`);
+  if (r2) parts.push(lang === 'en' ? `${r2} 2nd-round pick${r2 > 1 ? 's' : ''}` : `${r2} pick${r2 > 1 ? 's' : ''} de 2ª ronda`);
+  if (other) parts.push(lang === 'en' ? `${other} other asset${other > 1 ? 's' : ''}` : `${other} activo${other > 1 ? 's' : ''}`);
+  return parts.join(' · ') || '—';
 }
 
 function drawerRow(label, value, cls = '') {
