@@ -412,6 +412,17 @@
   .filter-input:focus, .filter-select:focus { border-color: var(--accent); }
   .filter-input::placeholder { color: var(--text-dim); }
 
+  .filter-toggle {
+    display: inline-flex; align-items: center; gap: 7px;
+    align-self: flex-end; padding-bottom: 9px;
+    font-family: 'DM Mono', monospace; font-size: var(--font-xs);
+    text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--text-muted); cursor: pointer; user-select: none;
+    white-space: nowrap;
+  }
+  .filter-toggle input[type="checkbox"] { accent-color: var(--accent); width: 14px; height: 14px; cursor: pointer; }
+  .filter-toggle:hover { color: var(--text); }
+
   .btn-reset {
     background: none;
     border: 1px solid var(--border);

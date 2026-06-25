@@ -70,6 +70,7 @@ const i18n = {
     col_team: 'Equipo', col_source: 'Fuente', col_notes: 'Notas', col_country: 'País',
     filter_search: 'Buscar', filter_type: 'Tipo', btn_reset: 'Limpiar',
     filter_from: 'Desde', filter_to: 'Hasta',
+    trades_hide_picks: 'Ocultar solo picks',
     loading: 'Cargando datos…', no_data: 'Sin resultados',
     results: 'resultados', receives: 'Recibe',
     footer_data: 'Datos', footer_src: 'Fuente',
@@ -145,6 +146,7 @@ const i18n = {
     col_team: 'Team', col_source: 'Source', col_notes: 'Notes', col_country: 'Country',
     filter_search: 'Search', filter_type: 'Type', btn_reset: 'Reset',
     filter_from: 'From', filter_to: 'To',
+    trades_hide_picks: 'Hide picks-only trades',
     loading: 'Loading data…', no_data: 'No results',
     results: 'results', receives: 'Receives',
     footer_data: 'Data', footer_src: 'Source',
@@ -814,11 +816,18 @@ function renderTrades(data) {
 }
 
 function filterTrades() {
-  const q    = document.getElementById('trades-search').value.toLowerCase();
-  const team = document.getElementById('trades-team').value;
+  const q         = document.getElementById('trades-search').value.toLowerCase();
+  const team      = document.getElementById('trades-team').value;
+  const hidePicks = document.getElementById('trades-hide-picks')?.checked;
   FILTERED.trades = DATA.trades.filter(trade => {
     const text = trade.sides.flatMap(s => [s.team, ...s.receives.flatMap(r => [r.item, r.from])]).join(' ').toLowerCase();
-    return (!q || text.includes(q)) && (!team || trade.sides.some(s => s.team === team));
+    if (!q || text.includes(q)) {} else return false;
+    if (team && !trade.sides.some(s => s.team === team)) return false;
+    if (hidePicks) {
+      const hasPlayer = trade.sides.some(s => s.receives.some(r => !isNonPlayerAsset(r.item)));
+      if (!hasPlayer) return false;
+    }
+    return true;
   });
   renderTrades(FILTERED.trades);
   updateFilterBadge(['trades-search','trades-team'], 'trades-filter-clear');
