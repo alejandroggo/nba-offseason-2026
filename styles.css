@@ -467,6 +467,7 @@
   }
 
   .table-wrap--pending { max-height: 420px; }
+  .table-wrap--full { max-height: none; overflow-y: visible; }
 
   table { width: 100%; border-collapse: collapse; }
 
