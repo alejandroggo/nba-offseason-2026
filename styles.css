@@ -664,11 +664,13 @@
   }
 
   .trade-body {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    align-items: stretch;
   }
 
   .trade-side {
+    flex: 1 1 auto;
+    min-width: 140px;
     padding: 16px 20px;
     border-right: 1px solid var(--border);
   }
@@ -1862,8 +1864,8 @@
     .tx-date-filter { display: none; }
     main { padding: 20px 16px 20px; }
     .section-title { font-size: 28px; }
-    .trade-body { grid-template-columns: repeat(2, 1fr) !important; }
-    .trade-side { border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 12px 14px; }
+    .trade-body { flex-wrap: wrap; }
+    .trade-side { flex: 1 1 45%; min-width: 120px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 12px 14px; }
     .trade-side:nth-child(2n) { border-right: none; }
     .trade-side:last-child { border-bottom: none; }
     .trade-side:nth-last-child(2):nth-child(odd) { border-bottom: none; }

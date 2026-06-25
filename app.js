@@ -813,7 +813,7 @@ function renderTrades(data) {
           ${trade.date ? fmtDate(trade.date) : ''}${trade.date && trade.source ? ' · ' : ''}${trade.source ? esc(trade.source) : ''}
         </span>
       </div>
-      <div class="trade-body" style="grid-template-columns:repeat(${trade.sides.length},1fr)">
+      <div class="trade-body">
         ${trade.sides.map(side => `
           <div class="trade-side">
             <div class="trade-team-label">
@@ -2680,7 +2680,7 @@ function openTeamView(teamName, pushHistory = true) {
             ${tr.date ? fmtDate(tr.date) : ''}${tr.date && tr.source ? ' · ' : ''}${tr.source ? esc(tr.source) : ''}
           </span>
         </div>
-        <div class="trade-body" style="grid-template-columns:repeat(${tr.sides.length},1fr)">
+        <div class="trade-body">
           ${tr.sides.map(side => `
             <div class="trade-side">
               <div class="trade-team-label">
