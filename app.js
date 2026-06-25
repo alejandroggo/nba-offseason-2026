@@ -252,8 +252,8 @@ function setText(id, val) { const el = document.getElementById(id); if (el) el.t
 // ─────────────────────────────────────────────
 const DATA = { fa: [], draft: [], undrafted: [], trades: [], rosters: [], coaches: [] };
 let fetchComplete = false;
-const FILTERED = { fa: [], draft: [], trades: [], coaches: [], rosters: [], faPending: [] };
-const SORT = { fa: {col:-1,asc:true}, draft: {col:-1,asc:true}, coaches: {col:-1,asc:true}, faPending: {col:-1,asc:true} };
+const FILTERED = { fa: [], draft: [], undrafted: [], trades: [], coaches: [], rosters: [], faPending: [] };
+const SORT = { fa: {col:-1,asc:true}, draft: {col:-1,asc:true}, undrafted: {col:-1,asc:true}, coaches: {col:-1,asc:true}, faPending: {col:-1,asc:true} };
 
 // ─────────────────────────────────────────────
 // FETCH ALL
@@ -664,17 +664,16 @@ function renderDraft(data) {
 function renderUndrafted(data) {
   const tbody = document.getElementById('undrafted-tbody');
   document.getElementById('undrafted-count').innerHTML = `<span>${data.length}</span>&nbsp;${t('results')}`;
-  if (!data.length) { if (!fetchComplete) return; tbody.innerHTML = `<tr><td colspan="8"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
+  if (!data.length) { if (!fetchComplete) return; tbody.innerHTML = `<tr><td colspan="7"><div class="state-empty">${t('no_data')}</div></td></tr>`; return; }
   tbody.innerHTML = data.map(d => `
     <tr>
       <td class="td-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(d.player)}</td>
-      <td style="font-size:18px;text-align:center" title="${esc(d.country)}">${flag(d.country)}</td>
+      <td style="text-align:center" title="${esc(d.country)}">${flag(d.country)}</td>
       <td>${d.team ? teamBadgeHTML(d.team) : '<span class="td-muted">—</span>'}</td>
       <td style="text-align:center"><span class="pos-text">${esc(d.pos) || '—'}</span></td>
-      <td class="td-muted">${esc(d.from) || '—'}</td>
+      <td>${esc(d.from) || '—'}</td>
       <td style="text-align:center">${d.check ? `<span class="badge badge-check">${esc(d.check)}</span>` : '—'}</td>
       <td style="text-align:center" class="td-muted">${esc(d.contract) || '—'}</td>
-      <td class="td-notes">${esc(d.notes)}</td>
     </tr>`).join('');
 }
 
@@ -687,11 +686,11 @@ function filterDraft() {
     (!pos || d.pos === pos) &&
     (!team || d.team === team)
   );
-  const filteredUndrafted = (DATA.undrafted || []).filter(d =>
+  FILTERED.undrafted = (DATA.undrafted || []).filter(d =>
     !q || `${d.player} ${d.pos} ${d.from} ${d.notes}`.toLowerCase().includes(q)
   );
   renderDraft(FILTERED.draft);
-  renderUndrafted(filteredUndrafted);
+  renderUndrafted(FILTERED.undrafted);
   updateFilterBadge(['draft-search','draft-pos','draft-team'], 'draft-filter-clear');
 }
 
@@ -1192,8 +1191,9 @@ function resetCoaches() {
 // SORT
 // ─────────────────────────────────────────────
 const GETTERS = {
-  fa:     d => [d.player, d.pos, d.dest, d.team25, d.money, d.years, d.aav, d.source, d.notes],
-  draft:  d => [d.pick, d.player, d.team, d.pos, d.from, d.check, d.contract, d.notes],
+  fa:        d => [d.player, d.pos, d.dest, d.team25, d.money, d.years, d.aav, d.source, d.notes],
+  draft:     d => [d.pick, d.player, d.team, d.pos, d.from, d.check, d.contract, d.notes],
+  undrafted: d => [d.player, d.team, d.pos, d.from, d.check, d.contract],
   coaches:   d => [d.new, d.team, d.role, d.dateHired, d.prev, d.dateFired, d.source],
   faPending: d => [d.player, d.pos, d.team25, d.notes],
 };
@@ -1224,10 +1224,13 @@ function sortSection(section, col) {
 
   if (section === 'fa') renderFA(src);
   else if (section === 'draft') renderDraft(src);
+  else if (section === 'undrafted') renderUndrafted(src);
   else if (section === 'coaches') renderCoaches(src);
   else if (section === 'faPending') renderFAPending(src);
 
-  const theadSel = section === 'faPending' ? '#fa-pending-thead th' : `#section-${section === 'coaches' ? 'coaches' : section} thead th`;
+  const theadSel = section === 'faPending' ? '#fa-pending-thead th'
+    : section === 'undrafted' ? '#undrafted-thead th'
+    : `#section-${section === 'coaches' ? 'coaches' : section} thead th`;
   document.querySelectorAll(theadSel).forEach((th, i) => {
     th.classList.toggle('sorted', i === col);
     if (th.hasAttribute('aria-sort')) {
