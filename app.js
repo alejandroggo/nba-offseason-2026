@@ -766,6 +766,17 @@ function processTrades(rows) {
   populateSelect('trades-team', allTeams);
 }
 
+function _tradeItemHTML(r) {
+  if (!isNonPlayerAsset(r.item)) {
+    return `<div class="trade-item" tabindex="0" onclick="openPlayerDrawer('${esc(r.item)}')">${esc(r.item)}</div>`;
+  }
+  // Pick/cash/draft rights — if a player name is in parentheses, make only that clickable
+  const m = r.item.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
+  if (!m) return `<div class="trade-item trade-item--asset">${esc(r.item)}</div>`;
+  const [, pickText, playerName] = m;
+  return `<div class="trade-item trade-item--asset">${esc(pickText)} (<span class="clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(playerName)}')">${esc(playerName)}</span>)</div>`;
+}
+
 function tradeReceivesHTML(receives) {
   if (!receives.length) return '<div class="trade-item td-muted">—</div>';
   // Agrupar activos por equipo de origen
@@ -778,7 +789,7 @@ function tradeReceivesHTML(receives) {
   return byFrom.map((grp, i) => `
     <div class="trade-group${i > 0 ? ' trade-group--gap' : ''}">
       <div class="trade-group-items${grp.items.length >= 5 ? ' trade-group-items--cols2' : ''}">
-        ${grp.items.map(r => `<div class="trade-item" onclick="openPlayerDrawer('${esc(r.item)}')">${esc(r.item)}</div>`).join('')}
+        ${grp.items.map(r => _tradeItemHTML(r)).join('')}
       </div>
       <div class="trade-receives-label">
         (vía <span class="clickable-team" tabindex="0" onclick="openTeamView('${esc(grp.from)}')">${esc(grp.from)}</span>)
