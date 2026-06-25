@@ -774,6 +774,8 @@ function _tradeItemHTML(r) {
   const m = r.item.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
   if (!m) return `<div class="trade-item trade-item--asset">${esc(r.item)}</div>`;
   const [, pickText, playerName] = m;
+  const isNonPlayer = /\b(v[ií]a|traspasado|protegido|best|worst)\b/i.test(playerName);
+  if (isNonPlayer) return `<div class="trade-item trade-item--asset">${esc(r.item)}</div>`;
   return `<div class="trade-item trade-item--asset">${esc(pickText)} (<span class="clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(playerName)}')">${esc(playerName)}</span>)</div>`;
 }
 
