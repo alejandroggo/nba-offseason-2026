@@ -1610,7 +1610,7 @@ const _OPTION_DEADLINES = {
   'luka doncic':             '2026-06-29', 'austin reaves':          '2026-06-29',
   'deandre ayton':           '2026-06-29', 'marcus smart':           '2026-06-29',
   'g.g. jackson':            '2026-06-29', 'andrew wiggins':         '2026-06-29',
-  'pelle larsson':           '2026-06-29', 'bez mbeng':              '2026-06-29',
+  'bez mbeng':               '2026-06-29',
   'ousmane dieng':           '2026-06-29', 'andre jackson jr.':      '2026-06-29',
   'kevin porter jr.':        '2026-06-29', 'taurean prince':         '2026-06-29',
   'gary trent jr.':          '2026-06-29',
