@@ -1893,10 +1893,10 @@ function filterTransactions() {
         if (!names.length) return '';
         return `<span class="tx-trade-dest">${names.join('<span class="tx-muted tx-trade-dot">·</span>')}<span class="tx-arrow">→</span>${teamBadgeHTML(side.team, false)}</span>`;
       }).filter(Boolean);
-      const tradeLink = e.trade?.id ? `<span class="tx-trade-link" tabindex="0" title="${lang === 'en' ? 'View trade' : 'Ver traspaso'}" onclick="openTradeById('${esc(e.trade.id)}')">↗</span>` : '';
+      const tradeLink = e.trade?.id ? `<span class="tx-trade-link" tabindex="0" onclick="openTradeById('${esc(e.trade.id)}')">${lang === 'en' ? '↗ View trade' : '↗ Ver traspaso'}</span>` : '';
       desc = groups.length
-        ? `<span class="tx-trade-wrap">${teams}</span><span class="tx-trade-players">${groups.join('')}</span>${tradeLink}`
-        : `<span class="tx-trade-wrap">${teams}</span><span class="tx-muted tx-picks-only">${lang === 'en' ? '(only picks exchanged)' : '(solo picks fueron intercambiados)'}</span>${tradeLink}`;
+        ? `<span class="tx-trade-wrap">${teams}${tradeLink}</span><span class="tx-trade-players">${groups.join('')}</span>`
+        : `<span class="tx-trade-wrap">${teams}${tradeLink}</span><span class="tx-muted tx-picks-only">${lang === 'en' ? '(only picks exchanged)' : '(solo picks fueron intercambiados)'}</span>`;
     } else if (e.type === 'draft') {
       const twBadge = e.tw ? ' <span class="badge-tw">TW</span>' : '';
       desc = `<span class="tx-pick">#${esc(e.pick)}</span> ${teamBadgeHTML(e.team, false)} → <span class="tx-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(e.rawPlayer || e.player)}')">${esc(e.player)}</span>${twBadge}`;
