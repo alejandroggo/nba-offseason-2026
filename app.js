@@ -1421,6 +1421,7 @@ const TEAM_ARTICLES = {
   'Toronto Raptors':        'https://www.nbaconcontexto.com/p/toronto-raptors-previa-del-verano',
   'Utah Jazz':              'https://www.nbaconcontexto.com/p/utah-jazz-previa-del-verano-de-2026',
   'Washington Wizards':     'https://www.nbaconcontexto.com/p/washington-wizards-previa-del-verano',
+  'Oklahoma City Thunder':  'https://www.nbaconcontexto.com/p/oklahoma-city-thunder-previa-del',
 };
 
 function teamArticleHTML(teamName) {
