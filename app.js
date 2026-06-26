@@ -2626,12 +2626,6 @@ function openTeamView(teamName, pushHistory = true) {
 
   const videoHTML   = teamVideoHTML(teamName);
   const articleHTML = teamArticleHTML(teamName);
-  if (videoHTML || articleHTML) {
-    html += `<div style="margin-bottom:28px;display:flex;flex-direction:column;gap:8px">`;
-    if (videoHTML)   html += videoHTML;
-    if (articleHTML) html += articleHTML;
-    html += `</div>`;
-  }
 
   // ── PLANTILLA (siguen + altas, agrupadas por posición) ────
   const POS_LIST = ['PG','SG','SF','PF','C'];
@@ -2677,6 +2671,14 @@ function openTeamView(teamName, pushHistory = true) {
         <span><span class="badge-tw">TW</span>${t('legend_color_tw')}</span>
       </div>`;
     }
+  }
+
+  // ── PREVIAS DE VERANO (texto + vídeo) ──────────
+  if (videoHTML || articleHTML) {
+    html += `<div style="margin-bottom:28px;display:flex;flex-direction:column;gap:8px">`;
+    if (videoHTML)   html += videoHTML;
+    if (articleHTML) html += articleHTML;
+    html += `</div>`;
   }
 
   // ── TRASPASOS ─────────────────────────────────
