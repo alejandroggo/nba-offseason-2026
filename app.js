@@ -71,6 +71,7 @@ const i18n = {
     filter_search: 'Buscar', filter_type: 'Tipo', btn_reset: 'Limpiar',
     filter_from: 'Desde', filter_to: 'Hasta',
     trades_hide_picks: 'Ocultar solo picks',
+    fa_hide_tw: 'Ocultar contratos two-way',
     loading: 'Cargando datos…', no_data: 'Sin resultados',
     results: 'resultados', receives: 'Recibe',
     footer_data: 'Datos', footer_src: 'Fuente',
@@ -147,6 +148,7 @@ const i18n = {
     filter_search: 'Search', filter_type: 'Type', btn_reset: 'Reset',
     filter_from: 'From', filter_to: 'To',
     trades_hide_picks: 'Hide picks-only trades',
+    fa_hide_tw: 'Hide two-way contracts',
     loading: 'Loading data…', no_data: 'No results',
     results: 'results', receives: 'Receives',
     footer_data: 'Data', footer_src: 'Source',
@@ -583,11 +585,13 @@ function filterFA() {
   const t25 = document.getElementById('fa-team25').value;
   const dest = document.getElementById('fa-dest').value;
   const pos = document.getElementById('fa-pos').value;
+  const hideTW = document.getElementById('fa-hide-tw')?.checked;
   FILTERED.fa = DATA.fa.filter(d =>
     (!q || `${d.player} ${d.team25} ${d.dest} ${d.notes}`.toLowerCase().includes(q)) &&
     (!t25 || d.team25 === t25) &&
     (!dest || d.dest === dest) &&
-    (!pos || d.pos === pos)
+    (!pos || d.pos === pos) &&
+    (!hideTW || !TW_DETECT_RE.test(d.money || ''))
   );
   renderFA(FILTERED.fa);
   updateFilterBadge(['fa-search','fa-team25','fa-dest','fa-pos'], 'fa-filter-clear');
@@ -598,6 +602,8 @@ function resetFA() {
   document.getElementById('fa-team25').value = '';
   document.getElementById('fa-dest').value = '';
   document.getElementById('fa-pos').value = '';
+  const hideTW = document.getElementById('fa-hide-tw');
+  if (hideTW) hideTW.checked = false;
   filterFA();
 }
 
@@ -1057,7 +1063,7 @@ function buildPlantilla(team) {
     .filter(d => norm(d.dest) === key)
     .filter(d => !stayingKeys.has(normPlayerKey(d.player)))
     .map(d => {
-      const {name,tw} = parseTW(d.player, d.notes, d.aav);
+      const {name,tw} = parseTW(d.player, d.notes, d.aav, d.money);
       const isResign = norm(d.team25) === key;
       return { name, pos: (d.pos || posLookup(name)).toUpperCase(), type: 'new', tw, resign: isResign };
     });
