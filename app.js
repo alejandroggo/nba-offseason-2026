@@ -462,15 +462,19 @@ function renderFA(data) {
   tbody.innerHTML = signed.length
     ? signed.map(d => {
         const {name, badge} = faStatus(d.player);
+        const isTW = TW_DETECT_RE.test(d.money || '');
+        const moneyCols = isTW
+          ? `<td colspan="3" class="td-money" style="text-align:center"><span class="badge-tw">TW</span> Two-Way</td>`
+          : `<td class="td-money">${d.money ? '$'+esc(d.money)+'M' : '—'}</td>
+        <td class="td-num">${esc(d.years) || '—'}</td>
+        <td class="td-money">${fmtAav(d.aav)}</td>`;
         return `
       <tr>
         <td class="td-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(name)}${badge}</td>
         <td style="text-align:center"><span class="pos-text">${esc(validPos(d.pos)) || '—'}</span></td>
         <td>${teamBadgeHTML(d.dest)}</td>
         <td>${teamBadgeHTML(d.team25)}</td>
-        <td class="td-money">${d.money ? '$'+esc(d.money)+'M' : '—'}</td>
-        <td class="td-num">${esc(d.years) || '—'}</td>
-        <td class="td-money">${fmtAav(d.aav)}</td>
+        ${moneyCols}
         <td class="td-muted">${esc(d.source)}</td>
       </tr>`;}).join('')
     : (fetchComplete ? `<tr><td colspan="8"><div class="state-empty">${t('no_data')}</div></td></tr>` : '');
@@ -2576,8 +2580,10 @@ function openTeamView(teamName, pushHistory = true) {
           const baseHTML = isResign
             ? `<span style="color:var(--resign)">${esc(name)}</span><span class="badge-resign">${t('badge_resign')}</span>`
             : esc(name);
-          const nameHTML = itemPosTag(name, d.pos) + baseHTML + (tw ? ' <span class="badge-tw">TW</span>' : '');
-          return tvRow(nameHTML, '', d.money ? `$${esc(d.money)}M/${esc(d.years)}y` : '', d.player);
+          const isTW = tw || TW_DETECT_RE.test(d.money || '');
+          const nameHTML = itemPosTag(name, d.pos) + baseHTML + (isTW ? ' <span class="badge-tw">TW</span>' : '');
+          const moneyHTML = isTW ? 'TW' : (d.money ? `$${esc(d.money)}M/${esc(d.years)}y` : '');
+          return tvRow(nameHTML, '', moneyHTML, d.player);
         }).join('') : tvEmpty())}
     ${tvCard(t('roster_trade'), tradeIn.length,
         tradeIn.length ? tradeIn.map(r => {
