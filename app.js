@@ -291,7 +291,11 @@ function processCandidatos(rows) {
     if (!rawName) return;
     const name = rawName.replace(/\s*\([^)]+\)\s*$/, '').trim();
     const key = normPlayerKey(name);
-    const scouting = [cell(r, 5), cell(r, 6)].filter(Boolean).join(',');
+    // Cada informe se etiqueta por su columna de origen (autor), no por dominio.
+    const scouting = [
+      cell(r, 5) ? { url: cell(r, 5), author: 'Bryan García' }  : null,
+      cell(r, 6) ? { url: cell(r, 6), author: 'Javier Molero' } : null,
+    ].filter(Boolean);
     DATA.players.set(key, {
       ...(DATA.players.get(key) || {}),
       name,
@@ -300,7 +304,7 @@ function processCandidatos(rows) {
       yearBirth:  cell(r, 7) || DATA.players.get(key)?.yearBirth,
       ageApprox:  cell(r, 8) || DATA.players.get(key)?.ageApprox,
       heightCm:   cell(r, 9) || DATA.players.get(key)?.heightCm,
-      scouting:   scouting   || DATA.players.get(key)?.scouting || '',
+      scouting:   scouting.length ? scouting : (DATA.players.get(key)?.scouting || []),
     });
   });
 }
@@ -2243,19 +2247,23 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     html += `</div>`;
   }
 
-  // Precalcular bio y scouting (se renderizan al final)
+  // Precalcular bio y scouting (se renderizan al final). Cada informe puede
+  // ser un objeto {url, author} (del sheet de candidatos) o un string suelto.
   const bioBefore = DATA.players?.get(normPlayerKey(playerName));
-  const bioScouting = bioBefore?.scouting ? bioBefore.scouting.split(',').map(s => s.trim()).filter(Boolean) : [];
-  const scoutingUrls = [...allDraftData.flatMap(d => d.scouting ? d.scouting.split(',').map(s => s.trim()).filter(Boolean) : []), ...bioScouting];
+  const normScouting = s => Array.isArray(s) ? s : (typeof s === 'string' ? s.split(',').map(x => x.trim()).filter(Boolean) : []);
+  const scoutingUrls = [...allDraftData.flatMap(d => normScouting(d.scouting)), ...normScouting(bioBefore?.scouting)];
   const scoutingHtml = scoutingUrls.length ? `<div class="drawer-section">
       <div class="drawer-scouting-title">${t('drawer_scouting')}</div>
       <ul class="drawer-scouting-list">` +
-      scoutingUrls.map(raw => {
+      scoutingUrls.map(item => {
+        const raw    = typeof item === 'string' ? item : item.url;
+        const author = typeof item === 'string' ? null : item.author;
         const safeUrl = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
         let host = '';
         try { host = new URL(safeUrl).hostname.replace(/^www\./, ''); } catch(e) { host = raw; }
         let label;
-        if (/esperandomarzo/i.test(host))     label = 'vía Bryan García';
+        if (author)                           label = 'vía ' + author;
+        else if (/esperandomarzo/i.test(host)) label = 'vía Bryan García';
         else if (/youtube|youtu\.be/i.test(host) || /draftlab|draft-lab/i.test(host)) label = 'vía Javier Molero';
         else label = 'vía ' + host;
         return `<li><a class="drawer-scouting-link" href="${esc(safeUrl)}" target="_blank" rel="noopener noreferrer">${esc(label)} →</a></li>`;
