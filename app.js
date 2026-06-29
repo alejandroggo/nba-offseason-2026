@@ -1650,8 +1650,8 @@ const _OPTION_DEADLINES = {
   'ron harper jr.':          '2026-06-29', 'j.d. davison':           '2026-06-29',
   'dalano banton':           '2026-06-29', 'hayden gray':            '2026-06-29',
   'pat connaughton':         '2026-06-29', 'nick smith jr.':         '2026-06-29',
-  'leonard miller':          '2026-06-29', 'mouhamadou gueye':       '2026-06-29',
-  'jahmir young':            '2026-06-29', 'james harden':           '2026-06-29',
+  'leonard miller':          '2026-06-26', 'mouhamadou gueye':       '2026-06-29',
+  'jahmir young':            '2026-06-26', 'james harden':           '2026-06-29',
   'killian hayes':           '2026-06-29', 'ryan nembhard':          '2026-06-29',
   'olivier-maxence prosper': '2026-06-29', 'jalen pickett':          '2026-06-29',
   'daniss jenkins':          '2026-06-29', 'tolu smith iii':         '2026-06-29',
@@ -1668,7 +1668,7 @@ const _OPTION_DEADLINES = {
   'kevin porter jr.':        '2026-06-25', 'taurean prince':         '2026-06-29',
   'gary trent jr.':          '2026-06-29',
   'jamaree bouyea':          '2026-06-29', 'julian phillips':        '2026-06-29',
-  'karlo matkovic':          '2026-06-25', 'kevon looney':           '2026-06-29',
+  'karlo matkovic':          '2026-06-25', 'kevon looney':           '2026-06-26',
   'dalen terry':             '2026-06-29', 'jose alvarado':          '2026-06-29',
   'luguentz dort':           '2026-06-29', 'kenrich williams':       '2026-06-29',
   'isaiah hartenstein':      '2026-06-29', 'jamal cain':             '2026-06-29',
@@ -1676,7 +1676,7 @@ const _OPTION_DEADLINES = {
   'dominick barlow':         '2026-06-29', 'toumani camara':         '2026-06-29',
   'zach lavine':             '2026-06-29', 'julian champagnie':      '2026-06-29',
   'jakob poeltl':            '2026-06-29', 'trayce jackson-davis':   '2026-06-29',
-  'jonathan mogbo':          '2026-06-29', 'sandro mamukelashvili':  '2026-06-29',
+  'jonathan mogbo':          '2026-06-29', 'sandro mamukelashvili':  '2026-06-26',
   'sviatoslav mykhailiuk':   '2026-06-29', 'jamir watkins':          '2026-06-29',
   // Club options rookies 2024/2025 draft — deadline oct 2026
   'zaccharie risacher': '2026-10-31', 'asa newell':          '2026-10-31',
@@ -1727,6 +1727,10 @@ const _TX_DATE_OVERRIDES = {
   'jamal shead':              '2026-06-25',
   'jericho sims':             '2026-06-25',
   'kevin porter jr.':         '2026-06-25',
+  'kevon looney':             '2026-06-26',
+  'leonard miller':           '2026-06-26',
+  'jahmir young':             '2026-06-26',
+  'sandro mamukelashvili':    '2026-06-26',
 };
 
 // Aplica el override de fecha a una entrada. Devuelve { date, announced? }.
