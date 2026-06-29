@@ -1285,7 +1285,7 @@
   .tv-row-money { font-size: 12px; color: var(--accent); font-family: 'Inter', sans-serif; }
   .tv-row-pick {
     font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600;
-    color: var(--text-muted); min-width: 32px; text-align: left; flex-shrink: 0;
+    color: var(--text); min-width: 32px; text-align: left; flex-shrink: 0;
     letter-spacing: 0.5px;
   }
   .tv-row .roster-pos-tag {
@@ -1293,7 +1293,7 @@
     min-width: 32px; margin-right: 6px;
   }
   .tv-row-pick.undrafted { color: var(--text); }
-  .tv-row.tv-row-tw .tv-row-name { color: var(--text-muted); }
+  .tv-row.tv-row-tw .tv-row-name { color: var(--text); }
   .tv-empty { padding: 16px; font-size: 12px; color: var(--text-dim); font-family: 'Inter', sans-serif; }
 
   .tv-color-legend {
