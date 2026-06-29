@@ -2186,6 +2186,7 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     : tradeData.length ? (lang === 'en' ? 'TRADED' : 'TRASPASADO')
     : pendingData.length ? (lang === 'en' ? 'FREE AGENT' : 'AGENTE LIBRE')
     : rosterEntry ? (lang === 'en' ? 'ROSTER' : 'PLANTILLA')
+    : DATA.players?.has(normPlayerKey(playerName)) ? (lang === 'en' ? 'PROFILE' : 'CANDIDATO')
     : '';
   setText('drawer-player-type', typeLabel);
 
@@ -2323,10 +2324,6 @@ function openPlayerDrawer(playerName, pushHistory = true) {
     html += `</div>`;
   }
 
-  if (!html) {
-    html = `<div class="drawer-empty">${t('no_data')}</div>`;
-  }
-
   // Bio: al final, separada del resto
   if (bioBefore) {
     let bioHtml = '';
@@ -2366,6 +2363,9 @@ function openPlayerDrawer(playerName, pushHistory = true) {
 
   // Scouting va después de bio (solo draft)
   html += scoutingHtml;
+
+  // Si tras bio + scouting no hay ninguna sección, mostramos "sin datos".
+  if (!html) html = `<div class="drawer-empty">${t('no_data')}</div>`;
 
   // Botones de navegación a equipos
   const teamLinks = [];
@@ -3634,6 +3634,9 @@ function buildSearchIdx() {
     });
   });
   (DATA.faPending || []).forEach(d => add(d.player, d.team25, 'FA pendiente'));
+  // Candidatos con ficha (bio/scouting) que no aparecen en ninguna tabla:
+  // los hacemos buscables para poder abrir un drawer solo con su biografía.
+  (DATA.players || new Map()).forEach(bio => { if (bio?.name) add(bio.name, '', 'Candidato'); });
 
   entries.sort((a, b) => a.name.localeCompare(b.name));
   _searchIdx = entries;
