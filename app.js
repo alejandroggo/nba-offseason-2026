@@ -1734,6 +1734,12 @@ const _TX_DATE_OVERRIDES = {
   'ziaire williams':          '2026-06-28',
   'fred vanvleet':            '2026-06-29',
   'draymond green':           '2026-06-29',
+  'jd davison':               '2026-06-29',
+  'j.d. davison':             '2026-06-29',
+  'gg jackson':               '2026-06-29',
+  'gg jackson ii':            '2026-06-29',
+  'keshad johnson':           '2026-06-29',
+  'jonathan isaac':           '2026-06-28',
 };
 
 // Aplica el override de fecha a una entrada. Devuelve { date, announced? }.
