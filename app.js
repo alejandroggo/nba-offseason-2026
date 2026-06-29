@@ -1580,7 +1580,7 @@ function faStatus(player) {
     TOE: 'Opción de equipo ejercida',
     POX: 'Opción de jugador rechazada',
     TOX: 'Opción de equipo rechazada',
-    RFAX: 'Oferta RFA no igualada',
+    RFAX: 'Sin qualifying offer (no es RFA)',
   }[tag] || '';
   return {
     name: player.replace(/\s*\([^)]+\)\s*$/, '').trim(),
