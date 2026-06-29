@@ -2842,7 +2842,7 @@ window._debugPlayers = () => {
     [...(r.siguen||[]), ...(r.llegadas||[])].forEach(p => known.add(normPlayerKey(p.name)));
   });
   (DATA.trades || []).forEach(tr => tr.sides.forEach(s => s.receives.forEach(r => {
-    if (r.type === 'player') known.add(normPlayerKey(r.item));
+    if (!isNonPlayerAsset(r.item)) known.add(normPlayerKey(r.item));
   })));
 
   const noMatch = [], matched = [];
@@ -3623,7 +3623,7 @@ function buildSearchIdx() {
   (DATA.draft || []).forEach(d => add(d.player, d.team, `Pick #${d.pick || '?'}`));
   (DATA.undrafted || []).forEach(d => add(d.player, d.team, 'Sin draftear'));
   (DATA.trades || []).forEach(tr => tr.sides.forEach(s => s.receives.forEach(r => {
-    if (r.type === 'player') add(r.item, s.team, 'Traspaso');
+    if (!isNonPlayerAsset(r.item)) add(faStatus(r.item).name, s.team, 'Traspaso');
   })));
   (DATA.rosters || []).forEach(r => {
     (r.llegadas || []).forEach(p => add(p.name, r.team, 'Llegada'));
