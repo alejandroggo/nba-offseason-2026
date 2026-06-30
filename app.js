@@ -543,7 +543,7 @@ function filterFAPending() {
     if (team && (d.team25||'').trim().toLowerCase() !== team.trim().toLowerCase()) return false;
     if (pos  && validPos(d.pos) !== pos) return false;
     if (_pendingTypeFilter) {
-      const m = (d.player || '').match(/\((RFA|RFAX|TO|TOE|TOX|PO|POE|POX)\)\s*$/i);
+      const m = (d.player || '').match(/\((RFA|RFAX|TO|TOE|TOX|PO|POE|POX|AS|AN)\)\s*$/i);
       if (!m || m[1].toUpperCase() !== _pendingTypeFilter) return false;
     }
     return true;
@@ -782,7 +782,12 @@ function processTrades(rows) {
 
 function _tradeItemHTML(r) {
   if (!isNonPlayerAsset(r.item)) {
-    return `<div class="trade-item" tabindex="0" onclick="openPlayerDrawer('${esc(r.item)}')">${esc(r.item)}</div>`;
+    const tier  = allTier(r.item);
+    const clean = stripAllTier(r.item);
+    const cls   = tier === 'AN' ? ' trade-item--annba' : tier === 'AS' ? ' trade-item--allstar' : '';
+    const badge = tier === 'AN' ? ' <span class="all-badge all-badge--annba">All-NBA</span>'
+                : tier === 'AS' ? ' <span class="all-badge all-badge--allstar">All-Star</span>' : '';
+    return `<div class="trade-item${cls}" tabindex="0" onclick="openPlayerDrawer('${esc(clean)}')">${esc(clean)}${badge}</div>`;
   }
   // Pick/cash/draft rights — if a player name is in parentheses, make only that clickable
   const m = r.item.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
@@ -905,7 +910,7 @@ function processRosters(rows1, rows2) {
   DATA.rosters = [...parse(rows1), ...parse(rows2)].sort((a,b) => a.team.localeCompare(b.team));
 
   // Strip trailing (RFA)/(TO)/(PO) tags for dedup purposes.
-  const stripTag = n => (n || '').replace(/\s*\((?:RFA|RFAX|TO|TOE|TOX|PO|POE|POX)\)\s*$/i, '').trim().toLowerCase();
+  const stripTag = n => (n || '').replace(/\s*\((?:RFA|RFAX|TO|TOE|TOX|PO|POE|POX|AS|AN)\)\s*$/i, '').trim().toLowerCase();
 
   const pendingFromFA = [];
   const signedNames = new Set(DATA.fa.filter(d => d.dest).map(d => normPlayerKey(d.player)));
@@ -967,6 +972,16 @@ function isNonPlayerAsset(item) {
   return NON_PLAYER_ASSET_RE.test((item || '').trim());
 }
 
+// Distinción All-Star/All-NBA: en el sheet de trades se marca el jugador con
+// (AS) = All-Star o (AN) = All-NBA junto al nombre. Devuelve 'AN' | 'AS' | null.
+function allTier(item) {
+  const m = (item || '').match(/\((AS|AN)\)/i);
+  return m ? m[1].toUpperCase() : null;
+}
+function stripAllTier(item) {
+  return (item || '').replace(/\s*\((?:AS|AN)\)/ig, '').trim();
+}
+
 // Parsea una razón de salida desde el sufijo entre paréntesis del nombre en
 // col F (Salidas). Tags reconocidos: deceased/fallecido, retired/retirado,
 // FIBA/overseas. Si el tag no se reconoce, devuelve el nombre intacto y usa
@@ -998,7 +1013,7 @@ function parseSalidaReason(rawName) {
 // pasándolo a minúsculas, para usarlo como clave de índice/comparación.
 function normPlayerKey(name) {
   if (!name) return '';
-  return parseTW(name).name.replace(/\s*\((?:RFA|RFAX|TO|TOE|TOX|PO|POE|POX)\)\s*$/i, '').trim().toLowerCase();
+  return parseTW(name).name.replace(/\s*\((?:RFA|RFAX|TO|TOE|TOX|PO|POE|POX|AS|AN)\)\s*$/i, '').trim().toLowerCase();
 }
 
 // Índice global de posiciones por jugador, reconstruido cuando cambia DATA._stamp.
@@ -1566,6 +1581,9 @@ function validPos(pos) {
 }
 
 function faStatus(player) {
+  // Los tags All-Star/All-NBA (AS)/(AN) no son estados FA: se quitan aquí para
+  // que no generen badge ni ensucien el nombre (su color va en la pestaña trades).
+  player = stripAllTier(player);
   const m = (player || '').match(/\((RFA|RFAX|TO|TOE|TOX|PO|POE|POX)\)\s*$/i);
   if (!m) return { name: player || '', badge: '', label: '' };
   const tag = m[1].toUpperCase();
@@ -2545,7 +2563,7 @@ function openTeamView(teamName, pushHistory = true) {
 
   // Cortados: jugadores en col F,G (Salidas) que no firmaron en otro lado ni
   // fueron traspasados. Se muestran en la card "FA" sin destino.
-  const stripTag = n => (n || '').replace(/\s*\((?:RFA|RFAX|TO|TOE|TOX|PO|POE|POX)\)\s*$/i, '').trim().toLowerCase();
+  const stripTag = n => (n || '').replace(/\s*\((?:RFA|RFAX|TO|TOE|TOX|PO|POE|POX|AS|AN)\)\s*$/i, '').trim().toLowerCase();
   const seenOut = new Set([
     ...faOut.map(d => stripTag(d.player)),
     ...tradeOut.map(r => stripTag(r.item)),
@@ -2890,7 +2908,7 @@ document.addEventListener('keydown', function(e) {
 function buildQuizPool() {
   const easy = [], medium = [], hard = [];
   const seen = new Set();
-  const cleanName = n => { const { name } = parseTW((n||'').replace(/\s*\((?:RFA|RFAX|TO|TOE|TOX|PO|POE|POX)\)\s*/gi, '')); return name.trim(); };
+  const cleanName = n => { const { name } = parseTW((n||'').replace(/\s*\((?:RFA|RFAX|TO|TOE|TOX|PO|POE|POX|AS|AN)\)\s*/gi, '')); return name.trim(); };
 
   function add(player, team, level) {
     const key = player.toLowerCase().trim();
@@ -3387,7 +3405,7 @@ function imp_shuffle(arr) {
 
 function buildImpostorPool() {
   const questions = [];
-  const cleanName = n => { const { name } = parseTW((n||'').replace(/\s*\((?:RFA|RFAX|TO|TOE|TOX|PO|POE|POX)\)\s*/gi, '')); return name.trim(); };
+  const cleanName = n => { const { name } = parseTW((n||'').replace(/\s*\((?:RFA|RFAX|TO|TOE|TOX|PO|POE|POX|AS|AN)\)\s*/gi, '')); return name.trim(); };
 
   // Map: team → all current players (siguen + llegadas)
   const teamRoster = {};

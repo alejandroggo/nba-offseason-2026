@@ -705,6 +705,19 @@
   .trade-item--asset .clickable-player { cursor: pointer; }
   .trade-item--asset .clickable-player:hover { color: var(--accent); }
 
+  /* All-NBA (dorado) y All-Star (azul/plata) en la pestaña de traspasos */
+  .trade-item--annba   { color: #e3b341; font-weight: 700; }
+  .trade-item--annba:hover   { color: #f0c75e; }
+  .trade-item--allstar { color: #7fb2e6; font-weight: 700; }
+  .trade-item--allstar:hover { color: #9cc6f2; }
+  .all-badge {
+    display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: 0.3px;
+    padding: 1px 5px; border-radius: 4px; vertical-align: middle; margin-left: 2px;
+    font-family: 'Inter', sans-serif;
+  }
+  .all-badge--annba   { background: rgba(227,179,65,0.16);  color: #e3b341; border: 1px solid rgba(227,179,65,0.4); }
+  .all-badge--allstar { background: rgba(127,178,230,0.16); color: #7fb2e6; border: 1px solid rgba(127,178,230,0.4); }
+
   /* Cuando un equipo recibe muchos activos, repartirlos en dos columnas */
   .trade-group-items--cols2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; }
 
