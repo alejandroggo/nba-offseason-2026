@@ -968,6 +968,7 @@ function parseTW(rawName, ...hints) {
     .replace(/\s*\(two[\s-]?way\)\s*/i, '')
     .replace(/\s*two[\s-]?way\s*/i, '')
     .replace(/\s*\(tw\)\s*/i, '')
+    .replace(/\s*\((?:AS|AN)\)\s*/ig, '')  // All-Star/All-NBA: solo para la pestaña de traspasos
     .trim();
   return { name, tw };
 }
