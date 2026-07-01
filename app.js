@@ -2684,7 +2684,7 @@ function openTeamView(teamName, pushHistory = true) {
           return tvRow(itemPosTag(d.player, d.pos) + esc(d.player), detail, '', d.player);
         }).join('') : tvEmpty())}
     ${tvCard(t('roster_salidas_trade'), tradeOut.length,
-        tradeOut.length ? tradeOut.map(r => tvRow(itemPosTag(r.item, r.pos) + esc(r.item), `→ ${esc(r.to)}`, '', r.item)).join('') : tvEmpty())}
+        tradeOut.length ? tradeOut.map(r => { const nm = stripAllTier(r.item); return tvRow(itemPosTag(nm, r.pos) + esc(nm), `→ ${esc(r.to)}`, '', nm); }).join('') : tvEmpty())}
     ${tvCard(t('roster_fa_pending'), faPending.length,
         faPending.length ? faPending.map(d => { const {name,badge} = faStatus(d.player); return tvRow(itemPosTag(name, d.pos) + esc(name) + badge, '', '', d.player); }).join('') : tvEmpty())}
   </div>
