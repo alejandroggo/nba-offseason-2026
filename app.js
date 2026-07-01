@@ -2570,6 +2570,13 @@ function openTeamView(teamName, pushHistory = true) {
     tr.sides.forEach(side => side.receives.filter(r => norm2(r.from) === tKey && !isNonPlayerAsset(r.item)).forEach(r => tradeOut.push({item: r.item, to: side.team, pos: r.pos})));
   });
 
+  // Sign & Trade: si el jugador también firma como FA con este equipo, se
+  // muestra solo en la caja de FA (altas), no repetido en Traspasos.
+  const _faInKeys = new Set(faIn.map(d => normPlayerKey(d.player)));
+  for (let i = tradeIn.length - 1; i >= 0; i--) {
+    if (_faInKeys.has(normPlayerKey(tradeIn[i].item))) tradeIn.splice(i, 1);
+  }
+
   // Cortados: jugadores en col F,G (Salidas) que no firmaron en otro lado ni
   // fueron traspasados. Se muestran en la card "FA" sin destino.
   const stripTag = n => (n || '').replace(/\s*\((?:RFA|RFAX|TO|TOE|TOX|PO|POE|POX|AS|AN)\)\s*$/i, '').trim().toLowerCase();
