@@ -2815,6 +2815,7 @@ function openTeamView(teamName, pushHistory = true) {
   document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
   document.getElementById('section-team').classList.add('active');
   document.body.classList.remove('on-home');
+  window.scrollTo(0, 0);
 
   if (pushHistory) pushURL({ team: teamName, player: null, tab: null });
 }
