@@ -1853,7 +1853,7 @@ function buildTransactions() {
     (r.salidas || []).forEach(p => {
       const { name, reasonKey } = parseSalidaReason(p.name);
       if (reasonKey !== 'waived') return;
-      entries.push({ date: null, type: 'waived', player: name, team: r.team });
+      entries.push({ ..._applyTxDate(name, null), type: 'waived', player: name, team: r.team });
     });
   });
 
