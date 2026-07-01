@@ -423,6 +423,11 @@
   .filter-toggle input[type="checkbox"] { accent-color: var(--accent); width: 14px; height: 14px; cursor: pointer; }
   .filter-toggle:hover { color: var(--text); }
 
+  /* Segunda fila de checkboxes, debajo de los buscadores */
+  .filters:has(+ .filter-toggles-row) { margin-bottom: 12px; }
+  .filter-toggles-row { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 24px; }
+  .filter-toggles-row .filter-toggle { align-self: center; padding-bottom: 0; }
+
   .btn-reset {
     background: none;
     border: 1px solid var(--border);
