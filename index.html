@@ -38,7 +38,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260629i">
+<link rel="stylesheet" href="styles.css?v=20260629j">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -250,6 +250,10 @@
       <label class="filter-toggle">
         <input type="checkbox" id="fa-hide-tw" onchange="filterFA()">
         <span data-i18n="fa_hide_tw">Ocultar contratos two-way</span>
+      </label>
+      <label class="filter-toggle">
+        <input type="checkbox" id="fa-only-move" onchange="filterFA()">
+        <span data-i18n="fa_only_move">Solo cambios de equipo</span>
       </label>
       <button type="button" class="btn-reset" id="fa-filter-clear" onclick="resetFA()" hidden>Limpiar <span class="filter-badge"></span></button>
       <span class="results-count" id="fa-count" aria-live="polite"></span>
@@ -628,7 +632,7 @@
 </nav>
 
 
-<script defer src="app.js?v=20260629i"></script>
+<script defer src="app.js?v=20260629j"></script>
 <!-- PLAYER DRAWER -->
 <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()" aria-hidden="true"></div>
 <div class="player-drawer" id="player-drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-player-name" aria-hidden="true">

@@ -72,6 +72,7 @@ const i18n = {
     filter_from: 'Desde', filter_to: 'Hasta',
     trades_hide_picks: 'Ocultar solo picks',
     fa_hide_tw: 'Ocultar contratos two-way',
+    fa_only_move: 'Solo cambios de equipo',
     loading: 'Cargando datos…', no_data: 'Sin resultados',
     results: 'resultados', receives: 'Recibe',
     footer_data: 'Datos', footer_src: 'Fuente',
@@ -149,6 +150,7 @@ const i18n = {
     filter_from: 'From', filter_to: 'To',
     trades_hide_picks: 'Hide picks-only trades',
     fa_hide_tw: 'Hide two-way contracts',
+    fa_only_move: 'Only team changes',
     loading: 'Loading data…', no_data: 'No results',
     results: 'results', receives: 'Receives',
     footer_data: 'Data', footer_src: 'Source',
@@ -590,12 +592,15 @@ function filterFA() {
   const dest = document.getElementById('fa-dest').value;
   const pos = document.getElementById('fa-pos').value;
   const hideTW = document.getElementById('fa-hide-tw')?.checked;
+  const onlyMove = document.getElementById('fa-only-move')?.checked;
+  const norm = s => (s || '').trim().toLowerCase();
   FILTERED.fa = DATA.fa.filter(d =>
     (!q || `${d.player} ${d.team25} ${d.dest} ${d.notes}`.toLowerCase().includes(q)) &&
     (!t25 || d.team25 === t25) &&
     (!dest || d.dest === dest) &&
     (!pos || d.pos === pos) &&
-    (!hideTW || !TW_DETECT_RE.test(d.money || ''))
+    (!hideTW || !TW_DETECT_RE.test(d.money || '')) &&
+    (!onlyMove || (d.dest && d.team25 && norm(d.dest) !== norm(d.team25)))
   );
   renderFA(FILTERED.fa);
   updateFilterBadge(['fa-search','fa-team25','fa-dest','fa-pos'], 'fa-filter-clear');
@@ -608,6 +613,8 @@ function resetFA() {
   document.getElementById('fa-pos').value = '';
   const hideTW = document.getElementById('fa-hide-tw');
   if (hideTW) hideTW.checked = false;
+  const onlyMove = document.getElementById('fa-only-move');
+  if (onlyMove) onlyMove.checked = false;
   filterFA();
 }
 
