@@ -3481,27 +3481,51 @@ function buildImpostorPool() {
   const questions = [];
   const cleanName = n => { const { name } = parseTW((n||'').replace(/\s*\((?:RFA|RFAX|TO|TOE|TOX|PO|POE|POX|AS|AN)\)\s*/gi, '')); return name.trim(); };
   const uniq = arr => [...new Set(arr)];
+  const norm = s => (s||'').trim().toLowerCase();
 
-  // Map: team → { siguen, llegadas } (nombres limpios y sin duplicados)
-  const teamRoster = {};
+  // Base: cada equipo con su lista de jugadores que siguen.
+  const teamData = {};
   DATA.rosters.forEach(team => {
-    const siguen   = uniq((team.siguen   || []).map(p => cleanName(p.name)).filter(Boolean));
-    const llegadas = uniq((team.llegadas || []).map(p => cleanName(p.name)).filter(Boolean));
-    teamRoster[team.team] = { siguen, llegadas };
+    teamData[norm(team.team)] = {
+      name: team.team,
+      siguen: uniq((team.siguen || []).map(p => cleanName(p.name)).filter(Boolean)),
+      llegadas: uniq((team.llegadas || []).map(p => cleanName(p.name)).filter(Boolean)),
+    };
   });
-  const allTeams = Object.keys(teamRoster);
+
+  // Llegadas: un fichaje puede venir vía draft, undrafted, traspaso o agencia
+  // libre. Las juntamos todas para que cada equipo tenga suficientes.
+  const addArrival = (teamName, playerRaw) => {
+    const k = norm(teamName);
+    if (!teamData[k]) return;
+    const n = cleanName(playerRaw);
+    if (n) teamData[k].llegadas.push(n);
+  };
+  (DATA.draft     || []).forEach(d => { if (d.team && d.player) addArrival(d.team, d.player); });
+  (DATA.undrafted || []).forEach(d => { if (d.team && d.player) addArrival(d.team, d.player); });
+  (DATA.trades    || []).forEach(tr => tr.sides.forEach(side =>
+    (side.receives || []).filter(r => !isNonPlayerAsset(r.item)).forEach(r => addArrival(side.team, r.item))));
+  (DATA.fa        || []).forEach(d => { if (d.dest && norm(d.dest) !== norm(d.team25)) addArrival(d.dest, d.player); });
+
+  // Normalizamos: quitamos duplicados en llegadas y los que ya están en siguen.
+  const teams = Object.values(teamData).map(t => {
+    const sigSet = new Set(t.siguen.map(n => n.toLowerCase()));
+    return { name: t.name, siguen: t.siguen, llegadas: uniq(t.llegadas).filter(n => !sigSet.has(n.toLowerCase())) };
+  });
+  const teamByName = {};
+  teams.forEach(t => teamByName[t.name] = t);
+  const allTeamNames = teams.map(t => t.name);
 
   // Una única pregunta por equipo: "¿Qué jugadores están en la plantilla de X?"
-  // Reparto: 2 que siguen + 2 que llegan (los 4 correctos) + 2 impostores de otros
-  // equipos (33% / 33% / 33%).
-  allTeams.forEach(teamName => {
-    const { siguen, llegadas } = teamRoster[teamName];
+  // Reparto: 2 que siguen + 2 que llegan (los 4 correctos) + 2 impostores de
+  // otros equipos (33% / 33% / 33%).
+  teams.forEach(({ name: teamName, siguen, llegadas }) => {
     if (siguen.length < 2 || llegadas.length < 2) return;
     const ownKeys = new Set([...siguen, ...llegadas].map(n => n.toLowerCase()));
     const impostors = uniq(
       imp_shuffle(
-        allTeams.filter(t => t !== teamName)
-          .flatMap(t => [...teamRoster[t].siguen, ...teamRoster[t].llegadas])
+        allTeamNames.filter(tn => tn !== teamName)
+          .flatMap(tn => [...teamByName[tn].siguen, ...teamByName[tn].llegadas])
       ).filter(n => !ownKeys.has(n.toLowerCase()))
     ).slice(0, 2);
     if (impostors.length < 2) return;
