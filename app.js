@@ -1373,7 +1373,7 @@ function showTab(name, pushHistory = true) {
     if (mobileTab) mobileTab.classList.add('active');
     document.body.classList.remove('on-home');
     if (pushHistory) pushURL({ tab: name, team: null, player: null });
-    if (name === 'quiz') renderQuiz();
+    if (name === 'quiz') { if (typeof gtag === 'function') { try { gtag('event', 'juegos_open'); } catch(e){} } renderQuiz(); }
   } else {
     document.body.classList.add('on-home');
     if (pushHistory) pushURL({ tab: null, team: null, player: null });
@@ -3366,7 +3366,14 @@ function renderQuiz() {
   if (mode === 'nohints' && !answered) setTimeout(() => document.getElementById('quiz-input')?.focus(), 50);
 }
 
+// Envía un evento a Google Analytics (si gtag está disponible) para medir
+// cuánta gente usa los juegos. Visible en GA → Informes → Eventos.
+function trackGame(action, params = {}) {
+  try { if (typeof gtag === 'function') gtag('event', action, params); } catch (e) {}
+}
+
 function startQuiz(mode) {
+  trackGame('juego_donde_juega', { modo: mode });
   const pool = buildQuizPool();
   const total = pool.easy.length + pool.medium.length + pool.hard.length;
   if (!total) {
@@ -3547,6 +3554,7 @@ function buildImpostorPool() {
 }
 
 function startImpostor(mode = 'franquicias') {
+  trackGame('juego_impostor', { modo: mode });
   const pool = buildImpostorPool();
   if (!pool.length) return;
   quizState = null;
