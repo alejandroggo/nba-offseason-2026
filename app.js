@@ -3114,7 +3114,7 @@ function renderQuiz() {
             <span class="juegos-card-name">¿Dónde Juega?</span>
             <span class="juegos-card-desc">Adivina el equipo de cada jugador</span>
           </button>
-          <button class="juegos-card" onclick="startImpostor()">
+          <button class="juegos-card" onclick="impostorState={modeSelect:true};renderQuiz()">
             <span class="juegos-card-icon">🕵️</span>
             <span class="juegos-card-name">El Impostor</span>
             <span class="juegos-card-desc">¿Quién no encaja en la plantilla?</span>
@@ -3543,11 +3543,11 @@ function buildImpostorPool() {
   return imp_shuffle(questions);
 }
 
-function startImpostor() {
+function startImpostor(mode = 'franquicias') {
   const pool = buildImpostorPool();
   if (!pool.length) return;
   quizState = null;
-  impostorState = { pool, qIdx: 0, streak: 0, selected: new Set(), gameOver: false, wrongPlayer: null, transitioning: false };
+  impostorState = { mode, pool, qIdx: 0, streak: 0, selected: new Set(), gameOver: false, wrongPlayer: null, transitioning: false };
   renderQuiz();
 }
 
@@ -3566,7 +3566,16 @@ function impostorClick(playerName) {
         impostorState.qIdx++;
         impostorState.selected = new Set();
         impostorState.transitioning = false;
-        if (impostorState.qIdx >= impostorState.pool.length) impostorState.gameOver = true;
+        if (impostorState.qIdx >= impostorState.pool.length) {
+          if (impostorState.mode === 'infinito') {
+            // Racha sin límite: rebarajamos un pool nuevo y seguimos.
+            const fresh = buildImpostorPool();
+            impostorState.pool = fresh.length ? fresh : imp_shuffle(impostorState.pool);
+            impostorState.qIdx = 0;
+          } else {
+            impostorState.gameOver = true;
+          }
+        }
         renderQuiz();
       }, 900);
     } else {
@@ -3582,6 +3591,33 @@ function impostorClick(playerName) {
 function renderImpostor() {
   const container = document.getElementById('quiz-container');
   if (!container || !impostorState) return;
+
+  // Selección de modo
+  if (impostorState.modeSelect) {
+    container.innerHTML = `
+      <div class="quiz-wrap quiz-start">
+        <div class="quiz-game-topbar">
+          <button class="quiz-action-btn" onclick="impostorState=null;renderQuiz()">← Juegos</button>
+        </div>
+        <div class="quiz-icon">🕵️</div>
+        <h2 class="quiz-title">El Impostor</h2>
+        <p class="quiz-subtitle">Encuentra los 4 que sí están en la plantilla</p>
+        <div class="quiz-modes-grid">
+          <button class="quiz-mode-btn" onclick="startImpostor('franquicias')">
+            <span class="quiz-mode-icon">🏟️</span>
+            <span class="quiz-mode-name">30 Franquicias</span>
+            <span class="quiz-mode-desc">una ronda por equipo</span>
+          </button>
+          <button class="quiz-mode-btn quiz-mode-infinite" onclick="startImpostor('infinito')">
+            <span class="quiz-mode-icon">∞</span>
+            <span class="quiz-mode-name">Hasta Fallar</span>
+            <span class="quiz-mode-desc">racha sin límite</span>
+          </button>
+        </div>
+      </div>`;
+    return;
+  }
+
   const { pool, qIdx, streak, gameOver, selected, transitioning, wrongPlayer } = impostorState;
 
   // Game over or all questions done
@@ -3606,7 +3642,8 @@ function renderImpostor() {
         ${!isFinished ? `<p class="quiz-subtitle" style="font-size:12px;margin:4px 0 10px">${esc(q.question)}</p>
         <div class="imp-grid">${revealHTML}</div>
         <p class="quiz-meta">${esc(q.reveal)}</p>` : ''}
-        <button class="quiz-btn-primary" onclick="impostorState=null;renderQuiz()" style="margin-top:16px">Jugar de nuevo</button>
+        <button class="quiz-btn-primary" onclick="startImpostor('${impostorState.mode}')" style="margin-top:16px">Jugar de nuevo</button>
+        <button class="quiz-link-btn" onclick="impostorState={modeSelect:true};renderQuiz()" style="display:block;margin:10px auto 0">Cambiar modo</button>
       </div>`;
     return;
   }
@@ -3626,12 +3663,12 @@ function renderImpostor() {
   container.innerHTML = `
     <div class="quiz-wrap quiz-game">
       <div class="quiz-game-topbar">
-        <button class="quiz-action-btn" onclick="impostorState=null;renderQuiz()">← Volver</button>
-        <button class="quiz-action-btn" onclick="startImpostor()">↺ Reiniciar</button>
+        <button class="quiz-action-btn" onclick="impostorState={modeSelect:true};renderQuiz()">← Volver</button>
+        <button class="quiz-action-btn" onclick="startImpostor('${impostorState.mode}')">↺ Reiniciar</button>
       </div>
       <div class="quiz-header">
-        <span class="quiz-round-chip">🕵️ El Impostor</span>
-        <span class="quiz-score-chip">✓ ${streak} rondas</span>
+        <span class="quiz-round-chip">🕵️ ${impostorState.mode === 'infinito' ? 'Hasta Fallar' : '30 Franquicias'}</span>
+        <span class="quiz-score-chip">${impostorState.mode === 'infinito' ? `✓ ${streak} rondas` : `${streak} / ${pool.length}`}</span>
       </div>
       <p class="quiz-question" style="font-size:15px;font-weight:600;margin-bottom:4px">${esc(q.question)}</p>
       <p class="quiz-meta" style="margin-bottom:16px">${selected.size} / 4 · toca uno a uno</p>
