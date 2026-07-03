@@ -3480,29 +3480,32 @@ function imp_shuffle(arr) {
 function buildImpostorPool() {
   const questions = [];
   const cleanName = n => { const { name } = parseTW((n||'').replace(/\s*\((?:RFA|RFAX|TO|TOE|TOX|PO|POE|POX|AS|AN)\)\s*/gi, '')); return name.trim(); };
+  const uniq = arr => [...new Set(arr)];
 
-  // Map: team → all current players (siguen + llegadas)
+  // Map: team → { siguen, llegadas } (nombres limpios y sin duplicados)
   const teamRoster = {};
   DATA.rosters.forEach(team => {
-    const siguen   = (team.siguen   || []).map(p => cleanName(p.name)).filter(Boolean);
-    const llegadas = (team.llegadas || []).map(p => cleanName(p.name)).filter(Boolean);
-    const all = [...siguen, ...llegadas];
-    if (all.length >= 4) teamRoster[team.team] = { siguen, llegadas, all };
+    const siguen   = uniq((team.siguen   || []).map(p => cleanName(p.name)).filter(Boolean));
+    const llegadas = uniq((team.llegadas || []).map(p => cleanName(p.name)).filter(Boolean));
+    teamRoster[team.team] = { siguen, llegadas };
   });
   const allTeams = Object.keys(teamRoster);
 
-  // Category A: Plantilla — 4 del equipo (priorizando llegadas), 2 de otros
+  // Una única pregunta por equipo: "¿Qué jugadores están en la plantilla de X?"
+  // Reparto: 2 que siguen + 2 que llegan (los 4 correctos) + 2 impostores de otros
+  // equipos (33% / 33% / 33%).
   allTeams.forEach(teamName => {
-    const { siguen, llegadas, all } = teamRoster[teamName];
-    // Take up to 3 llegadas, fill rest with siguen
-    const shLlegadas = imp_shuffle(llegadas);
-    const shSiguen   = imp_shuffle(siguen);
-    const nLlegadas  = Math.min(3, shLlegadas.length);
-    const correct4   = imp_shuffle([...shLlegadas.slice(0, nLlegadas), ...shSiguen]).slice(0, 4);
-    const impostors  = imp_shuffle(
-      allTeams.filter(t => t !== teamName).flatMap(t => teamRoster[t].all)
+    const { siguen, llegadas } = teamRoster[teamName];
+    if (siguen.length < 2 || llegadas.length < 2) return;
+    const ownKeys = new Set([...siguen, ...llegadas].map(n => n.toLowerCase()));
+    const impostors = uniq(
+      imp_shuffle(
+        allTeams.filter(t => t !== teamName)
+          .flatMap(t => [...teamRoster[t].siguen, ...teamRoster[t].llegadas])
+      ).filter(n => !ownKeys.has(n.toLowerCase()))
     ).slice(0, 2);
     if (impostors.length < 2) return;
+    const correct4 = [...imp_shuffle(siguen).slice(0, 2), ...imp_shuffle(llegadas).slice(0, 2)];
     questions.push({
       type: 'plantilla',
       team: teamName,
@@ -3512,26 +3515,6 @@ function buildImpostorPool() {
       correctSet: new Set(correct4)
     });
   });
-
-  // Category B: Cambios — 4 que llegaron (llegadas), 2 que se quedaron (siguen)
-  const arrivals = [], staying = [];
-  DATA.rosters.forEach(team => {
-    (team.llegadas || []).forEach(p => { const n = cleanName(p.name); if (n) arrivals.push(n); });
-    (team.siguen   || []).forEach(p => { const n = cleanName(p.name); if (n) staying.push(n); });
-  });
-  const arrS = imp_shuffle(arrivals), staS = imp_shuffle(staying);
-  for (let i = 0; i + 4 <= arrS.length; i += 4) {
-    const correct4 = arrS.slice(i, i + 4);
-    const impostors = staS.slice((i / 4) * 2, (i / 4) * 2 + 2);
-    if (impostors.length < 2) break;
-    questions.push({
-      type: 'cambios',
-      question: '¿Cuáles de estos jugadores cambiaron de equipo este verano?',
-      reveal: 'Los 4 cambiaron de equipo este verano',
-      players: imp_shuffle([...correct4, ...impostors]),
-      correctSet: new Set(correct4)
-    });
-  }
 
   return imp_shuffle(questions);
 }
