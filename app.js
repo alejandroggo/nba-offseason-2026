@@ -2940,31 +2940,35 @@ function buildQuizPool() {
     else medium.push({ player, team });
   }
 
-  // FA firmados
-  (DATA.fa||[]).filter(d => d.dest).forEach(d => {
-    const { name } = faStatus(d.player);
+  const norm = s => (s||'').trim().toLowerCase();
+
+  // Solo jugadores que CAMBIAN de equipo (o son nuevos en la liga). Los que se
+  // quedan (rosters "siguen") y las renovaciones (FA con dest === team25) NO
+  // entran: adivinar el equipo de alguien que no se movió no tiene sentido.
+
+  // FA firmados que cambian de equipo
+  (DATA.fa||[]).filter(d => d.dest && norm(d.dest) !== norm(d.team25)).forEach(d => {
+    const name = cleanName(d.player);
     const aav = parseFloat(d.aav) || 0;
-    add(name, d.dest, aav >= 15 ? 'easy' : aav >= 5 ? 'medium' : 'hard');
+    const isTW = TW_DETECT_RE.test(d.money || '');
+    // Nivel 3: two-way. Nivel 1: ≥15M AAV. Nivel 2: resto (<15M).
+    add(name, d.dest, isTW ? 'hard' : aav >= 15 ? 'easy' : 'medium');
   });
-  // Draft picks
+  // Draft picks: top-4 fácil, 5-30 (1ª ronda) medio, 31+ (2ª ronda) difícil
   (DATA.draft||[]).filter(d => d.team && d.player).forEach(d => {
     const pick = parseInt(d.pick) || 99;
-    add(d.player, d.team, pick <= 10 ? 'easy' : pick <= 30 ? 'medium' : 'hard');
+    add(cleanName(d.player), d.team, pick <= 4 ? 'easy' : pick <= 30 ? 'medium' : 'hard');
   });
-  (DATA.undrafted||[]).filter(d => d.team && d.player).forEach(d => add(d.player, d.team, 'hard'));
-  // Trades
+  // Undrafted: nivel 3
+  (DATA.undrafted||[]).filter(d => d.team && d.player).forEach(d => add(cleanName(d.player), d.team, 'hard'));
+  // Trades: jugador marcado (AN)/(AS) = traspaso grande → nivel 1, resto → nivel 2
   (DATA.trades||[]).forEach(tr => {
     tr.sides.forEach(side => {
       (side.receives||[]).filter(r => !isNonPlayerAsset(r.item)).forEach(r => {
-        const { name } = parseTW(r.item);
-        add(name, side.team, 'medium');
+        const tier = allTier(r.item);
+        add(cleanName(r.item), side.team, tier ? 'easy' : 'medium');
       });
     });
-  });
-  // Plantillas: llegadas (fichajes) como medio, siguen como difícil
-  (DATA.rosters||[]).forEach(r => {
-    (r.llegadas||[]).forEach(p => { const n = cleanName(p.name); if (n) add(n, r.team, 'medium'); });
-    (r.siguen  ||[]).forEach(p => { const n = cleanName(p.name); if (n) add(n, r.team, 'hard'); });
   });
 
   return { easy, medium, hard };
