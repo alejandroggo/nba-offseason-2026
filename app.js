@@ -1770,6 +1770,7 @@ const _TX_DATE_OVERRIDES = {
   'tolu smith':               '2026-06-29',
   'kam jones':                '2026-06-30',
   'leaky black':              '2026-07-01',
+  'payton sandfort':          '2026-07-02',
 };
 
 // Aplica el override de fecha a una entrada. Devuelve { date, announced? }.
