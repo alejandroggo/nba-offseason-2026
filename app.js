@@ -3050,7 +3050,10 @@ async function fetchLeaderboard() {
 
 async function quizSubmitScore() {
   const nameEl = document.getElementById('quiz-infinite-name');
-  const name   = (nameEl?.value||'').trim() || 'Anónimo';
+  const raw    = (nameEl?.value||'').trim();
+  // Normalizamos el @ de Twitter: quitamos @/espacios sobrantes y anteponemos @.
+  const handle = raw.replace(/^@+/, '').replace(/\s+/g, '');
+  const name   = handle ? '@' + handle : 'Anónimo';
   const score  = quizState.streak;
   const btn    = document.getElementById('quiz-submit-score-btn');
   if (btn) { btn.disabled = true; btn.textContent = 'Enviando...'; }
@@ -3212,9 +3215,9 @@ function renderQuiz() {
           <h2 class="quiz-title">${timedOut ? "IT'S OVER, IT'S OVER!" : 'Oh! Blocked by James!'}</h2>
           <p class="quiz-subtitle">La respuesta era: ${teamLogo(current.team,16)} <strong>${esc(current.team)}</strong></p>
           <div class="quiz-total-score">${streak}<span> preguntas</span></div>
-          <p class="quiz-subtitle" style="margin-bottom:8px">Introduce tu nombre para el ranking:</p>
+          <p class="quiz-subtitle" style="margin-bottom:8px">Introduce tu @ de Twitter para el ranking:</p>
           <div class="quiz-input-row" style="max-width:320px;margin:0 auto 12px">
-            <input class="quiz-input" id="quiz-infinite-name" type="text" placeholder="Tu nombre..." maxlength="30"
+            <input class="quiz-input" id="quiz-infinite-name" type="text" placeholder="@usuario" maxlength="30"
               onkeydown="if(event.key==='Enter')quizSubmitScore()">
             <button class="quiz-btn-confirm" id="quiz-submit-score-btn" onclick="quizSubmitScore()">Enviar</button>
           </div>
