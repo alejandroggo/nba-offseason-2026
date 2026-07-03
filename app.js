@@ -2859,6 +2859,35 @@ function renderTeamsGrid() {
 }
 
 var quizState = null;
+var quizTimerId = null;
+const QUIZ_INF_TIME = 15; // segundos por pregunta en modo infinito
+
+function quizInfStopTimer() {
+  if (quizTimerId) { clearInterval(quizTimerId); quizTimerId = null; }
+}
+
+function quizInfStartTimer() {
+  quizInfStopTimer();
+  if (!quizState || quizState.mode !== 'infinite' || quizState.answered || quizState.gameOver) return;
+  quizState.timeLeft = QUIZ_INF_TIME;
+  quizTimerId = setInterval(() => {
+    if (!quizState || quizState.mode !== 'infinite' || quizState.answered || quizState.gameOver) { quizInfStopTimer(); return; }
+    quizState.timeLeft--;
+    const el = document.getElementById('quiz-timer');
+    if (el) {
+      el.textContent = quizState.timeLeft + 's';
+      el.classList.toggle('quiz-timer--low', quizState.timeLeft <= 5);
+    }
+    if (quizState.timeLeft <= 0) {
+      quizInfStopTimer();
+      quizState.answered = true;
+      quizState.lastCorrect = false;
+      quizState.timedOut = true;
+      quizState.gameOver = true;
+      renderQuiz();
+    }
+  }, 1000);
+}
 
 applyTheme();
 if (lang !== 'es') setLang(lang);
@@ -3175,11 +3204,12 @@ function renderQuiz() {
 
     // Game over — pedir nombre
     if (gameOver) {
+      const timedOut = quizState.timedOut;
       const teamOptions = Object.keys(TEAM_LOGOS).map(t => `<option value="${esc(t)}">`).join('');
       container.innerHTML = `
         <div class="quiz-wrap quiz-results">
-          <div class="quiz-icon">🚫</div>
-          <h2 class="quiz-title">Oh! Blocked by James!</h2>
+          <div class="quiz-icon">${timedOut ? '⏱️' : '🚫'}</div>
+          <h2 class="quiz-title">${timedOut ? "IT'S OVER, IT'S OVER!" : 'Oh! Blocked by James!'}</h2>
           <p class="quiz-subtitle">La respuesta era: ${teamLogo(current.team,16)} <strong>${esc(current.team)}</strong></p>
           <div class="quiz-total-score">${streak}<span> preguntas</span></div>
           <p class="quiz-subtitle" style="margin-bottom:8px">Introduce tu nombre para el ranking:</p>
@@ -3201,11 +3231,12 @@ function renderQuiz() {
     container.innerHTML = `
       <div class="quiz-wrap quiz-game">
         <div class="quiz-game-topbar">
-          <button class="quiz-action-btn" onclick="quizState={modeSelect:true};renderQuiz()">← Volver</button>
-          <button class="quiz-action-btn" onclick="startQuiz('infinite')">↺ Reiniciar</button>
+          <button class="quiz-action-btn" onclick="quizInfStopTimer();quizState={modeSelect:true};renderQuiz()">← Volver</button>
+          <button class="quiz-action-btn" onclick="quizInfStopTimer();startQuiz('infinite')">↺ Reiniciar</button>
         </div>
         <div class="quiz-header">
           <span class="quiz-round-chip" style="color:var(--accent)">∞ Infinito</span>
+          ${!answered ? `<span class="quiz-timer${quizState.timeLeft <= 5 ? ' quiz-timer--low' : ''}" id="quiz-timer">${quizState.timeLeft ?? QUIZ_INF_TIME}s</span>` : ''}
           <span class="quiz-score-chip" style="font-size:20px;font-weight:900">${streak}</span>
         </div>
         <p class="quiz-question">¿En qué equipo juega...</p>
@@ -3341,9 +3372,8 @@ function startQuiz(mode) {
     return;
   }
   if (mode === 'infinite') {
-    const all = [...pool.easy, ...pool.medium, ...pool.hard];
-    for (let i = all.length-1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [all[i],all[j]]=[all[j],all[i]]; }
-    quizState = { mode, streak: 0, pool: all, used: new Set(),
+    // Mantenemos los niveles separados para poder ponderar por dificultad.
+    quizState = { mode, streak: 0, pool, used: new Set(),
       current: null, answered: false, lastCorrect: false, gameOver: false };
     quizInfiniteNext();
     return;
@@ -3354,15 +3384,32 @@ function startQuiz(mode) {
   renderQuiz();
 }
 
+// Pesos por nivel según la racha en modo infinito. Arranca fácil y sube.
+function quizInfiniteWeights(streak) {
+  if (streak < 10) return { easy: 50, medium: 25, hard: 25 };
+  if (streak < 25) return { easy: 25, medium: 50, hard: 25 };
+  if (streak < 50) return { easy: 25, medium: 25, hard: 50 };
+  return { easy: 10, medium: 10, hard: 80 };
+}
+
 function quizInfiniteNext() {
   if (!quizState || quizState.mode !== 'infinite') return;
   quizState.answered = false;
-  const available = quizState.pool.filter(e => !quizState.used.has(e.player.toLowerCase()));
-  if (!available.length) { quizState.gameOver = true; renderQuiz(); return; }
-  const entry = available[Math.floor(Math.random() * available.length)];
+  const { pool, used } = quizState;
+  const avail = lvl => (pool[lvl] || []).filter(e => !used.has(e.player.toLowerCase()));
+  // Solo consideramos niveles con preguntas disponibles y renormalizamos pesos.
+  const levels = ['easy', 'medium', 'hard'].filter(l => avail(l).length);
+  if (!levels.length) { quizState.gameOver = true; renderQuiz(); return; }
+  const weights = quizInfiniteWeights(quizState.streak);
+  const total = levels.reduce((s, l) => s + (weights[l] || 0), 0);
+  let r = Math.random() * total, chosen = levels[levels.length - 1];
+  for (const l of levels) { r -= (weights[l] || 0); if (r <= 0) { chosen = l; break; } }
+  const bucket = avail(chosen);
+  const entry = bucket[Math.floor(Math.random() * bucket.length)];
   quizState.current = entry;
   quizState.used.add(entry.player.toLowerCase());
   renderQuiz();
+  quizInfStartTimer();
 }
 
 function quizNextQuestion() {
@@ -3392,6 +3439,7 @@ function quizAnswer(team) {
   const correct = team === quizState.current.team;
   quizState.answered = true; quizState.lastCorrect = correct; quizState.selectedTeam = team;
   if (quizState.mode === 'infinite') {
+    quizInfStopTimer();
     if (correct) quizState.streak++;
     else quizState.gameOver = true;
   } else {
@@ -3408,6 +3456,7 @@ function quizSubmitText() {
   const correct = quizMatchTeam(input.value, quizState.current.team);
   quizState.answered = true; quizState.lastCorrect = correct;
   if (quizState.mode === 'infinite') {
+    quizInfStopTimer();
     if (correct) quizState.streak++;
     else quizState.gameOver = true;
   } else {
