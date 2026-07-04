@@ -3077,9 +3077,20 @@ async function quizShowLeaderboard() {
 function renderLeaderboardHTML(data, highlightName) {
   if (!data) return `<div class="quiz-lb-loading">Cargando ranking...</div>`;
   if (!data.length) return `<div class="quiz-lb-loading">Aún no hay puntuaciones.</div>`;
+  // Un solo resultado por cuenta de Twitter (el mejor), top 5, y re-numeramos.
+  const best = new Map();
+  data.forEach(r => {
+    const key = (r.name || '').trim().toLowerCase();
+    const prev = best.get(key);
+    if (!prev || r.score > prev.score) best.set(key, r);
+  });
+  const top = [...best.values()]
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5)
+    .map((r, i) => ({ ...r, rank: i + 1 }));
   const medals = ['🥇','🥈','🥉'];
   return `<div class="quiz-lb-table">
-    ${data.map(r => {
+    ${top.map(r => {
       const isMine = highlightName && r.name.toLowerCase() === highlightName.toLowerCase();
       return `<div class="quiz-lb-row${isMine?' mine':''}">
         <span class="quiz-lb-rank">${medals[r.rank-1]||r.rank}</span>
