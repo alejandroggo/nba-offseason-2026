@@ -683,11 +683,12 @@
 
   .trade-body {
     display: flex;
+    flex-wrap: wrap;
     align-items: stretch;
   }
 
   .trade-side {
-    flex: 1 1 0;
+    flex: 1 1 200px;
     min-width: min-content;
     padding: 16px 20px;
     border-right: 1px solid var(--border);
