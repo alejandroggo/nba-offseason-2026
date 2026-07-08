@@ -2137,7 +2137,12 @@ function sharePlayer() {
 // ─────────────────────────────────────────────
 // URL ROUTING
 // ─────────────────────────────────────────────
-const BASE_PATH = '/nba-offseason-2026/';
+// En GitHub Pages el sitio vive bajo /nba-offseason-2026/; en Vercel (o local)
+// está en la raíz. Detectamos el host para que los enlaces (#trade, #jugador…)
+// funcionen al recargar/compartir en cualquiera de los dos.
+const BASE_PATH = (typeof location !== 'undefined' && location.hostname.endsWith('github.io'))
+  ? '/nba-offseason-2026/'
+  : '/';
 
 function slugify(str) {
   return (str || '').toLowerCase()

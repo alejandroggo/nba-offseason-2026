@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <script>
+/* Dominio oficial = Vercel. Redirigimos GitHub Pages a Vercel (antes de GA)
+   para no fragmentar las métricas. Solo actúa en github.io. */
+(function(){try{if(location.hostname==='alejandroggo.github.io'){var p=location.pathname.replace(/^\/nba-offseason-2026\/?/,'/');location.replace('https://nba-offseason-2026.vercel.app'+p+location.search+location.hash);}}catch(e){}})();
+</script>
+<script>
 (function(){try{var s=localStorage.getItem('ag-theme'),d=window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.setAttribute('data-theme',(s==='dark'||(s!=='light'&&d))?'dark':'light')}catch(e){document.documentElement.setAttribute('data-theme','dark')}})();
 </script>
 <!-- Google tag (gtag.js) -->
@@ -30,15 +35,15 @@
 <meta property="og:url" content="https://alejandroggo.github.io/nba-offseason-2026/">
 <link rel="canonical" href="https://alejandroggo.github.io/nba-offseason-2026/">
 <meta property="og:image" content="https://alejandroggo.github.io/nba-offseason-2026/img/1.png">
-<link rel="manifest" href="/nba-offseason-2026/manifest.json">
-<link rel="icon" type="image/svg+xml" href="/nba-offseason-2026/favicon.svg">
-<link rel="icon" type="image/x-icon" href="/nba-offseason-2026/favicon.ico">
-<link rel="apple-touch-icon" href="/nba-offseason-2026/apple-touch-icon.png?v=2">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2">
 <link rel="preconnect" href="https://script.google.com">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260706g">
+<link rel="stylesheet" href="/styles.css?v=20260706i">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -644,7 +649,7 @@
 </nav>
 
 
-<script defer src="app.js?v=20260706g"></script>
+<script defer src="/app.js?v=20260706i"></script>
 <!-- PLAYER DRAWER -->
 <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()" aria-hidden="true"></div>
 <div class="player-drawer" id="player-drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-player-name" aria-hidden="true">
