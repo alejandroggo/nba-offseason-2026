@@ -454,13 +454,15 @@ function processFA(rows) {
     notes:  cell(r,8),
     date:   cell(r,9),
   }));
-  setText('count-fa', DATA.fa.filter(d => d.dest).length);
+  setText('count-fa', DATA.fa.filter(d => d.dest && !isExtension(d.player)).length);
   populateSelect('fa-team25', [...new Set(DATA.fa.map(d=>d.team25).filter(Boolean))].sort());
   populateSelect('fa-dest',   [...new Set(DATA.fa.map(d=>d.dest).filter(Boolean))].sort());
   populateSelect('fa-pos',    [...new Set(DATA.fa.map(d=>d.pos).filter(Boolean))].sort());
 }
 
 function renderFA(data) {
+  // Las extensiones (tag (EXT)) no son agencia libre: fuera de la tabla.
+  data = data.filter(d => !isExtension(d.player));
   const signed  = SORT.fa.col === -1
     ? data.filter(d => d.dest).sort((a, b) => (parseFloat(b.aav) || 0) - (parseFloat(a.aav) || 0))
     : data.filter(d => d.dest);
@@ -545,7 +547,7 @@ function filterFAPending() {
     if (team && (d.team25||'').trim().toLowerCase() !== team.trim().toLowerCase()) return false;
     if (pos  && validPos(d.pos) !== pos) return false;
     if (_pendingTypeFilter) {
-      const m = (d.player || '').match(/\((RFA|RFAX|TO|TOE|TOX|PO|POE|POX|AS|AN)\)\s*$/i);
+      const m = (d.player || '').match(/\((RFA|RFAX|TO|TOE|TOX|PO|POE|POX|AS|AN|EXT)\)\s*$/i);
       if (!m || m[1].toUpperCase() !== _pendingTypeFilter) return false;
     }
     return true;
@@ -917,7 +919,7 @@ function processRosters(rows1, rows2) {
   DATA.rosters = [...parse(rows1), ...parse(rows2)].sort((a,b) => a.team.localeCompare(b.team));
 
   // Strip trailing (RFA)/(TO)/(PO) tags for dedup purposes.
-  const stripTag = n => (n || '').replace(/\s*\((?:RFA|RFAX|TO|TOE|TOX|PO|POE|POX|AS|AN)\)\s*$/i, '').trim().toLowerCase();
+  const stripTag = n => (n || '').replace(/\s*\((?:RFA|RFAX|TO|TOE|TOX|PO|POE|POX|AS|AN|EXT)\)\s*$/i, '').trim().toLowerCase();
 
   const pendingFromFA = [];
   const signedNames = new Set(DATA.fa.filter(d => d.dest).map(d => normPlayerKey(d.player)));
@@ -968,7 +970,7 @@ function parseTW(rawName, ...hints) {
     .replace(/\s*\(two[\s-]?way\)\s*/i, '')
     .replace(/\s*two[\s-]?way\s*/i, '')
     .replace(/\s*\(tw\)\s*/i, '')
-    .replace(/\s*\((?:AS|AN)\)\s*/ig, '')  // All-Star/All-NBA: solo para la pestaña de traspasos
+    .replace(/\s*\((?:AS|AN|EXT)\)\s*/ig, '')  // All-Star/All-NBA (trades) y extensiones
     .trim();
   return { name, tw };
 }
@@ -987,7 +989,13 @@ function allTier(item) {
   return m ? m[1].toUpperCase() : null;
 }
 function stripAllTier(item) {
-  return (item || '').replace(/\s*\((?:AS|AN)\)/ig, '').trim();
+  return (item || '').replace(/\s*\((?:AS|AN|EXT)\)/ig, '').trim();
+}
+
+// Extensión de contrato (no es agencia libre): se marca con (EXT) tras el
+// nombre en la hoja de FA para excluirlo de las tablas de agentes libres.
+function isExtension(name) {
+  return /\(ext\)/i.test(name || '');
 }
 
 // Parsea una razón de salida desde el sufijo entre paréntesis del nombre en
@@ -1021,7 +1029,7 @@ function parseSalidaReason(rawName) {
 // pasándolo a minúsculas, para usarlo como clave de índice/comparación.
 function normPlayerKey(name) {
   if (!name) return '';
-  return parseTW(name).name.replace(/\s*\((?:RFA|RFAX|TO|TOE|TOX|PO|POE|POX|AS|AN)\)\s*$/i, '').trim().toLowerCase();
+  return parseTW(name).name.replace(/\s*\((?:RFA|RFAX|TO|TOE|TOX|PO|POE|POX|AS|AN|EXT)\)\s*$/i, '').trim().toLowerCase();
 }
 
 // Índice global de posiciones por jugador, reconstruido cuando cambia DATA._stamp.
@@ -1087,7 +1095,7 @@ function buildPlantilla(team) {
   // Llegadas FA. Si una renovación ya está como SIGUEN del sheet, no duplicar.
   // Si la renovación NO está en SIGUEN, la añadimos como llegada con badge.
   const faIn = (DATA.fa||[])
-    .filter(d => norm(d.dest) === key)
+    .filter(d => norm(d.dest) === key && !isExtension(d.player))
     .filter(d => !stayingKeys.has(normPlayerKey(d.player)))
     .map(d => {
       const {name,tw} = parseTW(d.player, d.notes, d.aav, d.money);
@@ -1800,8 +1808,9 @@ function buildTransactions() {
   const DRAFT_R1_DATE = '2026-06-23'; // Martes — picks 1-30
   const DRAFT_R2_DATE = '2026-06-24'; // Miércoles — picks 31+
 
-  // FA firmados (se omiten los S&T: el trade entry ya los cubre)
-  (DATA.fa || []).filter(d => d.dest).forEach(d => {
+  // FA firmados (se omiten los S&T: el trade entry ya los cubre; y las
+  // extensiones (EXT), que no son movimientos de agencia libre)
+  (DATA.fa || []).filter(d => d.dest && !isExtension(d.player)).forEach(d => {
     const { name } = faStatus(d.player);
     const isResign = norm2(d.team25) === norm2(d.dest);
     const isST = !isResign && (DATA.trades || []).some(tr =>
@@ -2534,8 +2543,8 @@ function openTeamView(teamName, pushHistory = true) {
   const canonical = Object.keys(TEAM_LOGOS).find(n => norm2(n) === tKey);
   if (canonical) teamName = canonical;
   else if (!teamName) { showTab('home', pushHistory); return; }
-  const faIn          = DATA.fa.filter(d => norm2(d.dest) === tKey);
-  const faOut         = DATA.fa.filter(d => norm2(d.team25) === tKey && d.dest && norm2(d.dest) !== tKey);
+  const faIn          = DATA.fa.filter(d => norm2(d.dest) === tKey && !isExtension(d.player));
+  const faOut         = DATA.fa.filter(d => norm2(d.team25) === tKey && d.dest && norm2(d.dest) !== tKey && !isExtension(d.player));
   const declinedOpts  = (DATA.faPending || []).filter(d => {
     const { tag } = faStatus(d.player);
     return norm2(d.team25) === tKey && (tag === 'POX' || tag === 'TOX');
@@ -2585,7 +2594,7 @@ function openTeamView(teamName, pushHistory = true) {
 
   // Cortados: jugadores en col F,G (Salidas) que no firmaron en otro lado ni
   // fueron traspasados. Se muestran en la card "FA" sin destino.
-  const stripTag = n => (n || '').replace(/\s*\((?:RFA|RFAX|TO|TOE|TOX|PO|POE|POX|AS|AN)\)\s*$/i, '').trim().toLowerCase();
+  const stripTag = n => (n || '').replace(/\s*\((?:RFA|RFAX|TO|TOE|TOX|PO|POE|POX|AS|AN|EXT)\)\s*$/i, '').trim().toLowerCase();
   const seenOut = new Set([
     ...faOut.map(d => stripTag(d.player)),
     ...tradeOut.map(r => stripTag(r.item)),
@@ -2960,7 +2969,7 @@ document.addEventListener('keydown', function(e) {
 function buildQuizPool() {
   const easy = [], medium = [], hard = [];
   const seen = new Set();
-  const cleanName = n => { const { name } = parseTW((n||'').replace(/\s*\((?:RFA|RFAX|TO|TOE|TOX|PO|POE|POX|AS|AN)\)\s*/gi, '')); return name.trim(); };
+  const cleanName = n => { const { name } = parseTW((n||'').replace(/\s*\((?:RFA|RFAX|TO|TOE|TOX|PO|POE|POX|AS|AN|EXT)\)\s*/gi, '')); return name.trim(); };
 
   function add(player, team, level) {
     const key = player.toLowerCase().trim();
@@ -3502,7 +3511,7 @@ function imp_shuffle(arr) {
 
 function buildImpostorPool() {
   const questions = [];
-  const cleanName = n => { const { name } = parseTW((n||'').replace(/\s*\((?:RFA|RFAX|TO|TOE|TOX|PO|POE|POX|AS|AN)\)\s*/gi, '')); return name.trim(); };
+  const cleanName = n => { const { name } = parseTW((n||'').replace(/\s*\((?:RFA|RFAX|TO|TOE|TOX|PO|POE|POX|AS|AN|EXT)\)\s*/gi, '')); return name.trim(); };
   const uniq = arr => [...new Set(arr)];
   const norm = s => (s||'').trim().toLowerCase();
 
