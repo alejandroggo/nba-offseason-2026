@@ -852,7 +852,7 @@ function renderTrades(data) {
       </div>
       <div class="trade-body">
         ${trade.sides.map(side => `
-          <div class="trade-side">
+          <div class="trade-side" style="flex-grow:${Math.max(1, Math.min(4, (side.receives||[]).length))}">
             <div class="trade-team-label">
               ${teamLogo(side.team, 20)}<span class="clickable-team" tabindex="0" onclick="openTeamView('${esc(side.team)}')">${esc(side.team)}</span><span class="trade-receives-word">${t('trade_receives')}</span>
             </div>
@@ -2799,7 +2799,7 @@ function openTeamView(teamName, pushHistory = true) {
         </div>
         <div class="trade-body">
           ${tr.sides.map(side => `
-            <div class="trade-side">
+            <div class="trade-side" style="flex-grow:${Math.max(1, Math.min(4, (side.receives||[]).length))}">
               <div class="trade-team-label">
                 ${teamLogo(side.team, 20)}<span class="clickable-team" tabindex="0" onclick="openTeamView('${esc(side.team)}')">${esc(side.team)}</span><span class="trade-receives-word">${t('trade_receives')}</span>
               </div>
