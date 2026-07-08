@@ -97,7 +97,7 @@ const i18n = {
     badge_resign: 'RENUEVA',
     drawer_scouting: 'Scouting Report', drawer_scouting_link: 'Ver informe',
     drawer_share: 'Compartir jugador',
-    legend_color_new: 'Alta', legend_color_resign: 'Renovación', legend_color_tw: 'Two-way',
+    legend_color_new: 'Alta', legend_color_resign: 'Renovación', legend_color_tw: 'Two-way', legend_color_ext: 'Extensión',
   },
   en: {
     home_eyebrow: 'Off-Season',
@@ -175,7 +175,7 @@ const i18n = {
     badge_resign: 'RE-SIGNS',
     drawer_scouting: 'Scouting Report', drawer_scouting_link: 'View report',
     drawer_share: 'Share player',
-    legend_color_new: 'Signing', legend_color_resign: 'Re-sign', legend_color_tw: 'Two-way',
+    legend_color_new: 'Signing', legend_color_resign: 'Re-sign', legend_color_tw: 'Two-way', legend_color_ext: 'Extension',
   }
 };
 
@@ -454,15 +454,13 @@ function processFA(rows) {
     notes:  cell(r,8),
     date:   cell(r,9),
   }));
-  setText('count-fa', DATA.fa.filter(d => d.dest && !isExtension(d.player)).length);
+  setText('count-fa', DATA.fa.filter(d => d.dest).length);
   populateSelect('fa-team25', [...new Set(DATA.fa.map(d=>d.team25).filter(Boolean))].sort());
   populateSelect('fa-dest',   [...new Set(DATA.fa.map(d=>d.dest).filter(Boolean))].sort());
   populateSelect('fa-pos',    [...new Set(DATA.fa.map(d=>d.pos).filter(Boolean))].sort());
 }
 
 function renderFA(data) {
-  // Las extensiones (tag (EXT)) no son agencia libre: fuera de la tabla.
-  data = data.filter(d => !isExtension(d.player));
   const signed  = SORT.fa.col === -1
     ? data.filter(d => d.dest).sort((a, b) => (parseFloat(b.aav) || 0) - (parseFloat(a.aav) || 0))
     : data.filter(d => d.dest);
@@ -1070,6 +1068,13 @@ function buildPlantilla(team) {
       .map(d => normPlayerKey(d.player))
   );
 
+  // Extensiones (tag (EXT) en la hoja de FA): se pintan con color propio.
+  const extKeys = new Set(
+    (DATA.fa||[])
+      .filter(d => isExtension(d.player) && norm(d.dest) === key)
+      .map(d => normPlayerKey(d.player))
+  );
+
   // Picks de draft firmados (√): tienen prioridad sobre siguen, para que un
   // rookie listado por error en B,C aparezca solo una vez como ALTA.
   const draftedCheckKeys = new Set([
@@ -1087,7 +1092,7 @@ function buildPlantilla(team) {
       const { name, tw } = parseTW(p.name);
       const pos = (p.pos || posLookup(name)).toUpperCase();
       const k = normPlayerKey(p.name);
-      return { name, pos, type: 'staying', tw, resign: resignKeys.has(k) };
+      return { name, pos, type: 'staying', tw, resign: resignKeys.has(k), ext: extKeys.has(k) };
     });
 
   const stayingKeys = new Set(staying.map(p => normPlayerKey(p.name)));
@@ -1095,12 +1100,12 @@ function buildPlantilla(team) {
   // Llegadas FA. Si una renovación ya está como SIGUEN del sheet, no duplicar.
   // Si la renovación NO está en SIGUEN, la añadimos como llegada con badge.
   const faIn = (DATA.fa||[])
-    .filter(d => norm(d.dest) === key && !isExtension(d.player))
+    .filter(d => norm(d.dest) === key)
     .filter(d => !stayingKeys.has(normPlayerKey(d.player)))
     .map(d => {
       const {name,tw} = parseTW(d.player, d.notes, d.aav, d.money);
       const isResign = norm(d.team25) === key;
-      return { name, pos: (d.pos || posLookup(name)).toUpperCase(), type: 'new', tw, resign: isResign };
+      return { name, pos: (d.pos || posLookup(name)).toUpperCase(), type: 'new', tw, resign: isResign, ext: extKeys.has(normPlayerKey(d.player)) };
     });
 
   // Picks de draft: solo entran a Plantilla si están firmados (col G "√").
@@ -1140,7 +1145,8 @@ function plantillaBlock(players) {
   const posTag    = pos => POS_ORDER.includes(pos) ? `<span class="roster-pos-tag">${esc(pos)}</span>` : '';
   // Color por status (resign > new > default). TW siempre como badge naranja
   // al lado del nombre, sin sustituir el color de status.
-  const cls = p => p.resign ? 'roster-player roster-player-resign'
+  const cls = p => p.ext ? 'roster-player roster-player-ext'
+                  : p.resign ? 'roster-player roster-player-resign'
                   : p.type === 'new' ? 'roster-player roster-player-new'
                   : 'roster-player';
   const tw = p => p.tw ? ' <span class="badge-tw">TW</span>' : '';
@@ -1808,9 +1814,8 @@ function buildTransactions() {
   const DRAFT_R1_DATE = '2026-06-23'; // Martes — picks 1-30
   const DRAFT_R2_DATE = '2026-06-24'; // Miércoles — picks 31+
 
-  // FA firmados (se omiten los S&T: el trade entry ya los cubre; y las
-  // extensiones (EXT), que no son movimientos de agencia libre)
-  (DATA.fa || []).filter(d => d.dest && !isExtension(d.player)).forEach(d => {
+  // FA firmados (se omiten los S&T: el trade entry ya los cubre)
+  (DATA.fa || []).filter(d => d.dest).forEach(d => {
     const { name } = faStatus(d.player);
     const isResign = norm2(d.team25) === norm2(d.dest);
     const isST = !isResign && (DATA.trades || []).some(tr =>
@@ -2543,8 +2548,8 @@ function openTeamView(teamName, pushHistory = true) {
   const canonical = Object.keys(TEAM_LOGOS).find(n => norm2(n) === tKey);
   if (canonical) teamName = canonical;
   else if (!teamName) { showTab('home', pushHistory); return; }
-  const faIn          = DATA.fa.filter(d => norm2(d.dest) === tKey && !isExtension(d.player));
-  const faOut         = DATA.fa.filter(d => norm2(d.team25) === tKey && d.dest && norm2(d.dest) !== tKey && !isExtension(d.player));
+  const faIn          = DATA.fa.filter(d => norm2(d.dest) === tKey);
+  const faOut         = DATA.fa.filter(d => norm2(d.team25) === tKey && d.dest && norm2(d.dest) !== tKey);
   const declinedOpts  = (DATA.faPending || []).filter(d => {
     const { tag } = faStatus(d.player);
     return norm2(d.team25) === tKey && (tag === 'POX' || tag === 'TOX');
@@ -2730,7 +2735,8 @@ function openTeamView(teamName, pushHistory = true) {
           // muestra siempre como badge naranja al lado del nombre, sin
           // sustituir el color de status.
           const { name: cleanName, badge: optBadge } = faStatus(p.name);
-          const color = p.resign ? 'var(--resign)'
+          const color = p.ext ? 'var(--ext)'
+                       : p.resign ? 'var(--resign)'
                        : p.type === 'new' ? 'var(--signed)'
                        : '';
           const cls = color ? ` style="color:${color}"` : '';
@@ -2752,6 +2758,7 @@ function openTeamView(teamName, pushHistory = true) {
       <div class="tv-color-legend" style="margin-bottom:28px">
         <span><i style="background:var(--signed)"></i>${t('legend_color_new')}</span>
         <span><i style="background:var(--resign)"></i>${t('legend_color_resign')}</span>
+        <span><i style="background:var(--ext)"></i>${t('legend_color_ext')}</span>
         <span><span class="badge-tw">TW</span>${t('legend_color_tw')}</span>
       </div>`;
     }

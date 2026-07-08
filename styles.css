@@ -45,6 +45,7 @@
     --pending: #8a4e00;
     --gone:    #dc2626;
     --resign:  #1d4ed8;
+    --ext:     #9333ea;
 
     /* Espaciado */
     --space-1:   4px;
@@ -111,6 +112,7 @@
     --pending: #fbbf24;
     --gone:    #f87171;
     --resign:  #60a5fa;
+    --ext:     #c084fc;
 
     --shadow-sm: 0 1px 3px rgba(0,0,0,0.30);
     --shadow-md: 0 4px 12px rgba(0,0,0,0.40);
@@ -788,6 +790,7 @@
   .roster-player-new .roster-pos-tag { color: var(--text); }
 
   .roster-player-resign { color: var(--resign); }
+  .roster-player-ext { color: var(--ext); }
   .roster-player-resign .roster-pos-tag { color: var(--text); }
 
   .roster-player-tw { color: var(--accent2); }
