@@ -71,6 +71,7 @@ const i18n = {
     filter_search: 'Buscar', filter_type: 'Tipo', btn_reset: 'Limpiar',
     filter_from: 'Desde', filter_to: 'Hasta',
     trades_hide_picks: 'Ocultar solo picks',
+    trade_official: 'Oficial',
     fa_hide_tw: 'Ocultar contratos two-way',
     fa_only_move: 'Solo cambios de equipo',
     loading: 'Cargando datos…', no_data: 'Sin resultados',
@@ -149,6 +150,7 @@ const i18n = {
     filter_search: 'Search', filter_type: 'Type', btn_reset: 'Reset',
     filter_from: 'From', filter_to: 'To',
     trades_hide_picks: 'Hide picks-only trades',
+    trade_official: 'Official',
     fa_hide_tw: 'Hide two-way contracts',
     fa_only_move: 'Only team changes',
     loading: 'Loading data…', no_data: 'No results',
@@ -470,6 +472,7 @@ function renderFA(data) {
   tbody.innerHTML = signed.length
     ? signed.map(d => {
         const {name, badge} = faStatus(d.player);
+        const extBadge = isExtension(d.player) ? ' <span class="badge-ext">EXT</span>' : '';
         const isTW = TW_DETECT_RE.test(d.money || '');
         const moneyCols = isTW
           ? `<td colspan="3" class="td-money" style="text-align:center"><span class="badge-tw">TW</span> Two-Way</td>`
@@ -478,7 +481,7 @@ function renderFA(data) {
         <td class="td-money">${fmtAav(d.aav)}</td>`;
         return `
       <tr>
-        <td class="td-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(name)}${badge}</td>
+        <td class="td-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(name)}${badge}${extBadge}</td>
         <td style="text-align:center"><span class="pos-text">${esc(validPos(d.pos)) || '—'}</span></td>
         <td>${teamBadgeHTML(d.dest)}</td>
         <td>${teamBadgeHTML(d.team25)}</td>
@@ -514,9 +517,10 @@ function renderFAPending(data) {
   pendingTbody.innerHTML = data.length
     ? data.map(d => {
         const {name, badge} = faStatus(d.player);
+        const extBadge = isExtension(d.player) ? ' <span class="badge-ext">EXT</span>' : '';
         return `
       <tr>
-        <td class="td-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(name)}${badge}</td>
+        <td class="td-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(d.player)}')">${esc(name)}${badge}${extBadge}</td>
         <td style="text-align:center"><span class="pos-text">${esc(validPos(d.pos)) || '—'}</span></td>
         <td>${teamBadgeHTML(d.team25)}</td>
         <td class="td-notes">${esc(d.notes)}</td>
@@ -771,7 +775,11 @@ function processTrades(rows) {
     }
     const trade = tradeMap.get(tradeId);
     if (date) trade.date   = date;
-    if (src)  trade.source = src;
+    if (src) {
+      // Marcar (oficial)/(official)/✓ en la Fuente = traspaso anunciado oficial.
+      if (/\((?:oficial|official)\)|✓/i.test(src)) trade.official = true;
+      trade.source = src.replace(/\s*\((?:oficial|official)\)\s*/i, ' ').replace(/✓/g, '').replace(/\s+/g, ' ').trim();
+    }
 
     if (asset && to) {
       let side = trade.sides.find(s => s.team === to);
@@ -840,6 +848,7 @@ function renderTrades(data) {
         <span class="trade-header-meta">
           ${trade.date ? fmtDate(trade.date) : ''}${trade.date && trade.source ? ' · ' : ''}${trade.source ? esc(trade.source) : ''}
         </span>
+        ${trade.official ? `<span class="trade-verified" title="${t('trade_official')}">✓ ${t('trade_official')}</span>` : ''}
       </div>
       <div class="trade-body">
         ${trade.sides.map(side => `
@@ -1069,9 +1078,11 @@ function buildPlantilla(team) {
   );
 
   // Extensiones (tag (EXT) en la hoja de FA): se pintan con color propio.
+  // Aceptamos que coincida por destino o por equipo 2025 (una extensión suele
+  // ser con el mismo equipo, y a veces no lleva "dest" en la hoja).
   const extKeys = new Set(
     (DATA.fa||[])
-      .filter(d => isExtension(d.player) && norm(d.dest) === key)
+      .filter(d => isExtension(d.player) && (norm(d.dest) === key || norm(d.team25) === key))
       .map(d => normPlayerKey(d.player))
   );
 
@@ -2657,8 +2668,11 @@ function openTeamView(teamName, pushHistory = true) {
     ${tvCard(t('roster_fa'), faIn.length,
         faIn.length ? faIn.map(d => {
           const { name, tw } = parseTW(d.player, d.notes, d.aav);
+          const isExt = isExtension(d.player);
           const isResign = norm2(d.team25) === tKey;
-          const baseHTML = isResign
+          const baseHTML = isExt
+            ? `<span style="color:var(--ext)">${esc(name)}</span><span class="badge-ext">EXT</span>`
+            : isResign
             ? `<span style="color:var(--resign)">${esc(name)}</span><span class="badge-resign">${t('badge_resign')}</span>`
             : esc(name);
           const isTW = tw || TW_DETECT_RE.test(d.money || '');
@@ -2781,6 +2795,7 @@ function openTeamView(teamName, pushHistory = true) {
           <span class="trade-header-meta">
             ${tr.date ? fmtDate(tr.date) : ''}${tr.date && tr.source ? ' · ' : ''}${tr.source ? esc(tr.source) : ''}
           </span>
+          ${tr.official ? `<span class="trade-verified" title="${t('trade_official')}">✓ ${t('trade_official')}</span>` : ''}
         </div>
         <div class="trade-body">
           ${tr.sides.map(side => `
