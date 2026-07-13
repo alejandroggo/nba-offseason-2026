@@ -61,7 +61,7 @@ const i18n = {
     roster_stays: 'Plantilla', roster_arrivals: 'Llegadas', roster_departures: 'Salidas',
     tv_sum_in: 'altas', tv_sum_resign: 'renovaciones', tv_sum_out: 'bajas', tv_sum_draft: 'picks del draft', tv_sum_pending: 'agentes libres pendientes',
     roster_fa: 'FA', roster_draft: 'Draft', roster_trade: 'Vía Trade',
-    roster_salidas_fa: 'FA', roster_salidas_trade: 'Vía Trade', roster_fa_pending: 'FA Pendientes', roster_waived: 'Cortado', roster_deceased: 'Fallecido', roster_retired: 'Retirado', roster_overseas: 'Otras ligas', roster_opt_declined: 'Declinó opción',
+    roster_salidas_fa: 'FA', roster_salidas_trade: 'Vía Trade', roster_fa_pending: 'FA Pendientes', roster_waived: 'Cortado', roster_deceased: 'Fallecido', roster_retired: 'Retirado', roster_overseas: 'Otras ligas', roster_renounced: 'Renuncia a derechos', roster_opt_declined: 'Declinó opción',
     roster_section_trades: 'Traspasos', roster_section_coaches: 'Cuerpo técnico y gerencia',
     coaches_title: 'Entrenadores y General Managers', coaches_subtitle: 'Cambios en banquillos y gerencias',
     coaches_search_ph: 'Equipo, nombre…',
@@ -140,7 +140,7 @@ const i18n = {
     roster_stays: 'Roster', roster_arrivals: 'Arrivals', roster_departures: 'Departures',
     tv_sum_in: 'arrivals', tv_sum_resign: 'extensions', tv_sum_out: 'departures', tv_sum_draft: 'draft picks', tv_sum_pending: 'pending free agents',
     roster_fa: 'FA', roster_draft: 'Draft', roster_trade: 'Via Trade',
-    roster_salidas_fa: 'FA', roster_salidas_trade: 'Via Trade', roster_fa_pending: 'Pending FA', roster_waived: 'Waived', roster_deceased: 'Deceased', roster_retired: 'Retired', roster_overseas: 'Overseas', roster_opt_declined: 'Declined option',
+    roster_salidas_fa: 'FA', roster_salidas_trade: 'Via Trade', roster_fa_pending: 'Pending FA', roster_waived: 'Waived', roster_deceased: 'Deceased', roster_retired: 'Retired', roster_overseas: 'Overseas', roster_renounced: 'Renounced rights', roster_opt_declined: 'Declined option',
     roster_section_trades: 'Trades', roster_section_coaches: 'Coaching staff & front office',
     coaches_title: 'Head Coaches & General Managers', coaches_subtitle: 'Coaching and front office changes',
     coaches_search_ph: 'Team, name…',
@@ -933,8 +933,8 @@ function processRosters(rows1, rows2) {
   DATA.rosters.forEach(team => {
     const key = team.team.trim().toLowerCase();
     const salidaNorm = p => normPlayerKey(parseSalidaReason(p.name).name);
-    // Salidas definitivas: retirado, fallecido, overseas. Los cortados (waived)
-    // siguen siendo agentes libres y deben mantenerse en FA Pendientes.
+    // Salidas definitivas: retirado, fallecido, overseas, renuncia a derechos.
+    // Los cortados (waived) siguen siendo agentes libres → FA Pendientes.
     const definitiveOut = new Set(
       (team.salidas || [])
         .filter(p => parseSalidaReason(p.name).reasonKey !== 'waived')
@@ -1013,6 +1013,7 @@ const SALIDA_REASON_MAP = {
   deceased: 'deceased', fallecido: 'deceased',
   retired:  'retired',  retirado:  'retired',
   fiba:     'overseas', overseas:  'overseas',
+  renuncia: 'renounced', renounced: 'renounced', rights: 'renounced', derechos: 'renounced',
 };
 function parseSalidaReason(rawName) {
   const m = (rawName || '').match(/\(([^)]+)\)\s*$/);
