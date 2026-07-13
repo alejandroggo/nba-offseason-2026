@@ -1831,6 +1831,17 @@ const _RENOUNCE_DATES = {
   'drew timme':           '2026-07-07',
 };
 
+// Fechas de cortes (waived). Mapa dedicado para no colisionar con otros
+// eventos del mismo jugador (p. ej. Micah Potter: cortado 8-jul y fichado
+// por Portland 9-jul). Si un jugador no está aquí, se usa _TX_DATE_OVERRIDES.
+const _WAIVED_DATES = {
+  'micah potter':         '2026-07-08',
+  'dalano banton':        '2026-07-08',
+  'demar derozan':        '2026-07-07',
+  'jonas valanciunas':    '2026-07-08',
+  'valanciunas':          '2026-07-08',
+};
+
 // Aplica el override de fecha a una entrada. Devuelve { date, announced? }.
 // date = fecha autoritativa (override si existe, si no la del Sheet).
 // announced = fecha previa del Sheet, sólo cuando difiere del override.
@@ -1915,7 +1926,8 @@ function buildTransactions() {
     (r.salidas || []).forEach(p => {
       const { name, reasonKey } = parseSalidaReason(p.name);
       if (reasonKey !== 'waived') return;
-      entries.push({ ..._applyTxDate(name, null), type: 'waived', player: name, team: r.team });
+      const wd = _WAIVED_DATES[name.trim().toLowerCase()];
+      entries.push({ ...(wd ? { date: wd } : _applyTxDate(name, null)), type: 'waived', player: name, team: r.team });
     });
   });
 
