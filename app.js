@@ -83,7 +83,7 @@ const i18n = {
     tab_transactions: 'Transacciones',
     transactions_title: 'Transacciones', transactions_subtitle: 'Log cronológico de movimientos',
     tx_type_signing: 'FIRMA', tx_type_resign: 'RENOVACIÓN', tx_type_trade: 'TRADE',
-    tx_type_draft: 'DRAFT', tx_type_option: 'OPCIÓN', tx_type_waived: 'CORTADO', tx_type_st: 'S&T',
+    tx_type_draft: 'DRAFT', tx_type_option: 'OPCIÓN', tx_type_waived: 'CORTADO', tx_type_renounced: 'RENUNCIA', tx_type_st: 'S&T',
     tx_no_date: 'Sin fecha confirmada',
     drawer_view_team: 'Ver nuevo equipo', drawer_view_old_team: 'Ver equipo anterior',
     drawer_trade_alongside: 'Junto con', drawer_trade_inexchange: 'A cambio de',
@@ -162,7 +162,7 @@ const i18n = {
     tab_transactions: 'Transactions',
     transactions_title: 'Transactions', transactions_subtitle: 'Chronological log of moves',
     tx_type_signing: 'SIGNING', tx_type_resign: 'EXTENSION', tx_type_trade: 'TRADE',
-    tx_type_draft: 'DRAFT', tx_type_option: 'OPTION', tx_type_waived: 'WAIVED', tx_type_st: 'S&T',
+    tx_type_draft: 'DRAFT', tx_type_option: 'OPTION', tx_type_waived: 'WAIVED', tx_type_renounced: 'RENOUNCED', tx_type_st: 'S&T',
     tx_no_date: 'Date unconfirmed',
     drawer_view_team: 'View new team', drawer_view_old_team: 'View previous team',
     drawer_trade_alongside: 'Alongside', drawer_trade_inexchange: 'In exchange for',
@@ -1799,6 +1799,36 @@ const _TX_DATE_OVERRIDES = {
   'payton sandfort':          '2026-07-02',
   'pete nance':               '2026-07-03',
   'tosan evbuomwan':          '2026-07-06',
+  'malachi smith':            '2026-07-10',
+};
+
+// Fechas de "renuncia a derechos" (renounced). Mapa aparte para no colisionar
+// con _TX_DATE_OVERRIDES: un jugador puede tener otro evento con otra fecha
+// (p. ej. Ziaire Williams: opción declinada 28-jun y renuncia 10-jul).
+const _RENOUNCE_DATES = {
+  // Chicago (10-jul)
+  'nick richards':        '2026-07-10',
+  'matt thomas':          '2026-07-10',
+  'guerschon yabusele':   '2026-07-10',
+  'mac mcclung':          '2026-07-10',
+  'yuki kawamura':        '2026-07-10',
+  'talen horton-tucker':  '2026-07-10',
+  'lachlan olbrich':      '2026-07-10',
+  // Brooklyn (10-jul)
+  'ziaire williams':      '2026-07-10',
+  // Los Angeles Lakers (07-jul)
+  'lebron james':         '2026-07-07',
+  'maxi kleber':          '2026-07-07',
+  'luke kennard':         '2026-07-07',
+  'marcus smart':         '2026-07-07',
+  'jaxson hayes':         '2026-07-07',
+  'avery bradley':        '2026-07-07',
+  'jared dudley':         '2026-07-07',
+  'wayne ellington':      '2026-07-07',
+  'dwight howard':        '2026-07-07',
+  'markieff morris':      '2026-07-07',
+  'nick smith jr.':       '2026-07-07',
+  'drew timme':           '2026-07-07',
 };
 
 // Aplica el override de fecha a una entrada. Devuelve { date, announced? }.
@@ -1889,6 +1919,15 @@ function buildTransactions() {
     });
   });
 
+  // Renuncias a derechos (renounced). Fecha desde el mapa dedicado.
+  (DATA.rosters || []).forEach(r => {
+    (r.salidas || []).forEach(p => {
+      const { name, reasonKey } = parseSalidaReason(p.name);
+      if (reasonKey !== 'renounced') return;
+      entries.push({ date: _RENOUNCE_DATES[name.trim().toLowerCase()] || null, type: 'renounced', player: name, team: r.team });
+    });
+  });
+
   return entries;
 }
 
@@ -1897,8 +1936,9 @@ let _txEntries = [];
 const TX_TYPE_KEYS = {
   trade: 'tx_type_trade', signing: 'tx_type_signing', resign: 'tx_type_resign',
   draft: 'tx_type_draft', option: 'tx_type_option', waived: 'tx_type_waived',
+  renounced: 'tx_type_renounced',
 };
-const TX_TYPE_ORDER = ['trade','signing','resign','draft','option','waived'];
+const TX_TYPE_ORDER = ['trade','signing','resign','draft','option','waived','renounced'];
 
 function renderTransactions() {
   _txEntries = buildTransactions();
@@ -1966,6 +2006,7 @@ function filterTransactions() {
     draft:   { cls: 'badge-neutral',    label: () => t('tx_type_draft') },
     option:  { cls: e => (e.tag==='POE'||e.tag==='TOE') ? 'badge-tx-option' : 'badge-tx-option-x', label: () => t('tx_type_option') },
     waived:  { cls: 'badge-danger',     label: () => t('tx_type_waived') },
+    renounced: { cls: 'badge-neutral', label: () => t('tx_type_renounced') },
   };
 
   const renderEntry = e => {
@@ -2001,6 +2042,8 @@ function filterTransactions() {
       desc = `<span class="tx-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(e.rawPlayer || e.player)}')">${esc(e.player)}</span> · <span class="tx-muted">${esc(e.label)}</span> ${teamBadgeHTML(e.team, false)}`;
     } else if (e.type === 'waived') {
       desc = `${teamBadgeHTML(e.team, false)} cortó a <span class="tx-player">${esc(e.player)}</span>`;
+    } else if (e.type === 'renounced') {
+      desc = `${teamBadgeHTML(e.team, false)} ${lang === 'en' ? 'renounced' : 'renunció a los derechos de'} <span class="tx-player clickable-player" tabindex="0" onclick="openPlayerDrawer('${esc(e.player)}')">${esc(e.player)}</span>`;
     }
     const announced = e.announced
       ? ` <span class="tx-announced">(${lang === 'en' ? 'reported' : 'anunciado'} ${fmtDateShort(e.announced)})</span>`
