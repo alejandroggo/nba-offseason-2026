@@ -1339,7 +1339,7 @@ function sortSection(section, col) {
 // ─────────────────────────────────────────────
 // TABS
 // ─────────────────────────────────────────────
-const OG_BASE = 'https://alejandroggo.github.io/nba-offseason-2026/';
+const OG_BASE = 'https://offseason.alejandroggo.com/';
 const OG_IMAGES  = { fa: 'img/2.png', draft: 'img/3.png', trades: 'img/4.png', teams: 'img/5.png' };
 const OG_TITLES  = {
   fa:     'NBA Off-Season 2026: Agencia Libre',
